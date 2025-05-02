@@ -3,24 +3,18 @@ services:
   - type: web
     name: rydo-web-app
     env: node
+    plan: free
     buildCommand: npm install
-    startCommand: node backend/server.js
+    startCommand: node server.js
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 3002
-      - key: MONGODB_URI
-        value: mongodb+srv://rydoapp:RydoApp2025!@rydo-cluster.mongodb.net/rydo_db?retryWrites=true&w=majority
+        value: 3000
       - key: SESSION_SECRET
         generateValue: true
       - key: GOOGLE_MAPS_API_KEY
-        sync: false
-      - key: EMAIL_SERVICE
-        value: gmail
-      - key: EMAIL_USER
-        sync: false
-      - key: EMAIL_PASSWORD
         sync: false
       - key: RAZORPAY_KEY_ID
         sync: false
@@ -28,3 +22,21 @@ services:
         sync: false
       - key: RAZORPAY_COMMISSION_PERCENTAGE
         value: 7.5
+      - key: OTP_API_KEY
+        sync: false
+      - key: OTP_AUTH_TOKEN
+        sync: false
+      - key: SOCKET_RECONNECTION_ATTEMPTS
+        value: 5
+      - key: SOCKET_RECONNECTION_DELAY
+        value: 1000
+      - key: DRIVER_DISCOVERY_RADIUS_KM
+        value: 3
+      - key: CARETAKER_DISCOVERY_RADIUS_KM
+        value: 3
+      - key: SHUTTLE_SERVICE_RADIUS_KM
+        value: 10
+      - key: PAYMENT_GATEWAY
+        value: razorpay
+      - key: PAYMENT_CURRENCY
+        value: INR

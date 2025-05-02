@@ -5,6 +5,10 @@
 
 RYDO is a comprehensive ride and care service platform that connects customers with drivers, caretakers, and shuttle services. This web application provides a seamless experience for users to book services, manage their profiles, track their bookings, and make payments.
 
+## Live Demo
+
+The application is deployed and available at: [https://rydo-web-app.onrender.com](https://rydo-web-app.onrender.com)
+
 ## Features
 
 ### For Customers
@@ -29,6 +33,95 @@ RYDO is a comprehensive ride and care service platform that connects customers w
 - Handle disputes and customer support
 - View analytics and generate reports
 - Configure system settings and pricing
+
+## Deployment
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- Git
+
+### Local Development
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/SAI-RANDIVE/rydo-web-app.git
+   cd rydo-web-app
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the root directory with the following variables:
+   ```
+   PORT=3001
+   NODE_ENV=development
+   SESSION_SECRET=your_session_secret
+   RAZORPAY_KEY_ID=your_razorpay_key_id
+   RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+   RAZORPAY_COMMISSION_PERCENTAGE=7.5
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open your browser and navigate to `http://localhost:3001`
+
+### Deployment to Render.com
+
+1. Fork this repository to your GitHub account
+
+2. Create a new Web Service on Render.com
+
+3. Connect your GitHub repository
+
+4. Use the following settings:
+   - Environment: Node
+   - Build Command: `npm install`
+   - Start Command: `node server.js`
+   - Auto Deploy: Enabled
+
+5. Add the required environment variables in the Render dashboard
+
+6. Click 'Create Web Service'
+
+## API Documentation
+
+The application provides RESTful APIs for various functionalities:
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/signup` - User registration
+- `POST /api/auth/logout` - User logout
+
+### Customer APIs
+- `GET /api/customer/recent-activity` - Get recent activities
+- `GET /api/customer/booking-history` - Get booking history
+- `POST /api/customer/create-booking` - Create a new booking
+- `POST /api/customer/cancel-booking/:bookingId` - Cancel a booking
+- `POST /api/customer/rate-booking/:bookingId` - Rate a completed booking
+
+### Driver APIs
+- `GET /api/driver/ride-history` - Get ride history
+- `POST /api/driver/ride-requests` - Get ride requests
+- `POST /api/driver/update-status` - Update driver status
+- `POST /api/driver/rides/:rideId/:action` - Perform actions on rides
+
+### Nearby Services
+- `POST /api/drivers/nearby` - Find nearby drivers
+
+## Technologies Used
+
+- **Frontend**: HTML, CSS, JavaScript, Bootstrap
+- **Backend**: Node.js, Express.js
+- **Payment Gateway**: Razorpay
+- **Deployment**: Render.com
+- **Version Control**: Git, GitHub
 
 ## Technology Stack
 

@@ -1,31 +1,70 @@
+/**
+ * Customer Dashboard JavaScript
+ * Handles all customer dashboard functionality including bookings, profile management, and ride history
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Customer dashboard initializing...');
     // Check if user is logged in
     if (checkUserSession()) {
-        // Initialize dashboard
-        initDashboard();
+        console.log('User session valid, initializing dashboard...');
+        // Initialize user data
+        initUserData();
         
-        // Initialize tabs if they exist
-        if (typeof initTabs === 'function') {
-            initTabs();
-        }
+        // Initialize navigation
+        initNavigation();
         
-        // Initialize location if function exists
-        if (typeof initUserLocation === 'function') {
-            initUserLocation();
-        }
+        // Initialize notification panel
+        initNotifications();
         
-        // Initialize Google Maps if function exists
+        // Initialize booking form
+        initBookingForm();
+        
+        // Initialize map if available
         if (typeof initMap === 'function') {
             initMap();
         }
         
-        // Navigation functionality
-        initNavigation();
+        // Initialize recent activity
+        loadRecentActivity();
+        
+        // Initialize booking history
+        loadBookingHistory();
         
         // Initialize logout functionality
         initLogout();
+        
+        // Check if there's a hash in the URL and navigate to that section
+        handleHashNavigation();
     }
 });
+
+// Global variables
+let userData = {};
+let currentBooking = null;
+
+/**
+ * Handle hash-based navigation
+ */
+function handleHashNavigation() {
+    const hash = window.location.hash;
+    if (hash) {
+        // Remove the # symbol
+        const targetSection = hash.substring(1);
+        console.log('Navigating to section:', targetSection);
+        
+        // Find the corresponding nav link and click it
+        const navLink = document.querySelector(`.sidebar-nav a[href="#${targetSection}"]`);
+        if (navLink) {
+            navLink.click();
+        } else {
+            console.log('Nav link not found for:', targetSection);
+        }
+    }
+}
+
+// Listen for hash changes
+window.addEventListener('hashchange', handleHashNavigation);
 
 // Check if user is logged in
 function checkUserSession() {

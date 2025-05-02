@@ -120,6 +120,40 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'dashboard.html'));
 });
 
+// Dynamic API endpoints
+
+// Dashboard stats endpoint - dynamically calculates stats based on user data
+app.get('/api/dashboard/stats', (req, res) => {
+    // In a real app, this would fetch data from a database based on the user's ID
+    // For now, we'll generate random data that changes each time
+    
+    // Extract user ID from token
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    
+    // Generate dynamic stats
+    const totalRides = Math.floor(Math.random() * 50) + 10;
+    const avgFare = Math.floor(Math.random() * 200) + 100;
+    const totalEarnings = totalRides * avgFare;
+    const rating = (4 + Math.random()).toFixed(1);
+    const hoursOnline = Math.floor(Math.random() * 200) + 50;
+    
+    res.json({
+        success: true,
+        stats: {
+            totalRides,
+            totalEarnings,
+            rating: parseFloat(rating),
+            hoursOnline,
+            avgFare,
+            completionRate: Math.floor(Math.random() * 20) + 80 + '%', // 80-100%
+            acceptanceRate: Math.floor(Math.random() * 15) + 85 + '%' // 85-100%
+        }
+    });
+});
+
 // Mock API endpoints for dashboard data
 app.get('/dashboard/stats', (req, res) => {
   res.json({
@@ -131,9 +165,650 @@ app.get('/dashboard/stats', (req, res) => {
   });
 });
 
-// Mock API endpoint for nearby drivers (similar to Uber)
+// Dynamic API endpoint for nearby drivers with Haversine formula for accurate distance calculation
 app.post('/api/drivers/nearby', (req, res) => {
   const { latitude, longitude, radius = 3, service_type = 'driver' } = req.body;
+  
+  // Generate dynamic nearby drivers based on user location
+  const drivers = generateNearbyDrivers(parseFloat(latitude), parseFloat(longitude), radius, service_type);
+  
+  res.json({
+    success: true,
+    drivers: drivers
+  });
+});
+
+// Driver ride requests endpoint - provides real-time ride requests to drivers
+app.post('/api/driver/ride-requests', (req, res) => {
+  const { location, radius, status } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token || status !== 'online') {
+    return res.json({ success: true, requests: [] });
+  }
+  
+  // Generate 0-2 random ride requests
+  const requestCount = Math.floor(Math.random() * 3);
+  const requests = [];
+  
+  for (let i = 0; i < requestCount; i++) {
+    // Generate random pickup location near driver
+    const pickupLocation = generateRandomLocation(location.latitude, location.longitude, 2);
+    // Generate random dropoff location further away
+    const dropoffLocation = generateRandomLocation(location.latitude, location.longitude, 10);
+    
+    // Calculate distance and duration
+    const distance = calculateDistance(
+      pickupLocation.latitude, 
+      pickupLocation.longitude, 
+      dropoffLocation.latitude, 
+      dropoffLocation.longitude
+    );
+    
+    // Estimate duration (roughly 2 mins per km)
+    const duration = Math.round(distance * 120); // seconds
+    
+    // Random service type
+    const serviceTypes = ['standard', 'premium', 'shuttle'];
+    const serviceType = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
+    
+    // Generate a request
+    requests.push({
+      id: `request-${Date.now()}-${i}`,
+      customer_name: generateRandomName(),
+      customer_rating: (4 + Math.random()).toFixed(1),
+      pickup_location: `${pickupLocation.address}`,
+      dropoff_location: `${dropoffLocation.address}`,
+      pickup_latitude: pickupLocation.latitude,
+      pickup_longitude: pickupLocation.longitude,
+      dropoff_latitude: dropoffLocation.latitude,
+      dropoff_longitude: dropoffLocation.longitude,
+      distance: distance,
+      duration: duration,
+      service_type: serviceType,
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 30000).toISOString() // Expires in 30 seconds
+    });
+  }
+  
+  res.json({
+    success: true,
+    requests: requests
+  });
+});
+
+// Driver ride action endpoints
+app.post('/api/driver/rides/:rideId/:action', (req, res) => {
+  const { rideId, action } = req.params;
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  // Process different ride actions
+  switch (action) {
+    case 'accept':
+      res.json({
+        success: true,
+        message: 'Ride accepted successfully',
+        customer: generateRandomName(),
+        pickup_location: generateRandomAddress(),
+        dropoff_location: generateRandomAddress(),
+        fare_amount: Math.floor(Math.random() * 300) + 100
+      });
+      break;
+    
+    case 'reject':
+      res.json({
+        success: true,
+        message: 'Ride rejected successfully'
+      });
+      break;
+    
+    case 'arrived':
+      res.json({
+        success: true,
+        message: 'Arrival confirmed successfully'
+      });
+      break;
+    
+    case 'start':
+      res.json({
+        success: true,
+        message: 'Ride started successfully'
+      });
+      break;
+    
+    case 'complete':
+      res.json({
+        success: true,
+        message: 'Ride completed successfully',
+        fare_amount: Math.floor(Math.random() * 300) + 100
+      });
+      break;
+    
+    default:
+      res.status(400).json({
+        success: false,
+        message: 'Invalid action'
+      });
+  }
+});
+
+// Driver ride history endpoint
+app.get('/api/driver/ride-history', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  // Generate 5-15 random past rides
+  const rideCount = Math.floor(Math.random() * 11) + 5;
+  const rides = [];
+  
+  // Status options for completed rides
+  const statuses = ['completed', 'cancelled', 'completed', 'completed', 'completed'];
+  
+  // Service types
+  const serviceTypes = ['standard', 'premium', 'shuttle', 'standard', 'standard'];
+  
+  for (let i = 0; i < rideCount; i++) {
+    // Random date within the last 30 days
+    const date = new Date();
+    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+    
+    // Random pickup and dropoff locations
+    const pickup = generateRandomAddress();
+    const dropoff = generateRandomAddress();
+    
+    // Random distance and duration
+    const distance = Math.floor(Math.random() * 15) + 2;
+    const duration = distance * 120; // seconds (2 mins per km)
+    
+    // Random status
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    
+    // Random service type
+    const serviceType = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
+    
+    // Generate a ride
+    rides.push({
+      id: `ride-${date.getTime()}-${i}`,
+      customer_name: generateRandomName(),
+      customer_rating: (4 + Math.random()).toFixed(1),
+      pickup_location: pickup,
+      dropoff_location: dropoff,
+      distance: distance,
+      duration: duration,
+      fare_amount: Math.floor(distance * (serviceType === 'premium' ? 18 : serviceType === 'shuttle' ? 8 : 12)) + (serviceType === 'premium' ? 80 : serviceType === 'shuttle' ? 30 : 50),
+      service_type: serviceType,
+      status: status,
+      created_at: date.toISOString()
+    });
+  }
+  
+  // Sort by date (newest first)
+  rides.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  
+  res.json({
+    success: true,
+    rides: rides
+  });
+});
+
+// Driver status update endpoint
+app.post('/api/driver/update-status', (req, res) => {
+  const { status } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  res.json({
+    success: true,
+    message: `Status updated to ${status}`,
+    status: status
+  });
+});
+
+// Customer dashboard endpoints
+
+// Recent activity endpoint
+app.get('/api/customer/recent-activity', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  // Generate 3-7 random activities
+  const activityCount = Math.floor(Math.random() * 5) + 3;
+  const activities = [];
+  
+  // Activity types and their icons
+  const activityTypes = [
+    { type: 'booking', title: 'Ride Booked', icon: 'fa-car', status: 'info' },
+    { type: 'booking', title: 'Ride Completed', icon: 'fa-check-circle', status: 'completed' },
+    { type: 'booking', title: 'Ride Cancelled', icon: 'fa-times-circle', status: 'cancelled' },
+    { type: 'payment', title: 'Payment Successful', icon: 'fa-credit-card', status: 'success' },
+    { type: 'payment', title: 'Money Added to Wallet', icon: 'fa-wallet', status: 'success' },
+    { type: 'system', title: 'Profile Updated', icon: 'fa-user-edit', status: 'info' },
+    { type: 'system', title: 'Password Changed', icon: 'fa-key', status: 'info' }
+  ];
+  
+  for (let i = 0; i < activityCount; i++) {
+    // Random date within the last 7 days
+    const date = new Date();
+    date.setDate(date.getDate() - Math.floor(Math.random() * 7));
+    
+    // Random activity type
+    const activityType = activityTypes[Math.floor(Math.random() * activityTypes.length)];
+    
+    // Generate description based on activity type
+    let description = '';
+    
+    switch (activityType.type) {
+      case 'booking':
+        if (activityType.title === 'Ride Booked') {
+          description = `You booked a ${['standard', 'premium', 'shuttle'][Math.floor(Math.random() * 3)]} ride from ${generateRandomAddress()} to ${generateRandomAddress()}`;
+        } else if (activityType.title === 'Ride Completed') {
+          description = `Your ride with ${generateRandomName()} has been completed`;
+        } else {
+          description = 'Your scheduled ride has been cancelled';
+        }
+        break;
+      
+      case 'payment':
+        if (activityType.title === 'Payment Successful') {
+          const amount = Math.floor(Math.random() * 500) + 100;
+          description = `Payment of ₹${amount} has been processed`;
+        } else {
+          const amount = Math.floor(Math.random() * 1000) + 500;
+          description = `₹${amount} has been added to your wallet`;
+        }
+        break;
+      
+      case 'system':
+        if (activityType.title === 'Profile Updated') {
+          description = 'Your profile information has been updated';
+        } else {
+          description = 'Your account password has been changed';
+        }
+        break;
+    }
+    
+    // Add activity
+    activities.push({
+      id: `activity-${date.getTime()}-${i}`,
+      type: activityType.type,
+      title: activityType.title,
+      description: description,
+      icon: activityType.icon,
+      status: activityType.status,
+      timestamp: date.toISOString()
+    });
+  }
+  
+  // Sort by date (newest first)
+  activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  
+  res.json({
+    success: true,
+    activities: activities
+  });
+});
+
+// Booking history endpoint
+app.get('/api/customer/booking-history', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  // Generate 5-10 random bookings
+  const bookingCount = Math.floor(Math.random() * 6) + 5;
+  const bookings = [];
+  
+  // Status options
+  const statuses = ['completed', 'cancelled', 'pending', 'in_progress', 'completed', 'completed'];
+  
+  // Service types
+  const serviceTypes = ['standard', 'premium', 'shuttle', 'standard', 'standard'];
+  
+  for (let i = 0; i < bookingCount; i++) {
+    // Random date within the last 30 days
+    const date = new Date();
+    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+    
+    // Random pickup and dropoff locations
+    const pickup = generateRandomAddress();
+    const dropoff = generateRandomAddress();
+    
+    // Random distance and duration
+    const distance = Math.floor(Math.random() * 15) + 2;
+    const duration = distance * 120; // seconds (2 mins per km)
+    
+    // Random status
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    
+    // Random service type
+    const serviceType = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
+    
+    // Generate a booking
+    const booking = {
+      id: `booking-${date.getTime()}-${i}`,
+      service_type: serviceType,
+      pickup_location: pickup,
+      dropoff_location: dropoff,
+      distance: distance,
+      duration: duration,
+      fare_amount: Math.floor(distance * (serviceType === 'premium' ? 18 : serviceType === 'shuttle' ? 8 : 12)) + (serviceType === 'premium' ? 80 : serviceType === 'shuttle' ? 30 : 50),
+      status: status,
+      created_at: date.toISOString()
+    };
+    
+    // Add driver details for completed or in_progress rides
+    if (status === 'completed' || status === 'in_progress') {
+      booking.driver_name = generateRandomName();
+      booking.driver_rating = (4 + Math.random()).toFixed(1);
+      booking.vehicle_type = serviceType === 'premium' ? 'Sedan' : serviceType === 'shuttle' ? 'Van' : 'Hatchback';
+      booking.vehicle_number = `KA ${Math.floor(Math.random() * 99) + 1} ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))} ${Math.floor(Math.random() * 9999) + 1000}`;
+    }
+    
+    bookings.push(booking);
+  }
+  
+  // Sort by date (newest first)
+  bookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  
+  res.json({
+    success: true,
+    bookings: bookings
+  });
+});
+
+// Create booking endpoint
+app.post('/api/customer/create-booking', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  // Extract booking details from request body
+  const {
+    service_type,
+    pickup_location,
+    dropoff_location,
+    booking_date,
+    booking_time,
+    distance,
+    duration,
+    fare_amount,
+    payment_method
+  } = req.body;
+  
+  // Validate required fields
+  if (!service_type || !pickup_location || !dropoff_location || !booking_date || !booking_time) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields'
+    });
+  }
+  
+  // Generate booking reference
+  const bookingReference = `RYDO-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+  
+  // In a real app, this would create a booking in the database
+  // For now, we'll just return success
+  res.json({
+    success: true,
+    message: 'Booking created successfully',
+    booking: {
+      id: `booking-${Date.now()}`,
+      reference: bookingReference,
+      service_type,
+      pickup_location,
+      dropoff_location,
+      booking_date,
+      booking_time,
+      distance,
+      duration,
+      fare_amount,
+      payment_method,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    }
+  });
+});
+
+// Cancel booking endpoint
+app.post('/api/customer/cancel-booking/:bookingId', (req, res) => {
+  const { bookingId } = req.params;
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  // In a real app, this would update the booking status in the database
+  // For now, we'll just return success
+  res.json({
+    success: true,
+    message: 'Booking cancelled successfully',
+    booking_id: bookingId
+  });
+});
+
+// Rate booking endpoint
+app.post('/api/customer/rate-booking/:bookingId', (req, res) => {
+  const { bookingId } = req.params;
+  const { rating, comment } = req.body;
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  
+  // Validate rating
+  if (!rating || rating < 1 || rating > 5) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid rating. Must be between 1 and 5.'
+    });
+  }
+  
+  // In a real app, this would store the rating in the database
+  // For now, we'll just return success
+  res.json({
+    success: true,
+    message: 'Rating submitted successfully',
+    booking_id: bookingId,
+    rating,
+    comment
+  });
+});
+
+// Helper function to generate nearby drivers
+function generateNearbyDrivers(latitude, longitude, radius, serviceType) {
+  const driverCount = Math.floor(Math.random() * 6) + 2; // 2-7 drivers
+  const drivers = [];
+  
+  // Common Indian names for drivers
+  const names = [
+    'Rahul Kumar', 'Amit Singh', 'Priya Sharma', 'Vikram Patel', 
+    'Sunita Desai', 'Rajesh Verma', 'Ananya Gupta', 'Suresh Reddy',
+    'Neha Malhotra', 'Arjun Nair', 'Deepak Joshi', 'Kavita Rao'
+  ];
+  
+  // Vehicle types
+  const vehicleTypes = {
+    driver: ['Sedan', 'Hatchback', 'SUV'],
+    caretaker: ['Sedan', 'SUV', 'Van'],
+    shuttle: ['Van', 'Mini Bus', 'Bus']
+  };
+  
+  // Vehicle makes and models
+  const vehicles = {
+    Sedan: ['Honda City', 'Hyundai Verna', 'Maruti Suzuki Dzire', 'Toyota Etios'],
+    Hatchback: ['Maruti Suzuki Swift', 'Hyundai i20', 'Tata Tiago', 'Toyota Glanza'],
+    SUV: ['Hyundai Creta', 'Kia Seltos', 'Mahindra XUV300', 'Tata Nexon'],
+    Van: ['Maruti Suzuki Eeco', 'Toyota Innova', 'Mahindra Marazzo'],
+    'Mini Bus': ['Tata Winger', 'Force Traveller', 'Mahindra Supro'],
+    Bus: ['Tata Starbus', 'Ashok Leyland Lynx', 'BharatBenz 917']
+  };
+  
+  // Languages
+  const languages = ['English', 'Hindi', 'Kannada', 'Tamil', 'Telugu', 'Malayalam', 'Marathi', 'Gujarati'];
+  
+  for (let i = 0; i < driverCount; i++) {
+    // Generate random position within radius
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = Math.random() * radius;
+    
+    // Convert distance and angle to lat/lng offset
+    // 1 degree of latitude is approximately 111 km
+    const latOffset = (distance / 111) * Math.cos(angle);
+    const lngOffset = (distance / (111 * Math.cos(latitude * Math.PI / 180))) * Math.sin(angle);
+    
+    // Calculate new position
+    const driverLat = latitude + latOffset;
+    const driverLng = longitude + lngOffset;
+    
+    // Calculate actual distance using Haversine formula
+    const actualDistance = calculateDistance(latitude, longitude, driverLat, driverLng);
+    
+    // Select random vehicle type and model
+    const vehicleType = vehicleTypes[serviceType][Math.floor(Math.random() * vehicleTypes[serviceType].length)];
+    const vehicleMake = vehicles[vehicleType][Math.floor(Math.random() * vehicles[vehicleType].length)];
+    
+    // Select 1-3 random languages
+    const speaksLanguages = [];
+    const languageCount = Math.floor(Math.random() * 3) + 1;
+    for (let j = 0; j < languageCount; j++) {
+      const lang = languages[Math.floor(Math.random() * languages.length)];
+      if (!speaksLanguages.includes(lang)) {
+        speaksLanguages.push(lang);
+      }
+    }
+    
+    // Generate driver
+    drivers.push({
+      id: `driver-${Date.now()}-${i}`,
+      name: names[Math.floor(Math.random() * names.length)],
+      profile_image: null,
+      latitude: driverLat,
+      longitude: driverLng,
+      distance: actualDistance,
+      estimated_arrival_time: Math.ceil(actualDistance * 2), // ~30 km/h average speed
+      rating: (4 + Math.random()).toFixed(1),
+      total_rides: Math.floor(Math.random() * 500) + 50,
+      vehicle_type: vehicleType,
+      vehicle_make: vehicleMake.split(' ')[0],
+      vehicle_model: vehicleMake,
+      vehicle_color: ['White', 'Silver', 'Black', 'Grey', 'Blue'][Math.floor(Math.random() * 5)],
+      vehicle_number: `KA ${Math.floor(Math.random() * 99) + 1} ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}${String.fromCharCode(65 + Math.floor(Math.random() * 26))} ${Math.floor(Math.random() * 9999) + 1000}`,
+      speaks: speaksLanguages
+    });
+  }
+  
+  return drivers;
+}
+
+// Helper function to calculate distance using Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const distance = R * c; // Distance in km
+  return distance;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180);
+}
+
+// Helper function to generate random location near a point
+function generateRandomLocation(latitude, longitude, maxDistance) {
+  // Generate random distance and angle
+  const distance = Math.random() * maxDistance;
+  const angle = Math.random() * 2 * Math.PI;
+  
+  // Convert distance and angle to lat/lng offset
+  const latOffset = (distance / 111) * Math.cos(angle);
+  const lngOffset = (distance / (111 * Math.cos(latitude * Math.PI / 180))) * Math.sin(angle);
+  
+  // Calculate new position
+  const newLat = latitude + latOffset;
+  const newLng = longitude + lngOffset;
+  
+  // Generate a random address
+  return {
+    latitude: newLat,
+    longitude: newLng,
+    address: generateRandomAddress()
+  };
+}
+
+// Helper function to generate random Indian names
+function generateRandomName() {
+  const firstNames = [
+    'Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Reyansh', 'Ayaan', 'Atharva',
+    'Aanya', 'Diya', 'Ananya', 'Saanvi', 'Aadhya', 'Avni', 'Riya', 'Aarohi',
+    'Sai', 'Aryan', 'Anant', 'Ishaan', 'Shaurya', 'Advait', 'Dhruv', 'Krishna',
+    'Saisha', 'Kiara', 'Sara', 'Myra', 'Pari', 'Lavanya', 'Ira', 'Aisha'
+  ];
+  
+  const lastNames = [
+    'Sharma', 'Patel', 'Singh', 'Kumar', 'Gupta', 'Nair', 'Reddy', 'Rao',
+    'Joshi', 'Malhotra', 'Verma', 'Desai', 'Shah', 'Mehta', 'Iyer', 'Agarwal',
+    'Banerjee', 'Chatterjee', 'Mukherjee', 'Das', 'Bose', 'Dutta', 'Sen', 'Roy',
+    'Kapoor', 'Khanna', 'Chopra', 'Bhatia', 'Gill', 'Anand', 'Mehra', 'Bajwa'
+  ];
+  
+  return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+}
+
+// Helper function to generate random addresses in Bangalore
+function generateRandomAddress() {
+  const areas = [
+    'Indiranagar', 'Koramangala', 'HSR Layout', 'Whitefield', 'Electronic City',
+    'Marathahalli', 'JP Nagar', 'Bannerghatta Road', 'MG Road', 'Jayanagar',
+    'Malleshwaram', 'Yelahanka', 'Hebbal', 'BTM Layout', 'Banashankari',
+    'Basavanagudi', 'Rajajinagar', 'Vijayanagar', 'RT Nagar', 'Kalyan Nagar'
+  ];
+  
+  const streets = [
+    'Main Road', 'Cross', 'Avenue', 'Layout', 'Main', 'Street', 'Circle',
+    'Extension', 'Phase', 'Block', 'Sector', 'Colony'
+  ];
+  
+  const landmarks = [
+    'near Park', 'opposite Hospital', 'behind Temple', 'next to Mall',
+    'near Metro Station', 'opposite School', 'near Market', 'behind Lake',
+    'near Bus Stop', 'opposite Restaurant', 'near Garden', 'behind College'
+  ];
+  
+  const area = areas[Math.floor(Math.random() * areas.length)];
+  const number = Math.floor(Math.random() * 1000) + 1;
+  const street = `${Math.floor(Math.random() * 10) + 1}${['st', 'nd', 'rd', 'th'][Math.min(3, Math.floor(Math.random() * 10))]} ${streets[Math.floor(Math.random() * streets.length)]}`;
+  const landmark = Math.random() > 0.5 ? `, ${landmarks[Math.floor(Math.random() * landmarks.length)]}` : '';
+  
+  return `${number}, ${street}, ${area}${landmark}, Bangalore`;
+}
+
+// Mock API endpoint for nearby drivers (legacy version - keeping for compatibility)
+app.post('/api/nearby-drivers', (req, res) => {
+  const { latitude, longitude, radius = 3 } = req.body;
   
   // Mock data for nearby drivers
   const mockDrivers = [
