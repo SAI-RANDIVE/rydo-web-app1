@@ -28,8 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize recent activity
         loadRecentActivity();
         
-        // Initialize booking history
-        loadBookingHistory();
+        // Initialize booking history if function exists
+        if (typeof loadBookingHistory === 'function') {
+            loadBookingHistory();
+        } else {
+            // Fallback implementation
+            loadBookingHistoryFallback();
+        }
         
         // Initialize logout functionality
         initLogout();
@@ -39,9 +44,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Toast notification system
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close"><i class="fas fa-times"></i></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Add event listener to close button
+    toast.querySelector('.toast-close').addEventListener('click', function() {
+        document.body.removeChild(toast);
+    });
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (document.body.contains(toast)) {
+            document.body.removeChild(toast);
+        }
+    }, 5000);
+}
+
 // Global variables
 let userData = {};
 let currentBooking = null;
+let map = null;
+let userMarker = null;
+let nearbyProviders = [];
 
 /**
  * Handle hash-based navigation
@@ -126,6 +161,199 @@ function initDashboard() {
             iconClass: 'orange'
         }
     ]);
+}
+
+// Fallback implementation for loading booking history
+function loadBookingHistoryFallback() {
+    console.log('Loading booking history (fallback implementation)...');
+    const bookingHistoryContainer = document.getElementById('booking-history-container');
+    
+    if (!bookingHistoryContainer) {
+        console.error('Booking history container not found');
+        return;
+    }
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        console.error('No authentication token found');
+        return;
+    }
+    
+    // Show loading state
+    bookingHistoryContainer.innerHTML = '<div class="loading-spinner"></div>';
+    
+    // Fetch booking history from server
+    fetch('/api/customer/booking-history', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success && data.bookings && data.bookings.length > 0) {
+            // Render booking history
+            renderBookingHistory(data.bookings);
+        } else {
+            // No bookings found
+            bookingHistoryContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>No Bookings Found</h3>
+                    <p>You haven't made any bookings yet. Start by booking a ride!</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading bookings:', error);
+        bookingHistoryContainer.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Failed to Load Bookings</h3>
+                <p>We couldn't load your booking history. Please try again later.</p>
+                <button class="btn btn-primary retry-btn">Retry</button>
+            </div>
+        `;
+        
+        // Add retry button functionality
+        const retryBtn = bookingHistoryContainer.querySelector('.retry-btn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', loadBookingHistoryFallback);
+        }
+    });
+}
+
+// Render booking history
+function renderBookingHistory(bookings) {
+    const bookingHistoryContainer = document.getElementById('booking-history-container');
+    
+    if (!bookingHistoryContainer) {
+        console.error('Booking history container not found');
+        return;
+    }
+    
+    // Clear container
+    bookingHistoryContainer.innerHTML = '';
+    
+    // Create booking history table
+    const table = document.createElement('table');
+    table.className = 'table booking-history-table';
+    
+    // Create table header
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>Date</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Service</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    `;
+    
+    // Create table body
+    const tbody = document.createElement('tbody');
+    
+    // Add bookings to table
+    bookings.forEach(booking => {
+        const tr = document.createElement('tr');
+        
+        // Format date
+        const bookingDate = new Date(booking.created_at);
+        const formattedDate = bookingDate.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+        
+        // Format time
+        const formattedTime = bookingDate.toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // Format service type
+        const serviceType = booking.service_type.charAt(0).toUpperCase() + booking.service_type.slice(1);
+        
+        // Format status
+        let statusClass = '';
+        let statusText = '';
+        
+        switch (booking.status) {
+            case 'completed':
+                statusClass = 'completed';
+                statusText = 'Completed';
+                break;
+            case 'cancelled':
+                statusClass = 'cancelled';
+                statusText = 'Cancelled';
+                break;
+            case 'pending':
+                statusClass = 'pending';
+                statusText = 'Pending';
+                break;
+            case 'in_progress':
+                statusClass = 'in-progress';
+                statusText = 'In Progress';
+                break;
+            default:
+                statusClass = 'pending';
+                statusText = 'Pending';
+        }
+        
+        // Create table row
+        tr.innerHTML = `
+            <td>
+                <div class="booking-date">${formattedDate}</div>
+                <div class="booking-time">${formattedTime}</div>
+            </td>
+            <td>${booking.pickup_location}</td>
+            <td>${booking.dropoff_location}</td>
+            <td>${serviceType}</td>
+            <td>₹${booking.fare_amount}</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td>
+                <div class="booking-actions">
+                    <button class="btn btn-sm btn-outline-primary view-booking-btn" data-booking-id="${booking.id}">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${booking.status === 'pending' ? `
+                        <button class="btn btn-sm btn-outline-danger cancel-booking-btn" data-booking-id="${booking.id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    ` : ''}
+                    ${booking.status === 'completed' && !booking.rated ? `
+                        <button class="btn btn-sm btn-outline-warning rate-booking-btn" data-booking-id="${booking.id}">
+                            <i class="fas fa-star"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+    
+    // Append header and body to table
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    
+    // Append table to container
+    bookingHistoryContainer.appendChild(table);
+    
+    // Add event listeners to action buttons
+    addBookingActionListeners();
 }
 
 // Initialize navigation functionality
@@ -294,6 +522,404 @@ async function loadDashboardData() {
         
         if (typeof showNotification === 'function') {
             showNotification('Failed to load dashboard data. Please try refreshing the page.', 'error');
+        }
+    }
+}
+
+// Initialize booking form functionality
+function initBookingForm() {
+    const bookingForm = document.getElementById('booking-form');
+    if (!bookingForm) return;
+    
+    // Get form elements
+    const pickupInput = document.getElementById('pickup-location');
+    const dropoffInput = document.getElementById('dropoff-location');
+    const dateInput = document.getElementById('booking-date');
+    const timeInput = document.getElementById('booking-time');
+    const serviceTypeInputs = document.querySelectorAll('input[name="service-type"]');
+    const fareEstimateElement = document.getElementById('fare-estimate');
+    const bookNowBtn = document.getElementById('book-now-btn');
+    
+    // Set default date and time (today + 1 hour)
+    if (dateInput && timeInput) {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate());
+        
+        // Format date as YYYY-MM-DD
+        const formattedDate = tomorrow.toISOString().split('T')[0];
+        dateInput.value = formattedDate;
+        dateInput.min = formattedDate;
+        
+        // Set time to current time + 1 hour
+        now.setHours(now.getHours() + 1);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        timeInput.value = `${hours}:${minutes}`;
+    }
+    
+    // Add event listeners to form inputs for fare estimation
+    if (pickupInput && dropoffInput) {
+        [pickupInput, dropoffInput].forEach(input => {
+            input.addEventListener('change', updateFareEstimate);
+            input.addEventListener('blur', updateFareEstimate);
+        });
+    }
+    
+    // Add event listeners to service type inputs for fare estimation
+    serviceTypeInputs.forEach(input => {
+        input.addEventListener('change', updateFareEstimate);
+    });
+    
+    // Handle form submission
+    bookingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        createBooking();
+    });
+    
+    // Book Now button click handler
+    if (bookNowBtn) {
+        bookNowBtn.addEventListener('click', function() {
+            createBooking();
+        });
+    }
+    
+    // Function to update fare estimate
+    function updateFareEstimate() {
+        if (!pickupInput.value || !dropoffInput.value) return;
+        
+        // Show loading state
+        if (fareEstimateElement) {
+            fareEstimateElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating fare...';
+        }
+        
+        // Get selected service type
+        const serviceType = document.querySelector('input[name="service-type"]:checked')?.value || 'standard';
+        
+        // Calculate distance and fare (in a real app, this would be an API call)
+        calculateFare(pickupInput.value, dropoffInput.value, serviceType)
+            .then(result => {
+                // Update fare estimate
+                if (fareEstimateElement) {
+                    fareEstimateElement.innerHTML = `
+                        <div class="fare-details">
+                            <div class="fare-item">
+                                <span class="fare-label">Distance:</span>
+                                <span class="fare-value">${result.distance} km</span>
+                            </div>
+                            <div class="fare-item">
+                                <span class="fare-label">Duration:</span>
+                                <span class="fare-value">${Math.floor(result.duration / 60)} mins</span>
+                            </div>
+                            <div class="fare-item fare-total">
+                                <span class="fare-label">Estimated Fare:</span>
+                                <span class="fare-value">₹${result.fare}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Store fare details for booking
+                bookingForm.dataset.distance = result.distance;
+                bookingForm.dataset.duration = result.duration;
+                bookingForm.dataset.fare = result.fare;
+            })
+            .catch(error => {
+                console.error('Error calculating fare:', error);
+                if (fareEstimateElement) {
+                    fareEstimateElement.innerHTML = '<div class="error-message">Could not calculate fare. Please try again.</div>';
+                }
+            });
+    }
+    
+    // Function to calculate fare
+    function calculateFare(pickup, dropoff, serviceType) {
+        return new Promise((resolve, reject) => {
+            // In a real app, this would be an API call to a fare calculation service
+            // For demo purposes, we'll generate random values
+            setTimeout(() => {
+                try {
+                    // Generate random distance between 2 and 20 km
+                    const distance = Math.floor(Math.random() * 18) + 2;
+                    
+                    // Calculate duration (approx. 2 mins per km)
+                    const duration = distance * 120; // in seconds
+                    
+                    // Calculate fare based on service type and distance
+                    let baseFare = 0;
+                    let perKmRate = 0;
+                    
+                    switch (serviceType) {
+                        case 'premium':
+                            baseFare = 80;
+                            perKmRate = 18;
+                            break;
+                        case 'shuttle':
+                            baseFare = 30;
+                            perKmRate = 8;
+                            break;
+                        default: // standard
+                            baseFare = 50;
+                            perKmRate = 12;
+                            break;
+                    }
+                    
+                    const fare = Math.floor(baseFare + (distance * perKmRate));
+                    
+                    resolve({
+                        distance,
+                        duration,
+                        fare
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            }, 1000);
+        });
+    }
+    
+    // Function to create a booking
+    function createBooking() {
+        // Validate form
+        if (!pickupInput.value) {
+            showToast('Please enter a pickup location', 'error');
+            pickupInput.focus();
+            return;
+        }
+        
+        if (!dropoffInput.value) {
+            showToast('Please enter a dropoff location', 'error');
+            dropoffInput.focus();
+            return;
+        }
+        
+        if (!dateInput.value) {
+            showToast('Please select a date', 'error');
+            dateInput.focus();
+            return;
+        }
+        
+        if (!timeInput.value) {
+            showToast('Please select a time', 'error');
+            timeInput.focus();
+            return;
+        }
+        
+        // Get selected service type
+        const serviceType = document.querySelector('input[name="service-type"]:checked')?.value || 'standard';
+        
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            showToast('You must be logged in to book a ride', 'error');
+            return;
+        }
+        
+        // Show loading state
+        const bookBtn = document.getElementById('book-now-btn');
+        const originalBtnText = bookBtn.innerHTML;
+        bookBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        bookBtn.disabled = true;
+        
+        // Get fare details from form dataset
+        const distance = parseFloat(bookingForm.dataset.distance || '0');
+        const duration = parseInt(bookingForm.dataset.duration || '0');
+        const fare = parseInt(bookingForm.dataset.fare || '0');
+        
+        // Prepare booking data
+        const bookingData = {
+            service_type: serviceType,
+            pickup_location: pickupInput.value,
+            dropoff_location: dropoffInput.value,
+            booking_date: dateInput.value,
+            booking_time: timeInput.value,
+            distance: distance,
+            duration: duration,
+            fare_amount: fare,
+            payment_method: 'wallet' // Default payment method
+        };
+        
+        // Send booking request to server
+        fetch('/api/customer/create-booking', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bookingData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showToast('Booking created successfully!', 'success');
+                
+                // Reset form
+                bookingForm.reset();
+                
+                // Set default date and time again
+                const now = new Date();
+                const tomorrow = new Date(now);
+                tomorrow.setDate(now.getDate());
+                
+                // Format date as YYYY-MM-DD
+                const formattedDate = tomorrow.toISOString().split('T')[0];
+                dateInput.value = formattedDate;
+                
+                // Set time to current time + 1 hour
+                now.setHours(now.getHours() + 1);
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                timeInput.value = `${hours}:${minutes}`;
+                
+                // Clear fare estimate
+                if (fareEstimateElement) {
+                    fareEstimateElement.innerHTML = '';
+                }
+                
+                // Show booking confirmation modal
+                showBookingConfirmation(data.booking);
+                
+                // Refresh recent activity and booking history
+                setTimeout(() => {
+                    loadRecentActivity();
+                    if (typeof loadBookingHistory === 'function') {
+                        loadBookingHistory();
+                    } else if (typeof loadBookingHistoryFallback === 'function') {
+                        loadBookingHistoryFallback();
+                    }
+                }, 1000);
+            } else {
+                showToast(data.message || 'Failed to create booking', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error creating booking:', error);
+            showToast('Failed to create booking. Please try again.', 'error');
+        })
+        .finally(() => {
+            // Reset button state
+            bookBtn.innerHTML = originalBtnText;
+            bookBtn.disabled = false;
+        });
+    }
+    
+    // Function to show booking confirmation
+    function showBookingConfirmation(booking) {
+        // Create modal container if it doesn't exist
+        let modalContainer = document.getElementById('booking-confirmation-modal-container');
+        
+        if (!modalContainer) {
+            modalContainer = document.createElement('div');
+            modalContainer.id = 'booking-confirmation-modal-container';
+            document.body.appendChild(modalContainer);
+        }
+        
+        // Format booking date and time
+        const bookingDate = new Date(`${booking.booking_date}T${booking.booking_time}`);
+        const formattedDate = bookingDate.toLocaleDateString('en-IN', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        
+        const formattedTime = bookingDate.toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // Set modal content
+        modalContainer.innerHTML = `
+            <div class="booking-confirmation-modal">
+                <div class="booking-confirmation-header">
+                    <h3>Booking Confirmed!</h3>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="booking-confirmation-body">
+                    <div class="booking-reference">
+                        <span>Booking Reference:</span>
+                        <strong>${booking.reference}</strong>
+                    </div>
+                    <div class="booking-details">
+                        <div class="booking-detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>${formattedDate}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-clock"></i>
+                            <span>${formattedTime}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-car"></i>
+                            <span>${booking.service_type.charAt(0).toUpperCase() + booking.service_type.slice(1)}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${booking.pickup_location}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${booking.dropoff_location}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-route"></i>
+                            <span>${booking.distance} km</span>
+                        </div>
+                        <div class="booking-detail-item">
+                            <i class="fas fa-money-bill"></i>
+                            <span>₹${booking.fare_amount}</span>
+                        </div>
+                    </div>
+                    <div class="booking-actions">
+                        <button class="btn btn-primary view-bookings-btn">View My Bookings</button>
+                        <button class="btn btn-outline-primary close-modal">Close</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay"></div>
+        `;
+        
+        // Show modal
+        modalContainer.classList.add('active');
+        
+        // Add event listener to close button
+        const closeButtons = modalContainer.querySelectorAll('.close-modal');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                modalContainer.classList.remove('active');
+            });
+        });
+        
+        // Add event listener to view bookings button
+        const viewBookingsBtn = modalContainer.querySelector('.view-bookings-btn');
+        if (viewBookingsBtn) {
+            viewBookingsBtn.addEventListener('click', function() {
+                // Close modal
+                modalContainer.classList.remove('active');
+                
+                // Navigate to bookings tab
+                const bookingsTab = document.querySelector('a[href="#bookings"]');
+                if (bookingsTab) {
+                    bookingsTab.click();
+                } else {
+                    window.location.hash = 'bookings';
+                }
+            });
+        }
+        
+        // Close modal when clicking outside
+        const overlay = modalContainer.querySelector('.modal-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', function() {
+                modalContainer.classList.remove('active');
+            });
         }
     }
 }
@@ -996,21 +1622,9 @@ async function initUserData() {
         if (userData) {
             // Update user profile in sidebar
             document.getElementById('user-name').textContent = `${userData.first_name} ${userData.last_name}`;
-            document.getElementById('user-email').textContent = userData.email;
-            document.getElementById('welcome-name').textContent = userData.first_name;
             
-            // Update location if available
-            if (userData.location) {
-                document.getElementById('current-location').textContent = userData.location;
-            } else {
-                // Try to get location from browser
-                getLocationFromBrowser();
-            }
-            
-            // Set profile image if available
-            if (userData.profile_photo) {
-                document.getElementById('user-avatar').src = userData.profile_photo;
-            }
+            // Update profile information in the UI
+            updateProfileInfo(userData);
             
             // Fetch additional user data
             fetchUserStats();
@@ -1021,6 +1635,238 @@ async function initUserData() {
     }
 }
 
+// Update profile information in the UI
+function updateProfileInfo(user) {
+    // Update profile name
+    const profileNameElements = document.querySelectorAll('.profile-name');
+    profileNameElements.forEach(element => {
+        if (element) element.textContent = `${user.first_name || ''} ${user.last_name || ''}`;
+    });
+    
+    // Update profile email
+    const profileEmailElements = document.querySelectorAll('.profile-email');
+    profileEmailElements.forEach(element => {
+        if (element) element.textContent = user.email || '';
+    });
+    
+    // Update profile phone
+    const profilePhoneElements = document.querySelectorAll('.profile-phone');
+    profilePhoneElements.forEach(element => {
+        if (element) element.textContent = user.phone || '';
+    });
+    
+    // Update welcome name
+    const welcomeNameElement = document.getElementById('welcome-name');
+    if (welcomeNameElement) welcomeNameElement.textContent = user.first_name || 'User';
+    
+    // Update profile image
+    const profileImageElements = document.querySelectorAll('.profile-image');
+    profileImageElements.forEach(element => {
+        if (element) {
+            if (user.profile_image) {
+                element.src = user.profile_image;
+            } else {
+                element.src = '/images/default-profile.png';
+            }
+        }
+    });
+}
+
+// Initialize edit profile functionality
+function initEditProfile() {
+    // Get edit profile form
+    const editProfileForm = document.getElementById('edit-profile-form');
+    if (!editProfileForm) return;
+    
+    // Get edit profile button
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', function() {
+            // Show edit profile modal
+            const profileModal = document.getElementById('edit-profile-modal');
+            if (profileModal) {
+                // Populate form with current user data
+                const firstNameInput = document.getElementById('profile-first-name');
+                const lastNameInput = document.getElementById('profile-last-name');
+                const emailInput = document.getElementById('profile-email');
+                const phoneInput = document.getElementById('profile-phone');
+                
+                if (firstNameInput) firstNameInput.value = userData.first_name || '';
+                if (lastNameInput) lastNameInput.value = userData.last_name || '';
+                if (emailInput) emailInput.value = userData.email || '';
+                if (phoneInput) phoneInput.value = userData.phone || '';
+                
+                // Show modal
+                profileModal.classList.add('show');
+            }
+        });
+    }
+    
+    // Handle form submission
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(editProfileForm);
+            const updatedProfile = {
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                email: formData.get('email'),
+                phone: formData.get('phone')
+            };
+            
+            // Get token from localStorage
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                showToast('You must be logged in to update your profile', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = editProfileForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            submitBtn.disabled = true;
+            
+            // Send update request to server
+            fetch('/api/user/update-profile', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedProfile)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update user data in localStorage
+                    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    const updatedUser = { ...currentUser, ...updatedProfile };
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+                    
+                    // Update userData variable
+                    userData = { ...userData, ...updatedProfile };
+                    
+                    // Update profile info in UI
+                    updateProfileInfo(userData);
+                    
+                    // Show success message
+                    showToast('Profile updated successfully', 'success');
+                    
+                    // Close modal
+                    const profileModal = document.getElementById('edit-profile-modal');
+                    if (profileModal) {
+                        profileModal.classList.remove('show');
+                    }
+                } else {
+                    showToast(data.message || 'Failed to update profile', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating profile:', error);
+                showToast('Failed to update profile. Please try again.', 'error');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
+    
+    // Close modal when clicking close button or outside the modal
+    const closeButtons = document.querySelectorAll('.close-modal');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        });
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(e) {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    });
+}
+
+// Get user location from browser
+function getLocationFromBrowser() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported by your browser'));
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy
+                });
+            },
+            error => {
+                // If user denies permission, use a default location (Bangalore)
+                if (error.code === error.PERMISSION_DENIED) {
+                    resolve({
+                        latitude: 12.9716,
+                        longitude: 77.5946,
+                        accuracy: 1000,
+                        isDefault: true
+                    });
+                } else {
+                    reject(error);
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+    });
+}
+
+// Update user location
+function updateUserLocation(location) {
+    // Update user data
+    userData.location = location;
+
+    // If map is initialized, update marker
+    if (map && userMarker) {
+        userMarker.setPosition({
+            lat: location.latitude,
+            lng: location.longitude
+        });
+
+        // Center map on user location
+        map.setCenter({
+            lat: location.latitude,
+            lng: location.longitude
+        });
+    }
+
+    // If this is a default location, show a message
+    if (location.isDefault) {
+        showToast('Using default location. Enable location services for better accuracy.', 'warning');
+    }
+}
+
 // Initialize Google Maps
 function initMap() {
     // Check if Google Maps API is loaded
@@ -1028,6 +1874,7 @@ function initMap() {
         console.error('Google Maps API not loaded');
         return;
     }
+
     
     const mapContainer = document.getElementById('map-container');
     if (!mapContainer) return;
@@ -1697,6 +2544,139 @@ function initRatings() {
             }
         });
     }
+}
+
+// Add nearby service providers to the map
+function addNearbyProviders(map, userLocation) {
+    // Clear existing markers
+    if (nearbyProviders && nearbyProviders.length > 0) {
+        nearbyProviders.forEach(marker => marker.setMap(null));
+    }
+    nearbyProviders = [];
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        console.error('No authentication token found');
+        return;
+    }
+    
+    // Get selected service type
+    const serviceType = document.querySelector('input[name="service-type"]:checked')?.value || 'standard';
+    
+    // Fetch nearby providers from server
+    fetch('/api/drivers/nearby', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            latitude: userLocation.lat,
+            longitude: userLocation.lng,
+            service_type: serviceType,
+            radius: 3 // 3km radius
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success && data.drivers && data.drivers.length > 0) {
+            // Add markers for each provider
+            data.drivers.forEach(driver => {
+                // Create marker
+                const marker = new google.maps.Marker({
+                    position: {
+                        lat: driver.latitude,
+                        lng: driver.longitude
+                    },
+                    map: map,
+                    icon: {
+                        url: `/images/car-marker.png`,
+                        scaledSize: new google.maps.Size(30, 30)
+                    },
+                    title: `${driver.first_name} ${driver.last_name || ''}`
+                });
+                
+                // Create info window
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div class="provider-info">
+                            <h4>${driver.first_name} ${driver.last_name || ''}</h4>
+                            <div class="provider-rating">
+                                <i class="fas fa-star"></i>
+                                <span>${driver.average_rating || '4.5'}</span>
+                            </div>
+                            <div class="provider-vehicle">
+                                <i class="fas fa-car"></i>
+                                <span>${driver.vehicle_make || ''} ${driver.vehicle_model || ''}</span>
+                            </div>
+                            <div class="provider-distance">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${driver.distance ? (driver.distance).toFixed(1) + ' km away' : 'Nearby'}</span>
+                            </div>
+                        </div>
+                    `
+                });
+                
+                // Add click event listener to marker
+                marker.addListener('click', () => {
+                    // Close all other info windows
+                    nearbyProviders.forEach(m => {
+                        if (m.infoWindow) {
+                            m.infoWindow.close();
+                        }
+                    });
+                    
+                    // Open this info window
+                    infoWindow.open(map, marker);
+                    
+                    // Store reference to info window
+                    marker.infoWindow = infoWindow;
+                });
+                
+                // Add marker to array
+                marker.infoWindow = infoWindow;
+                nearbyProviders.push(marker);
+            });
+            
+            // Update provider count in UI
+            const providerCountElement = document.getElementById('provider-count');
+            if (providerCountElement) {
+                providerCountElement.textContent = data.drivers.length;
+            }
+            
+            // Show success message if showToast function exists
+            if (typeof showToast === 'function') {
+                showToast(`Found ${data.drivers.length} service providers nearby`, 'success');
+            }
+        } else {
+            // No providers found
+            console.log('No service providers found nearby');
+            
+            // Update provider count in UI
+            const providerCountElement = document.getElementById('provider-count');
+            if (providerCountElement) {
+                providerCountElement.textContent = '0';
+            }
+            
+            // Show message if showToast function exists
+            if (typeof showToast === 'function') {
+                showToast('No service providers found nearby. Try a different service type or location.', 'info');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching nearby providers:', error);
+        if (typeof showToast === 'function') {
+            showToast('Failed to fetch nearby service providers. Please try again.', 'error');
+        }
+    });
 }
 
 // Show rating modal
