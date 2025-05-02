@@ -102,19 +102,19 @@ app.use(express.static(path.join(__dirname, 'frontend')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Import MongoDB routes
-const authRoutes = require('./backend/routes/mongodb-auth');
-const userRoutes = require('./backend/routes/mongodb-user');
-const caretakerRoutes = require('./backend/routes/mongodb-caretaker');
-const shuttleRoutes = require('./backend/routes/mongodb-shuttle');
-const customerRoutes = require('./backend/routes/mongodb-customer');
-const paymentRoutes = require('./backend/routes/mongodb-payment');
-const trackingRoutes = require('./backend/routes/mongodb-tracking');
-const notificationRoutes = require('./backend/routes/mongodb-notification');
-const ratingRoutes = require('./backend/routes/mongodb-rating');
-const bookingRoutes = require('./backend/routes/mongodb-booking');
-const driverRoutes = require('./backend/routes/mongodb-driver');
-const walletRoutes = require('./backend/routes/mongodb-wallet');
-const nearbyDriversRoutes = require('./backend/routes/mongodb-nearbyDrivers');
+const authRoutes = require('./routes/mongodb-auth');
+const userRoutes = require('./routes/mongodb-user');
+const caretakerRoutes = require('./routes/mongodb-caretaker');
+const shuttleRoutes = require('./routes/mongodb-shuttle');
+const customerRoutes = require('./routes/mongodb-customer');
+const paymentRoutes = require('./routes/mongodb-payment');
+const trackingRoutes = require('./routes/mongodb-tracking');
+const notificationRoutes = require('./routes/notification');
+const ratingRoutes = require('./routes/rating');
+const bookingRoutes = require('./routes/booking');
+const driverRoutes = require('./routes/user');
+const walletRoutes = require('./routes/wallet');
+const nearbyDriversRoutes = require('./routes/nearbyDrivers');
 
 // API Routes
 app.use('/api/auth', authRoutes);
