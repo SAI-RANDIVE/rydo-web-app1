@@ -1,10 +1,10 @@
 /**
- * RYDO Web App - MongoDB Server
+ * RYDO Web App - Unified Server
  * Main server file for Render.com deployment
+ * Supports both MongoDB and MySQL databases
  */
 
 const express = require('express');
-const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path');
@@ -13,41 +13,43 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 require('dotenv').config();
 
-// Import MongoDB models
-require('./backend/models/mongodb/User');
-require('./backend/models/mongodb/Driver');
-require('./backend/models/mongodb/Caretaker');
-require('./backend/models/mongodb/Shuttle');
-require('./backend/models/mongodb/Booking');
-require('./backend/models/mongodb/Payment');
-require('./backend/models/mongodb/Rating');
-require('./backend/models/mongodb/Notification');
-require('./backend/models/mongodb/Wallet');
-require('./backend/models/mongodb/OTP');
-require('./backend/models/mongodb/Profile');
-require('./backend/models/mongodb/VehicleType');
+// Import the unified database interface
+const db = require('./backend/config/db');
 
-// Import MongoDB services
-const trackingService = require('./backend/services/mongodb-tracking-service');
-const notificationService = require('./backend/services/mongodb-notification-service');
+// Conditionally import models based on database configuration
+const useMongoDb = process.env.USE_MONGODB === 'true' || !!process.env.MONGODB_URI;
+const useMySql = process.env.USE_MYSQL === 'true' || !!process.env.DB_HOST;
+
+// Import services with conditional loading
+let trackingService, notificationService;
+
+if (useMongoDb) {
+  // Import MongoDB models if MongoDB is enabled
+  try {
+    require('./backend/models/mongodb/User');
+    require('./backend/models/mongodb/Driver');
+    require('./backend/models/mongodb/Caretaker');
+    require('./backend/models/mongodb/Shuttle');
+    require('./backend/models/mongodb/Booking');
+    require('./backend/models/mongodb/Payment');
+    require('./backend/models/mongodb/Rating');
+    require('./backend/models/mongodb/Notification');
+    require('./backend/models/mongodb/Wallet');
+    require('./backend/models/mongodb/OTP');
+    require('./backend/models/mongodb/Profile');
+    require('./backend/models/mongodb/VehicleType');
+    
+    // Import MongoDB services
+    trackingService = require('./backend/services/mongodb-tracking-service');
+    notificationService = require('./backend/services/mongodb-notification-service');
+  } catch (error) {
+    console.warn('Error loading MongoDB models:', error.message);
+  }
+}
 
 // Initialize express app
 const app = express();
 const PORT = process.env.PORT || 3002;
-
-// Connect to MongoDB
-const connectMongoDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('Connected to MongoDB');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  }
-};
 
 // Security headers middleware
 app.use((req, res, next) => {
@@ -72,56 +74,102 @@ app.use(fileUpload({
   createParentPath: true
 }));
 
-// Session middleware with MongoDB store
-app.use(session({
+// Session middleware with appropriate store based on database configuration
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'rydo_secret_key',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    ttl: 14 * 24 * 60 * 60, // 14 days
-    autoRemove: 'native'
-  }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days
   }
-}));
+};
+
+// Use MongoDB for session store if MongoDB is enabled
+if (useMongoDb && process.env.MONGODB_URI) {
+  try {
+    sessionConfig.store = MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      ttl: 14 * 24 * 60 * 60, // 14 days
+      autoRemove: 'native'
+    });
+    console.log('Using MongoDB for session storage');
+  } catch (error) {
+    console.warn('Error setting up MongoDB session store:', error.message);
+    // Will fall back to memory store
+  }
+}
+
+app.use(session(sessionConfig));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'frontend')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Import MongoDB routes
-const authRoutes = require('./backend/routes/mongodb-auth');
-const userRoutes = require('./backend/routes/mongodb-user');
-const caretakerRoutes = require('./backend/routes/mongodb-caretaker');
-const shuttleRoutes = require('./backend/routes/mongodb-shuttle');
-const customerRoutes = require('./backend/routes/mongodb-customer');
-const paymentRoutes = require('./backend/routes/mongodb-payment');
-const trackingRoutes = require('./backend/routes/mongodb-tracking');
-const notificationRoutes = require('./backend/routes/mongodb-notification');
-const ratingRoutes = require('./backend/routes/mongodb-rating');
-const bookingRoutes = require('./backend/routes/mongodb-booking');
-const driverRoutes = require('./backend/routes/mongodb-driver');
-const walletRoutes = require('./backend/routes/mongodb-wallet');
-const nearbyDriversRoutes = require('./backend/routes/mongodb-nearbyDrivers');
+// Import routes based on database configuration
+let authRoutes, userRoutes, caretakerRoutes, shuttleRoutes, customerRoutes;
+let paymentRoutes, trackingRoutes, notificationRoutes, ratingRoutes;
+let bookingRoutes, driverRoutes, walletRoutes, nearbyDriversRoutes;
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/caretaker', caretakerRoutes);
-app.use('/api/shuttle', shuttleRoutes);
-app.use('/api/customer', customerRoutes);
-app.use('/api/payment', paymentRoutes);
-app.use('/api/tracking', trackingRoutes);
-app.use('/api/notification', notificationRoutes);
-app.use('/api/rating', ratingRoutes);
-app.use('/api/booking', bookingRoutes);
-app.use('/api/driver', driverRoutes);
-app.use('/api/wallet', walletRoutes);
-app.use('/api/nearby-drivers', nearbyDriversRoutes);
+// Load appropriate routes based on database configuration
+if (useMongoDb) {
+  try {
+    // Import MongoDB routes
+    authRoutes = require('./backend/routes/mongodb-auth');
+    userRoutes = require('./backend/routes/mongodb-user');
+    caretakerRoutes = require('./backend/routes/mongodb-caretaker');
+    shuttleRoutes = require('./backend/routes/mongodb-shuttle');
+    customerRoutes = require('./backend/routes/mongodb-customer');
+    paymentRoutes = require('./backend/routes/mongodb-payment');
+    trackingRoutes = require('./backend/routes/mongodb-tracking');
+    notificationRoutes = require('./backend/routes/mongodb-notification');
+    ratingRoutes = require('./backend/routes/mongodb-rating');
+    bookingRoutes = require('./backend/routes/mongodb-booking');
+    driverRoutes = require('./backend/routes/mongodb-driver');
+    walletRoutes = require('./backend/routes/mongodb-wallet');
+    nearbyDriversRoutes = require('./backend/routes/mongodb-nearbyDrivers');
+    console.log('MongoDB routes loaded successfully');
+  } catch (error) {
+    console.error('Error loading MongoDB routes:', error.message);
+  }
+} else if (useMySql) {
+  try {
+    // Import MySQL routes (assuming they follow a similar naming convention)
+    authRoutes = require('./routes/auth');
+    userRoutes = require('./routes/user');
+    // Try to load the nearbyDrivers route from the correct location
+    try {
+      nearbyDriversRoutes = require('./routes/nearbyDrivers');
+      console.log('Loaded nearbyDrivers route from /routes');
+    } catch (error) {
+      try {
+        nearbyDriversRoutes = require('./backend/routes/nearbyDrivers');
+        console.log('Loaded nearbyDrivers route from /backend/routes');
+      } catch (subError) {
+        console.error('Could not load nearbyDrivers route:', subError.message);
+      }
+    }
+    console.log('MySQL routes loaded successfully');
+  } catch (error) {
+    console.error('Error loading MySQL routes:', error.message);
+  }
+}
+
+// API Routes - only register routes that were successfully loaded
+if (authRoutes) app.use('/api/auth', authRoutes);
+if (userRoutes) app.use('/api/user', userRoutes);
+if (caretakerRoutes) app.use('/api/caretaker', caretakerRoutes);
+if (shuttleRoutes) app.use('/api/shuttle', shuttleRoutes);
+if (customerRoutes) app.use('/api/customer', customerRoutes);
+if (paymentRoutes) app.use('/api/payment', paymentRoutes);
+if (trackingRoutes) app.use('/api/tracking', trackingRoutes);
+if (notificationRoutes) app.use('/api/notification', notificationRoutes);
+if (ratingRoutes) app.use('/api/rating', ratingRoutes);
+if (bookingRoutes) app.use('/api/booking', bookingRoutes);
+if (driverRoutes) app.use('/api/driver', driverRoutes);
+if (walletRoutes) app.use('/api/wallet', walletRoutes);
+if (nearbyDriversRoutes) app.use('/api/nearby-drivers', nearbyDriversRoutes);
 
 // Serve frontend for all other routes
 app.get('*', (req, res) => {

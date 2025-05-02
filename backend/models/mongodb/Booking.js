@@ -1,32 +1,44 @@
 const mongoose = require('mongoose');
 
 const BookingSchema = new mongoose.Schema({
-  bookingId: {
+  reference_id: {
     type: String,
     required: true,
     unique: true
   },
-  customerId: {
+  customer_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  providerId: {
+  provider_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  serviceType: {
+  service_type: {
     type: String,
     enum: ['driver', 'caretaker', 'shuttle'],
     required: true
   },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'in-progress', 'completed', 'cancelled'],
+    enum: ['pending', 'accepted', 'in-progress', 'completed', 'cancelled', 'expired'],
     default: 'pending'
   },
-  pickupLocation: {
+  expiration_time: {
+    type: Date,
+    required: true
+  },
+  pickup_location: {
+    type: String,
+    required: true
+  },
+  dropoff_location: {
+    type: String,
+    required: false
+  },
+  pickup_coordinates: {
     type: {
       type: String,
       enum: ['Point'],
@@ -35,13 +47,9 @@ const BookingSchema = new mongoose.Schema({
     coordinates: {
       type: [Number], // [longitude, latitude]
       required: true
-    },
-    address: {
-      type: String,
-      required: true
     }
   },
-  dropLocation: {
+  dropoff_coordinates: {
     type: {
       type: String,
       enum: ['Point'],
@@ -49,33 +57,42 @@ const BookingSchema = new mongoose.Schema({
     },
     coordinates: {
       type: [Number], // [longitude, latitude]
-      required: true
-    },
-    address: {
-      type: String,
-      required: true
+      required: false
     }
   },
-  distance: {
-    type: Number,
-    required: true
+  booking_date: {
+    type: Date,
+    required: false
   },
-  fare: {
-    type: Number,
-    required: true
+  booking_time: {
+    type: String,
+    required: false
   },
-  startTime: {
+  fare_amount: {
+    type: Number,
+    required: false
+  },
+  payment_method: {
+    type: String,
+    enum: ['cash', 'card', 'wallet'],
+    default: 'cash'
+  },
+  notes: {
+    type: String,
+    required: false
+  },
+  start_time: {
     type: Date
   },
-  endTime: {
+  end_time: {
     type: Date
   },
-  paymentStatus: {
+  payment_status: {
     type: String,
     enum: ['pending', 'completed', 'failed'],
     default: 'pending'
   },
-  paymentId: {
+  payment_id: {
     type: String
   },
   rating: {
@@ -85,24 +102,18 @@ const BookingSchema = new mongoose.Schema({
   },
   feedback: {
     type: String
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
   }
 }, {
   timestamps: true
 });
 
 // Create indexes for common queries
-BookingSchema.index({ customerId: 1 });
-BookingSchema.index({ providerId: 1 });
+BookingSchema.index({ customer_id: 1 });
+BookingSchema.index({ provider_id: 1 });
 BookingSchema.index({ status: 1 });
-BookingSchema.index({ pickupLocation: '2dsphere' });
-BookingSchema.index({ dropLocation: '2dsphere' });
+BookingSchema.index({ pickup_coordinates: '2dsphere' });
+BookingSchema.index({ dropoff_coordinates: '2dsphere' });
+BookingSchema.index({ reference_id: 1 }, { unique: true });
+BookingSchema.index({ expiration_time: 1 });
 
 module.exports = mongoose.model('Booking', BookingSchema);

@@ -4,7 +4,8 @@
  * Middleware functions for authentication and authorization in the RYDO Web App.
  */
 
-const { User } = require('../models/mongodb');
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
 
 /**
  * Check if user is authenticated
@@ -156,3 +157,9 @@ exports.isServiceProvider = (req, res, next) => {
   
   next();
 };
+
+/**
+ * Default middleware for router.use() pattern
+ * This is the middleware that will be used when router.use(authMiddleware) is called
+ */
+module.exports = exports.isAuthenticated;
