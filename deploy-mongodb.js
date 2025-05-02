@@ -52,11 +52,11 @@ async function deploy() {
   # Set Node version
   NODE_VERSION = "18"
   # MongoDB Configuration
-  MONGODB_URI = "${process.env.MONGODB_URI}"
+  MONGODB_URI = "mongodb+srv://username:password@cluster.mongodb.net/rydo_db?retryWrites=true&w=majority"
   # Session Configuration
   SESSION_SECRET = "${process.env.SESSION_SECRET}"
   # Google Maps API Key
-  GOOGLE_MAPS_API_KEY = "${process.env.GOOGLE_MAPS_API_KEY}"
+  GOOGLE_MAPS_API_KEY = "your_google_maps_api_key_here"
   # Email Configuration for OTP Verification
   EMAIL_SERVICE = "${process.env.EMAIL_SERVICE}"
   EMAIL_USER = "${process.env.EMAIL_USER}"
