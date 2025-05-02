@@ -22,6 +22,60 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Sample bookings data
+const bookings = [
+    {
+        id: 'BK12345',
+        type: 'driver',
+        status: 'completed',
+        date: '2025-05-01',
+        time: '10:30 AM',
+        pickup: 'Home, Bangalore',
+        dropoff: 'Airport, Bangalore',
+        driver: {
+            name: 'Rahul K.',
+            rating: 4.8,
+            phone: '+91 9876543210'
+        },
+        fare: 450,
+        distance: '15 km',
+        duration: '35 min'
+    },
+    {
+        id: 'BK12346',
+        type: 'caretaker',
+        status: 'upcoming',
+        date: '2025-05-04',
+        time: '09:00 AM',
+        location: 'Home, Bangalore',
+        caretaker: {
+            name: 'Priya M.',
+            rating: 4.9,
+            phone: '+91 9876543211'
+        },
+        hours: 4,
+        fare: 800
+    },
+    {
+        id: 'BK12347',
+        type: 'shuttle',
+        status: 'active',
+        date: '2025-05-03',
+        time: '08:30 AM',
+        pickup: 'Home, Bangalore',
+        dropoff: 'Office, Bangalore',
+        driver: {
+            name: 'Suresh P.',
+            rating: 4.7,
+            phone: '+91 9876543212'
+        },
+        fare: 350,
+        passengers: 3,
+        distance: '12 km',
+        duration: '30 min'
+    }
+];
+
 /**
  * Initialize booking system
  */

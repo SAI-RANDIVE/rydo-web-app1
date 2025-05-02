@@ -14,14 +14,45 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Setup notification badge
     updateNotificationBadge();
-    
-    // Setup notification polling
-    startNotificationPolling();
 });
 
-// Store notifications in memory
-let notifications = [];
-let unreadCount = 0;
+// Sample notifications data
+const notifications = [
+    {
+        id: 1,
+        type: 'booking',
+        message: 'Your booking #12345 has been confirmed.',
+        time: 'Just now',
+        read: false,
+        icon: 'fas fa-check-circle'
+    },
+    {
+        id: 2,
+        type: 'driver',
+        message: 'Driver Rahul K. is on the way to your location.',
+        time: '5 minutes ago',
+        read: false,
+        icon: 'fas fa-car'
+    },
+    {
+        id: 3,
+        type: 'payment',
+        message: '₹650 has been deducted from your wallet for your recent booking.',
+        time: '1 hour ago',
+        read: false,
+        icon: 'fas fa-wallet'
+    },
+    {
+        id: 4,
+        type: 'rating',
+        message: 'Please rate your experience with Priya M.',
+        time: 'Yesterday',
+        read: true,
+        icon: 'fas fa-star'
+    }
+];
+
+let unreadCount = 3;
 
 /**
  * Initialize notifications system

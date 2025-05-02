@@ -1,84 +1,225 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
-    checkUserSession();
-    
-    // Initialize dashboard
-    initDashboard();
-    
-    // Initialize tabs
-    initTabs();
-    
-    // Initialize location
-    initUserLocation();
-    
-    // Initialize user data
-    initUserData();
-    
-    // Initialize Google Maps
-    initMap();
-    
-    // Navigation functionality
-    initNavigation();
-    
-    // Notification panel functionality
-    initNotifications();
-    
-    // Quick action buttons
-    initQuickActions();
-    
-    // Service selection
-    initServiceSelection();
-    
-    // Initialize ratings
-    initRatings();
+    if (checkUserSession()) {
+        // Initialize dashboard
+        initDashboard();
+        
+        // Initialize tabs if they exist
+        if (typeof initTabs === 'function') {
+            initTabs();
+        }
+        
+        // Initialize location if function exists
+        if (typeof initUserLocation === 'function') {
+            initUserLocation();
+        }
+        
+        // Initialize Google Maps if function exists
+        if (typeof initMap === 'function') {
+            initMap();
+        }
+        
+        // Navigation functionality
+        initNavigation();
+        
+        // Initialize logout functionality
+        initLogout();
+    }
 });
 
 // Check if user is logged in
-async function checkUserSession() {
-    try {
-        const response = await fetch('/auth/check-session', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            // Redirect to login if not authenticated
-            window.location.href = '/';
-        }
-    } catch (error) {
-        console.error('Error checking session:', error);
-        // Redirect to login on error
-        window.location.href = '/';
+function checkUserSession() {
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (!token) {
+        // Redirect to login if not authenticated
+        window.location.href = '/login.html';
+        return false;
     }
+    
+    // Update user info in the dashboard
+    updateUserInfo(user);
+    return true;
 }
 
 // Initialize dashboard with dynamic data
-async function initDashboard() {
-    try {
-        // Show loading indicators for stats
-        const statCards = document.querySelectorAll('.stat-card h3');
-        statCards.forEach(el => {
-            el.innerHTML = '<div class="loading-spinner"></div>';
-        });
-        
-        // Show loading indicators for recent activity
-        const activityList = document.querySelector('.activity-list');
-        if (activityList) {
-            activityList.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading recent activity...</div>';
+function initDashboard() {
+    // Get user data from localStorage
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    // Update welcome message
+    const welcomeName = document.getElementById('welcome-name');
+    if (welcomeName && user.first_name) {
+        welcomeName.textContent = user.first_name;
+    }
+    
+    // Update dashboard stats with mock data
+    updateDashboardStats({
+        totalRides: 12,
+        caretakerBookings: 5,
+        walletBalance: 2500,
+        activeBookings: 2
+    });
+    
+    // Update recent activity with mock data
+    updateRecentActivity([
+        {
+            type: 'ride',
+            description: 'Ride completed from City Center to Airport',
+            time: 'Today, 10:30 AM',
+            icon: 'fas fa-car',
+            iconClass: 'blue'
+        },
+        {
+            type: 'payment',
+            description: 'Payment of ₹450 processed successfully',
+            time: 'Today, 10:35 AM',
+            icon: 'fas fa-money-bill',
+            iconClass: 'green'
+        },
+        {
+            type: 'booking',
+            description: 'Scheduled a ride for tomorrow at 9:00 AM',
+            time: 'Yesterday, 6:15 PM',
+            icon: 'fas fa-calendar',
+            iconClass: 'orange'
         }
-        
-        // Fetch user data
-        const userResponse = await fetch('/user/profile', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
+    ]);
+}
+
+// Initialize navigation functionality
+function initNavigation() {
+    // Get all navigation links
+    const navLinks = document.querySelectorAll('.sidebar-nav a, .mobile-nav a');
+    
+    // Add click event listeners to each link
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // If link has data-toggle="tab", don't prevent default behavior
+            if (this.getAttribute('data-toggle') === 'tab') {
+                return;
+            }
+            
+            // If link is for logout, don't prevent default
+            if (this.classList.contains('logout-link')) {
+                return;
+            }
+            
+            // Prevent default link behavior
+            e.preventDefault();
+            
+            // Get the target page from href attribute
+            const targetPage = this.getAttribute('href');
+            
+            // Navigate to the target page
+            if (targetPage && !targetPage.startsWith('#')) {
+                window.location.href = targetPage;
             }
         });
+    });
+    
+    // Highlight active navigation item
+    highlightActiveNavItem();
+}
+
+// Highlight the active navigation item based on current page
+function highlightActiveNavItem() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.sidebar-nav a, .mobile-nav a');
+    
+    navLinks.forEach(link => {
+        // Remove active class from all links
+        link.classList.remove('active');
         
+        // Get the href attribute
+        const href = link.getAttribute('href');
+        
+        // If href matches current path, add active class
+        if (href === currentPath || 
+            (currentPath.includes(href) && href !== '/' && href !== '#')) {
+            link.classList.add('active');
+            
+            // If link is in a submenu, expand the parent menu
+            const parentMenu = link.closest('.submenu');
+            if (parentMenu) {
+                parentMenu.classList.add('show');
+                const parentLink = parentMenu.previousElementSibling;
+                if (parentLink) {
+                    parentLink.classList.add('active');
+                }
+            }
+        }
+    });
+}
+
+// Update user information in the dashboard
+function updateUserInfo(user) {
+    // Update user name in sidebar
+    const userName = document.getElementById('user-name');
+    if (userName) {
+        userName.textContent = `Welcome, ${user.first_name || user.name || 'User'}`;
+    }
+    
+    // Update user email in sidebar
+    const userEmail = document.getElementById('user-email');
+    if (userEmail) {
+        userEmail.textContent = user.email || 'user@example.com';
+    }
+    
+    // Update user avatar
+    const userAvatar = document.getElementById('user-avatar');
+    if (userAvatar) {
+        if (user.profile_image) {
+            userAvatar.src = user.profile_image;
+        } else {
+            // Use first letter of name as avatar
+            const firstLetter = (user.first_name || user.name || 'U').charAt(0).toUpperCase();
+            userAvatar.style.backgroundImage = 'none';
+            userAvatar.style.backgroundColor = '#3F51B5';
+            userAvatar.style.color = 'white';
+            userAvatar.style.display = 'flex';
+            userAvatar.style.alignItems = 'center';
+            userAvatar.style.justifyContent = 'center';
+            userAvatar.style.fontWeight = 'bold';
+            userAvatar.style.fontSize = '24px';
+            userAvatar.textContent = firstLetter;
+        }
+    }
+}
+
+// Update dashboard stats
+function updateDashboardStats(stats) {
+    const statElements = {
+        totalRides: document.querySelector('.stat-card:nth-child(1) h3'),
+        caretakerBookings: document.querySelector('.stat-card:nth-child(2) h3'),
+        walletBalance: document.querySelector('.stat-card:nth-child(3) h3'),
+        activeBookings: document.querySelector('.stat-card:nth-child(4) h3')
+    };
+    
+    if (statElements.totalRides) {
+        statElements.totalRides.textContent = stats.totalRides;
+    }
+    
+    if (statElements.caretakerBookings) {
+        statElements.caretakerBookings.textContent = stats.caretakerBookings;
+    }
+    
+    if (statElements.walletBalance) {
+        statElements.walletBalance.textContent = `₹${stats.walletBalance}`;
+    }
+    
+    if (statElements.activeBookings) {
+        statElements.activeBookings.textContent = stats.activeBookings;
+    }
+}
+
+// Load dashboard data from API
+async function loadDashboardData() {
+    try {
         // Fetch dashboard stats
-        const statsResponse = await fetch('/customer/dashboard-stats', {
+        const statsResponse = await fetch('/dashboard/stats', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -112,8 +253,32 @@ async function initDashboard() {
             activityList.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Could not load recent activity.</div>';
         }
         
-        showNotification('Failed to load dashboard data. Please try refreshing the page.', 'error');
+        if (typeof showNotification === 'function') {
+            showNotification('Failed to load dashboard data. Please try refreshing the page.', 'error');
+        }
     }
+}
+
+// Initialize logout functionality
+function initLogout() {
+    const logoutLinks = document.querySelectorAll('.logout-link, .logout-button, a[href="/logout"]');
+    
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleLogout();
+        });
+    });
+}
+
+// Handle logout process
+function handleLogout() {
+    // Clear user data from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Redirect to login page
+    window.location.href = '/login.html';
 }
 
 // Update dashboard stats with real data

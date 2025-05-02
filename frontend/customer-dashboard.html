@@ -330,11 +330,14 @@
         </div>
     </div>
     
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc&libraries=places"></script>
+    <!-- Load Google Maps API with async attribute to fix the warning -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc&libraries=places"></script>
+    
+    <!-- Core dashboard scripts with correct paths -->
     <script src="/js/rating-component.js"></script>
-    <script src="../public/js/customer-dashboard.js"></script>
-    <script src="../public/js/notifications.js"></script>
-    <script src="../public/js/booking-management.js"></script>
-  <script src="/js/include-animations.js"></script>
+    <script src="/js/customer-dashboard.js"></script>
+    <script src="/js/notifications.js"></script>
+    <script src="/js/booking-management.js"></script>
+    <script src="/js/include-animations.js"></script>
 </body>
 </html>
