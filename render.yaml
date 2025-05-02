@@ -11,7 +11,7 @@ services:
       - key: PORT
         value: 3002
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://rydoapp:RydoApp2025!@rydo-cluster.mongodb.net/rydo_db?retryWrites=true&w=majority
       - key: SESSION_SECRET
         generateValue: true
       - key: GOOGLE_MAPS_API_KEY
