@@ -115,39 +115,57 @@ app.post('/api/nearby-drivers/find', (req, res) => {
   });
 });
 
-// Mock OTP verification endpoints
-app.post('/api/verification/send-otp', (req, res) => {
-  // Get the email or phone from the request body
-  const { email, phone } = req.body;
-  const type = email ? 'email' : 'phone';
-  const value = email || phone;
+// Mock auth endpoints
+app.post('/api/auth/signup', (req, res) => {
+  // Get user data from request body
+  const { role, first_name, last_name, email, phone, password } = req.body;
   
-  console.log(`Sending OTP to ${type}: ${value}`);
+  console.log(`Creating new user: ${first_name} ${last_name}, Email: ${email}, Role: ${role}`);
   
-  // Generate a random request ID
-  const requestId = Math.random().toString(36).substring(2, 15);
+  // Generate a random token
+  const token = 'demo-token-' + Math.random().toString(36).substring(2, 10);
   
-  // Return a success response
+  // Return a success response with mock user data
   res.json({
     success: true,
-    message: `OTP sent to your ${type}`,
-    requestId: requestId,
-    [type]: value.substring(0, 2) + '*'.repeat(value.length - 4) + value.substring(value.length - 2)
+    message: 'User registered successfully',
+    token: token,
+    user: {
+      id: Math.floor(Math.random() * 1000),
+      first_name,
+      last_name,
+      email,
+      phone,
+      role,
+      created_at: new Date().toISOString()
+    }
   });
 });
 
-// Mock OTP verification endpoint
-app.post('/api/verification/verify-otp', (req, res) => {
-  // Get the request ID and OTP from the request body
-  const { requestId, otp } = req.body;
+// Mock login endpoint
+app.post('/api/auth/login', (req, res) => {
+  // Get login credentials from request body
+  const { email, password } = req.body;
   
-  console.log(`Verifying OTP: ${otp} for request: ${requestId}`);
+  console.log(`User login attempt: ${email}`);
   
-  // Always return success for demo purposes
+  // Generate a random token
+  const token = 'demo-token-' + Math.random().toString(36).substring(2, 10);
+  
+  // Return a success response with mock user data
   res.json({
     success: true,
-    message: 'OTP verified successfully',
-    token: 'demo-token-' + Math.random().toString(36).substring(2, 10)
+    message: 'Login successful',
+    token: token,
+    user: {
+      id: Math.floor(Math.random() * 1000),
+      first_name: 'Demo',
+      last_name: 'User',
+      email,
+      phone: '1234567890',
+      role: 'customer',
+      created_at: new Date().toISOString()
+    }
   });
 });
 

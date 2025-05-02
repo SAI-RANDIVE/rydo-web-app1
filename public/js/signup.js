@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formContainer = document.querySelector('.form-container');
         formContainer.insertBefore(errorContainer, document.getElementById('signup-form'));
     }
+    
     // Toggle password visibility
     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
     togglePasswordButtons.forEach(button => {
@@ -93,8 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form submission
     const signupForm = document.getElementById('signup-form');
-    let verificationComplete = false;
-    let verifiedData = null;
     
     if (signupForm) {
         signupForm.addEventListener('submit', async function(e) {
@@ -105,12 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (errorContainer) {
                 errorContainer.textContent = '';
                 errorContainer.style.display = 'none';
-            }
-            
-            // If verification is already complete, proceed with form submission
-            if (verificationComplete) {
-                submitFormData();
-                return;
             }
             
             const role = document.getElementById('role').value;
@@ -133,66 +126,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Start OTP verification process
-            const verificationContainer = document.getElementById('verification-container');
-            verificationContainer.style.display = 'block';
-            
-            // Initialize OTP verification module
-            window.otpVerification.init('verification-container', function(result) {
-                if (result.verified) {
-                    verificationComplete = true;
-                    verifiedData = {
-                        type: result.type,
-                        value: result.value
-                    };
-                    submitFormData();
-                }
-            });
-            
-            // Function to submit form data after verification
-            async function submitFormData() {
-                try {
-                    console.log('Submitting form with data:', {
+            // Submit form data directly (no OTP verification)
+            try {
+                console.log('Submitting form with data:', {
+                    role,
+                    first_name: firstName,
+                    last_name: lastName,
+                    email,
+                    phone,
+                    password: '********' // Don't log actual password
+                });
+                
+                // Use our simplified API endpoint instead of Netlify functions
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
                         role,
                         first_name: firstName,
                         last_name: lastName,
                         email,
                         phone,
-                        password: '********' // Don't log actual password
-                    });
-                    
-                    const response = await fetch('/.netlify/functions/auth', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            role,
-                            first_name: firstName,
-                            last_name: lastName,
-                            email,
-                            phone,
-                            password,
-                            verified: true,
-                            verification_type: verifiedData ? verifiedData.type : null
-                        })
-                    });
-                    
-                    let data;
-                    try {
-                        data = await response.json();
-                    } catch (error) {
-                        console.error('Error parsing response:', error);
-                        throw new Error('Invalid server response');
+                        password
+                    })
+                });
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    console.error('Error parsing response:', error);
+                    throw new Error('Invalid server response');
+                }
+                
+                console.log('Server response:', response.status, data);
+                
+                if (response.ok) {
+                    // Set session
+                    if (data.token) {
+                        localStorage.setItem('token', data.token);
                     }
                     
-                    console.log('Server response:', response.status, data);
-                    
-                    if (response.ok) {
-                        // Set session
-                        if (typeof sessionStorage !== 'undefined') {
-                            sessionStorage.setItem('user', JSON.stringify(data.user));
-                        }
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
                         
                         // Redirect based on user role
                         switch(data.user.role) {
@@ -208,23 +186,28 @@ document.addEventListener('DOMContentLoaded', function() {
                             case 'shuttle_driver':
                                 window.location.href = '/shuttle-dashboard';
                                 break;
+                            default:
+                                window.location.href = '/dashboard';
                         }
                     } else {
-                        // Handle error
-                        const errorContainer = document.getElementById('error-message');
-                        if (errorContainer) {
-                            errorContainer.textContent = data.message || 'An error occurred during signup';
-                            errorContainer.style.display = 'block';
-                        }
-                        console.error('Signup error:', data.message || 'Unknown error');
+                        // If no specific role, just go to dashboard
+                        window.location.href = '/dashboard';
                     }
-                } catch (error) {
-                    console.error('Signup error:', error);
+                } else {
+                    // Handle error
                     const errorContainer = document.getElementById('error-message');
                     if (errorContainer) {
-                        errorContainer.textContent = error.message || 'An error occurred during signup. Please try again.';
+                        errorContainer.textContent = data.message || 'An error occurred during signup';
                         errorContainer.style.display = 'block';
                     }
+                    console.error('Signup error:', data.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                const errorContainer = document.getElementById('error-message');
+                if (errorContainer) {
+                    errorContainer.textContent = error.message || 'An error occurred during signup. Please try again.';
+                    errorContainer.style.display = 'block';
                 }
             }
         });
