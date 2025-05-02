@@ -54,6 +54,23 @@ app.get('/privacy-policy.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
 });
 
+// Also support routes without .html extension
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
+});
+
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'signup.html'));
+});
+
+app.get('/terms', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'terms.html'));
+});
+
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
+});
+
 // Default route serves index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));

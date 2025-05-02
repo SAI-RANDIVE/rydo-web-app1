@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const remember = document.getElementById('remember').checked;
             
             try {
-                const response = await fetch('/.netlify/functions/api', {
+                const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
