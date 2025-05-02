@@ -45,13 +45,43 @@ class DatabaseInterface {
     async connectMongo() {
         try {
             mongoose.set('strictQuery', false);
-            const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/rydo';
-            const conn = await mongoose.connect(mongoUri, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true
-            });
-            this.mongoConnection = conn;
-            console.log(`MongoDB Connected: ${conn.connection.host}`);
+            
+            // Try multiple MongoDB connection strings in order of preference
+            const mongoUris = [
+                process.env.MONGODB_URI,
+                'mongodb+srv://rydoapp:RydoApp2025@cluster0.mongodb.net/rydo_db?retryWrites=true&w=majority',
+                'mongodb://127.0.0.1:27017/rydo'
+            ];
+            
+            let connected = false;
+            let lastError = null;
+            
+            // Try each connection string until one works
+            for (const uri of mongoUris) {
+                if (!uri) continue;
+                
+                try {
+                    console.log(`Attempting to connect to MongoDB with URI: ${uri.substring(0, 20)}...`);
+                    const conn = await mongoose.connect(uri, {
+                        useNewUrlParser: true,
+                        useUnifiedTopology: true,
+                        serverSelectionTimeoutMS: 5000 // 5 second timeout
+                    });
+                    
+                    this.mongoConnection = conn;
+                    console.log(`MongoDB Connected: ${conn.connection.host}`);
+                    connected = true;
+                    break;
+                } catch (err) {
+                    console.error(`Failed to connect with this URI: ${err.message}`);
+                    lastError = err;
+                    // Continue to the next URI
+                }
+            }
+            
+            if (!connected) {
+                throw lastError || new Error('All MongoDB connection attempts failed');
+            }
         } catch (err) {
             console.error(`MongoDB Connection Error: ${err.message}`);
             this.mongoConnection = null;

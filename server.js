@@ -188,15 +188,31 @@ app.get('*', (req, res) => {
 const startServer = async () => {
   try {
     // Connect to the database using the unified interface
-    await db.connect();
-    
-    // Initialize services only if they exist
-    if (trackingService && typeof trackingService.initialize === 'function') {
-      await trackingService.initialize();
+    try {
+      await db.connect();
+      console.log('Database connection initialized successfully');
+    } catch (dbError) {
+      console.error('Database connection failed, but continuing server startup:', dbError.message);
+      // Continue with server startup even if database connection fails
     }
     
-    if (notificationService && typeof notificationService.initialize === 'function') {
-      await notificationService.initialize();
+    // Initialize services only if they exist
+    try {
+      if (trackingService && typeof trackingService.initialize === 'function') {
+        await trackingService.initialize();
+        console.log('Tracking service initialized');
+      }
+    } catch (trackingError) {
+      console.error('Tracking service initialization failed:', trackingError.message);
+    }
+    
+    try {
+      if (notificationService && typeof notificationService.initialize === 'function') {
+        await notificationService.initialize();
+        console.log('Notification service initialized');
+      }
+    } catch (notificationError) {
+      console.error('Notification service initialization failed:', notificationError.message);
     }
     
     // Start the server
