@@ -113,54 +113,116 @@ function checkUserSession() {
         return false;
     }
     
+    // Verify token with server
+    verifyToken(token)
+        .then(isValid => {
+            if (!isValid) {
+                // Token is invalid, redirect to login
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login.html';
+                return false;
+            }
+        })
+        .catch(error => {
+            console.error('Error verifying token:', error);
+            // On error, keep the user logged in but log the error
+        });
+    
     // Update user info in the dashboard
     updateUserInfo(user);
     return true;
 }
 
-// Initialize dashboard with dynamic data
-function initDashboard() {
-    // Get user data from localStorage
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    // Update welcome message
-    const welcomeName = document.getElementById('welcome-name');
-    if (welcomeName && user.first_name) {
-        welcomeName.textContent = user.first_name;
-    }
-    
-    // Update dashboard stats with mock data
-    updateDashboardStats({
-        totalRides: 12,
-        caretakerBookings: 5,
-        walletBalance: 2500,
-        activeBookings: 2
-    });
-    
-    // Update recent activity with mock data
-    updateRecentActivity([
-        {
-            type: 'ride',
-            description: 'Ride completed from City Center to Airport',
-            time: 'Today, 10:30 AM',
-            icon: 'fas fa-car',
-            iconClass: 'blue'
-        },
-        {
-            type: 'payment',
-            description: 'Payment of ₹450 processed successfully',
-            time: 'Today, 10:35 AM',
-            icon: 'fas fa-money-bill',
-            iconClass: 'green'
-        },
-        {
-            type: 'booking',
-            description: 'Scheduled a ride for tomorrow at 9:00 AM',
-            time: 'Yesterday, 6:15 PM',
-            icon: 'fas fa-calendar',
-            iconClass: 'orange'
+// Verify token with server
+function verifyToken(token) {
+    return fetch('/api/auth/verify', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
         }
-    ]);
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        return data.success;
+    })
+    .catch(error => {
+        console.error('Error verifying token:', error);
+        return false;
+    });
+}
+
+// Initialize dashboard with dynamic data
+async function initDashboard() {
+    try {
+        // Get user data from localStorage
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('No authentication token found');
+        }
+        
+        // Update welcome message
+        const welcomeName = document.getElementById('welcome-name');
+        if (welcomeName && user.first_name) {
+            welcomeName.textContent = user.first_name;
+        }
+        
+        // Fetch dashboard stats from server
+        const statsResponse = await fetch('/api/dashboard/stats', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!statsResponse.ok) {
+            throw new Error(`HTTP error! Status: ${statsResponse.status}`);
+        }
+        
+        const statsData = await statsResponse.json();
+        
+        // Update dashboard with real data
+        const dashboardStats = {
+            totalRides: statsData.stats?.totalRides || 0,
+            caretakerBookings: statsData.stats?.caretakerBookings || 0,
+            walletBalance: statsData.stats?.walletBalance || 0,
+            activeBookings: statsData.stats?.activeBookings || 0,
+            rating: statsData.stats?.rating || 0.0
+        };
+        
+        // Update dashboard stats with real data
+        updateDashboardStats(dashboardStats);
+        
+        // Load recent activity
+        await loadRecentActivity();
+        
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        
+        // Show error message for stats
+        const statCards = document.querySelectorAll('.stat-card h3');
+        statCards.forEach(el => {
+            el.textContent = '0';
+        });
+        
+        // Show error message for recent activity
+        const activityList = document.querySelector('.activity-list');
+        if (activityList) {
+            activityList.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Could not load recent activity.</div>';
+        }
+        
+        // Show error toast
+        showToast('Failed to load dashboard data. Please try refreshing the page.', 'error');
+    }
 }
 
 // Fallback implementation for loading booking history
@@ -2756,6 +2818,126 @@ function closeRatingModal() {
     if (modalContainer) {
         modalContainer.classList.remove('active');
     }
+}
+
+// Load recent activity from server
+async function loadRecentActivity() {
+    const activityContainer = document.querySelector('.activity-list');
+    
+    if (!activityContainer) {
+        console.error('Activity container not found');
+        return;
+    }
+    
+    // Show loading state
+    activityContainer.innerHTML = '<div class="loading-spinner"></div>';
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        console.error('No authentication token found');
+        activityContainer.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Authentication error. Please log in again.</div>';
+        return;
+    }
+    
+    try {
+        // Fetch recent activity from server
+        const response = await fetch('/api/customer/recent-activity', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.activities && data.activities.length > 0) {
+            // Update recent activity with real data
+            updateRecentActivity(data.activities);
+        } else {
+            // No activities found
+            activityContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-history"></i>
+                    <h3>No Recent Activity</h3>
+                    <p>Your recent activities will appear here.</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading recent activity:', error);
+        activityContainer.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Could not load recent activity. Please try again later.</span>
+            </div>
+        `;
+    }
+}
+
+// Update recent activity in the UI
+function updateRecentActivity(activities) {
+    const activityContainer = document.querySelector('.activity-list');
+    
+    if (!activityContainer) {
+        console.error('Activity container not found');
+        return;
+    }
+    
+    // Clear container
+    activityContainer.innerHTML = '';
+    
+    // Add activities to container
+    activities.forEach(activity => {
+        // Format timestamp
+        const timestamp = new Date(activity.timestamp);
+        const now = new Date();
+        
+        // Format relative time
+        let timeString = '';
+        const diffMs = now - timestamp;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        if (diffMins < 1) {
+            timeString = 'Just now';
+        } else if (diffMins < 60) {
+            timeString = `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
+        } else if (diffHours < 24) {
+            timeString = `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+        } else if (diffDays < 7) {
+            timeString = `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+        } else {
+            timeString = timestamp.toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+        
+        // Create activity item
+        const activityItem = document.createElement('div');
+        activityItem.className = `activity-item ${activity.status || 'info'}`;
+        activityItem.innerHTML = `
+            <div class="activity-icon">
+                <i class="fas ${activity.icon}"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">${activity.title}</div>
+                <div class="activity-description">${activity.description}</div>
+                <div class="activity-time">${timeString}</div>
+            </div>
+        `;
+        
+        activityContainer.appendChild(activityItem);
+    });
 }
 
 // Show notification

@@ -98,7 +98,274 @@ app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
 });
 
-// Dashboard routes
+// Authentication endpoints
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  // Validate required fields
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email and password are required'
+    });
+  }
+  
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid email format'
+    });
+  }
+  
+  // In a real app, we would check against a database
+  // For demo purposes, we'll use some hardcoded credentials
+  const validUsers = [
+    {
+      id: 'usr_001',
+      email: 'customer@example.com',
+      password: 'password123',
+      role: 'customer',
+      first_name: 'John',
+      last_name: 'Doe',
+      phone: '+91 9876543210',
+      profile_image: '/images/profile/customer.jpg'
+    },
+    {
+      id: 'usr_002',
+      email: 'driver@example.com',
+      password: 'password123',
+      role: 'driver',
+      first_name: 'Rahul',
+      last_name: 'Singh',
+      phone: '+91 9876543211',
+      profile_image: '/images/profile/driver.jpg',
+      is_available: true,
+      vehicle_type: 'sedan'
+    },
+    {
+      id: 'usr_003',
+      email: 'caretaker@example.com',
+      password: 'password123',
+      role: 'caretaker',
+      first_name: 'Priya',
+      last_name: 'Sharma',
+      phone: '+91 9876543212',
+      profile_image: '/images/profile/caretaker.jpg',
+      specialization: 'elderly care'
+    },
+    {
+      id: 'usr_004',
+      email: 'shuttle@example.com',
+      password: 'password123',
+      role: 'shuttle_driver',
+      first_name: 'Suresh',
+      last_name: 'Kumar',
+      phone: '+91 9876543213',
+      profile_image: '/images/profile/shuttle.jpg',
+      vehicle_capacity: 12
+    },
+    {
+      id: 'usr_005',
+      email: 'admin@example.com',
+      password: 'admin123',
+      role: 'admin',
+      first_name: 'Admin',
+      last_name: 'User',
+      phone: '+91 9876543214',
+      profile_image: '/images/profile/admin.jpg'
+    }
+  ];
+  
+  // Find user with matching email
+  const user = validUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+  
+  // Check if user exists and password matches
+  if (!user || user.password !== password) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid email or password'
+    });
+  }
+  
+  // Generate JWT token (in a real app, use a proper JWT library)
+  const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${Buffer.from(JSON.stringify({
+    id: user.id,
+    email: user.email,
+    role: user.role
+  })).toString('base64')}.SIGNATURE`;
+  
+  // Remove password from user object before sending response
+  const { password: _, ...userWithoutPassword } = user;
+  
+  res.json({
+    success: true,
+    message: 'Login successful',
+    token,
+    user: userWithoutPassword
+  });
+});
+
+app.post('/api/auth/signup', (req, res) => {
+  const { first_name, last_name, email, phone, password, role } = req.body;
+  
+  // Validate required fields
+  if (!first_name || !last_name || !email || !phone || !password || !role) {
+    return res.status(400).json({
+      success: false,
+      message: 'All fields are required'
+    });
+  }
+  
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid email format'
+    });
+  }
+  
+  // Validate phone format (simple validation for demo)
+  const phoneRegex = /^\+?[0-9\s]{10,15}$/;
+  if (!phoneRegex.test(phone)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid phone number format'
+    });
+  }
+  
+  // Validate password strength
+  if (password.length < 8) {
+    return res.status(400).json({
+      success: false,
+      message: 'Password must be at least 8 characters long'
+    });
+  }
+  
+  // Validate role
+  const validRoles = ['customer', 'driver', 'caretaker', 'shuttle_driver'];
+  if (!validRoles.includes(role)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid role'
+    });
+  }
+  
+  // In a real app, we would check if the email already exists in the database
+  // and then create a new user record
+  
+  // Generate a new user ID
+  const userId = `usr_${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+  
+  // Generate JWT token (in a real app, use a proper JWT library)
+  const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${Buffer.from(JSON.stringify({
+    id: userId,
+    email,
+    role
+  })).toString('base64')}.SIGNATURE`;
+  
+  // Create user object
+  const newUser = {
+    id: userId,
+    first_name,
+    last_name,
+    email,
+    phone,
+    role,
+    created_at: new Date().toISOString()
+  };
+  
+  res.status(201).json({
+    success: true,
+    message: 'Account created successfully',
+    token,
+    user: newUser
+  });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  // In a real app, we would invalidate the token in a token blacklist
+  // For this demo, we'll just return a success response
+  res.json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+});
+
+app.get('/api/auth/verify', (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'No token provided'
+    });
+  }
+  
+  try {
+    // In a real app, we would verify the JWT token
+    // For this demo, we'll just check if it's in the expected format
+    const parts = token.split('.');
+    
+    if (parts.length !== 3) {
+      throw new Error('Invalid token format');
+    }
+    
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+    
+    if (!payload.id || !payload.email || !payload.role) {
+      throw new Error('Invalid token payload');
+    }
+    
+    res.json({
+      success: true,
+      message: 'Token is valid',
+      user: {
+        id: payload.id,
+        email: payload.email,
+        role: payload.role
+      }
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid token'
+    });
+  }
+});
+
+// Dashboard routes with authentication middleware
+const authenticateUser = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1] || req.cookies?.token;
+  
+  if (!token) {
+    return res.redirect('/login');
+  }
+  
+  try {
+    // In a real app, we would verify the JWT token
+    // For this demo, we'll just check if it's in the expected format
+    const parts = token.split('.');
+    
+    if (parts.length !== 3) {
+      throw new Error('Invalid token format');
+    }
+    
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+    
+    if (!payload.id || !payload.email || !payload.role) {
+      throw new Error('Invalid token payload');
+    }
+    
+    req.user = payload;
+    next();
+  } catch (error) {
+    return res.redirect('/login');
+  }
+};
+
 app.get('/customer-dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'customer-dashboard.html'));
 });
@@ -133,25 +400,98 @@ app.get('/api/dashboard/stats', (req, res) => {
         return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
     
-    // Generate dynamic stats
-    const totalRides = Math.floor(Math.random() * 50) + 10;
-    const avgFare = Math.floor(Math.random() * 200) + 100;
-    const totalEarnings = totalRides * avgFare;
-    const rating = (4 + Math.random()).toFixed(1);
-    const hoursOnline = Math.floor(Math.random() * 200) + 50;
-    
-    res.json({
-        success: true,
-        stats: {
-            totalRides,
-            totalEarnings,
-            rating: parseFloat(rating),
-            hoursOnline,
-            avgFare,
-            completionRate: Math.floor(Math.random() * 20) + 80 + '%', // 80-100%
-            acceptanceRate: Math.floor(Math.random() * 15) + 85 + '%' // 85-100%
+    try {
+        // Decode token to get user info
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            throw new Error('Invalid token format');
         }
-    });
+        
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+        if (!payload.id || !payload.email || !payload.role) {
+            throw new Error('Invalid token payload');
+        }
+        
+        // Generate appropriate stats based on user role
+        let stats = {};
+        
+        switch (payload.role) {
+            case 'customer':
+                // Customer stats
+                stats = {
+                    totalRides: Math.floor(Math.random() * 20) + 5,
+                    caretakerBookings: Math.floor(Math.random() * 5),
+                    walletBalance: Math.floor(Math.random() * 5000) + 500,
+                    activeBookings: Math.floor(Math.random() * 3),
+                    rating: parseFloat((4 + Math.random()).toFixed(1)),
+                    recentLocations: [
+                        'Home, Bangalore',
+                        'Office, Bangalore',
+                        'Airport, Bangalore',
+                        'Mall, Bangalore'
+                    ]
+                };
+                break;
+                
+            case 'driver':
+                // Driver stats
+                stats = {
+                    totalRides: Math.floor(Math.random() * 50) + 10,
+                    totalEarnings: Math.floor(Math.random() * 10000) + 5000,
+                    rating: parseFloat((4 + Math.random()).toFixed(1)),
+                    hoursOnline: Math.floor(Math.random() * 200) + 50,
+                    avgFare: Math.floor(Math.random() * 200) + 100,
+                    completionRate: Math.floor(Math.random() * 20) + 80 + '%', // 80-100%
+                    cancelRate: Math.floor(Math.random() * 10) + '%' // 0-10%
+                };
+                break;
+                
+            case 'caretaker':
+                // Caretaker stats
+                stats = {
+                    totalBookings: Math.floor(Math.random() * 30) + 5,
+                    totalEarnings: Math.floor(Math.random() * 15000) + 8000,
+                    rating: parseFloat((4 + Math.random()).toFixed(1)),
+                    hoursWorked: Math.floor(Math.random() * 300) + 100,
+                    avgBookingDuration: Math.floor(Math.random() * 5) + 2 + ' hours',
+                    specializations: ['Elderly Care', 'Medical Assistance', 'Child Care']
+                };
+                break;
+                
+            case 'shuttle_driver':
+                // Shuttle driver stats
+                stats = {
+                    totalTrips: Math.floor(Math.random() * 100) + 30,
+                    totalPassengers: Math.floor(Math.random() * 1000) + 300,
+                    totalEarnings: Math.floor(Math.random() * 20000) + 10000,
+                    rating: parseFloat((4 + Math.random()).toFixed(1)),
+                    avgOccupancy: Math.floor(Math.random() * 30) + 70 + '%', // 70-100%
+                    routesServed: Math.floor(Math.random() * 5) + 1
+                };
+                break;
+                
+            default:
+                // Admin or unknown role
+                stats = {
+                    totalUsers: Math.floor(Math.random() * 1000) + 500,
+                    activeUsers: Math.floor(Math.random() * 500) + 200,
+                    totalBookings: Math.floor(Math.random() * 5000) + 1000,
+                    totalRevenue: Math.floor(Math.random() * 100000) + 50000,
+                    growthRate: Math.floor(Math.random() * 20) + 5 + '%'
+                };
+        }
+        
+        res.json({
+            success: true,
+            stats: stats
+        });
+    } catch (error) {
+        console.error('Error generating dashboard stats:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error generating dashboard stats'
+        });
+    }
 });
 
 // Mock API endpoints for dashboard data
