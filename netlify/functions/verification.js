@@ -5,12 +5,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-// Import MongoDB models
-require('../../backend/models/mongodb');
-
-// Import the MongoDB OTP service
-const otpService = require('../../functions/mongodb-otp-service');
-
 // Initialize express app
 const app = express();
 
@@ -22,13 +16,16 @@ const connectMongoDB = async () => {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });
-      console.log('MongoDB connected in verification function');
+      console.log('Connected to MongoDB');
     }
   } catch (error) {
     console.error('MongoDB connection error:', error);
     throw error;
   }
 };
+
+// Connect to MongoDB before handling requests
+connectMongoDB();
 
 // Security headers middleware
 app.use((req, res, next) => {
@@ -49,139 +46,65 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
+// Import MongoDB models
+require('../../backend/models/mongodb/OTP');
+
+// Import MongoDB OTP service
+const otpService = require('../../functions/mongodb-otp-service');
+
 // Routes
 app.get('/', (req, res) => {
   res.json({
-    message: 'RYDO Verification API is running'
+    message: 'RYDO Verification API with MongoDB is running'
   });
 });
 
-// Connect to MongoDB before handling requests
-app.use(async (req, res, next) => {
+// Verification routes
+app.post('/send-phone-otp', async (req, res) => {
   try {
-    await connectMongoDB();
-    next();
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    res.status(500).json({ error: 'Database connection failed' });
-  }
-});
-
-/**
- * Send OTP for phone verification
- * POST /send-phone
- */
-app.post('/send-phone', async (req, res) => {
-  try {
-    const { phone } = req.body;
+    const { phoneNumber } = req.body;
     
-    if (!phone) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Phone number is required' 
-      });
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
     }
     
-    // Format phone number if needed
-    const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
-    
-    // Send OTP using MongoDB OTP service
-    const result = await otpService.sendPhoneOTP(formattedPhone);
-    
-    if (result.success) {
-      return res.json({
-        success: true,
-        message: 'OTP sent successfully',
-        requestId: result.requestId,
-        phone: formattedPhone.replace(/(\+\d{2})(\d{3})(.*)\d{2}/, '$1$2***')
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: result.message || 'Failed to send OTP'
-      });
-    }
+    const result = await otpService.sendPhoneOTP(phoneNumber);
+    res.json(result);
   } catch (error) {
     console.error('Error sending phone OTP:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to send OTP'
-    });
+    res.status(500).json({ error: 'Failed to send OTP', message: error.message });
   }
 });
 
-/**
- * Send OTP for email verification
- * POST /send-email
- */
-app.post('/send-email', async (req, res) => {
+app.post('/send-email-otp', async (req, res) => {
   try {
     const { email } = req.body;
     
     if (!email) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Email is required' 
-      });
+      return res.status(400).json({ error: 'Email is required' });
     }
     
-    // Send OTP using MongoDB OTP service
     const result = await otpService.sendEmailOTP(email);
-    
-    if (result.success) {
-      return res.json({
-        success: true,
-        message: 'OTP sent successfully',
-        requestId: result.requestId,
-        email: email.replace(/(.{2})(.*)(?=@)/, function(_, a, b) {
-          return a + b.replace(/./g, '*');
-        })
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: result.message || 'Failed to send OTP'
-      });
-    }
+    res.json(result);
   } catch (error) {
     console.error('Error sending email OTP:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to send OTP'
-    });
+    res.status(500).json({ error: 'Failed to send OTP', message: error.message });
   }
 });
 
-/**
- * Verify OTP
- * POST /verify
- */
-app.post('/verify', async (req, res) => {
+app.post('/verify-otp', async (req, res) => {
   try {
     const { requestId, otp } = req.body;
     
     if (!requestId || !otp) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Request ID and OTP are required' 
-      });
+      return res.status(400).json({ error: 'Request ID and OTP are required' });
     }
     
-    // Verify OTP using MongoDB OTP service
     const result = await otpService.verifyOTP(requestId, otp);
-    
-    return res.json({
-      success: result.success,
-      verified: result.verified || false,
-      message: result.message || (result.verified ? 'OTP verified successfully' : 'Invalid OTP')
-    });
+    res.json(result);
   } catch (error) {
     console.error('Error verifying OTP:', error);
-    return res.status(500).json({
-      success: false,
-      verified: false,
-      message: 'Failed to verify OTP'
-    });
+    res.status(500).json({ error: 'Failed to verify OTP', message: error.message });
   }
 });
 
@@ -189,7 +112,7 @@ app.post('/verify', async (req, res) => {
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
-    message: `The requested endpoint ${req.method} ${req.path} does not exist`
+    message: `Route ${req.method} ${req.url} not found`
   });
 });
 
@@ -198,7 +121,7 @@ app.use((err, req, res, next) => {
   console.error('Verification API Error:', err);
   res.status(500).json({
     error: 'Internal Server Error',
-    message: err.message || 'Something went wrong'
+    message: err.message
   });
 });
 

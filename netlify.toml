@@ -4,10 +4,8 @@
   command = "node netlify-deploy.js"
   
 [build.environment]
-  # MongoDB Configuration
-  MONGODB_URI = "mongodb+srv://username:password@cluster.mongodb.net/rydo_db?retryWrites=true&w=majority"
-  SESSION_SECRET = "rydo_secure_session_key_for_production_2025"
-  GOOGLE_MAPS_API_KEY = "your_google_maps_api_key_here"
+  NODE_VERSION = "18"
+  NODE_ENV = "production"
 
 [[redirects]]
   from = "/api/*"

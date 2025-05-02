@@ -3,7 +3,7 @@ services:
   - type: web
     name: rydo-web-app
     env: node
-    buildCommand: npm install && node netlify-deploy.js
+    buildCommand: npm install
     startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
@@ -11,14 +11,20 @@ services:
       - key: PORT
         value: 3002
       - key: MONGODB_URI
-        value: mongodb+srv://username:password@cluster.mongodb.net/rydo_db?retryWrites=true&w=majority
+        sync: false
       - key: SESSION_SECRET
-        value: rydo_secure_session_key_for_production_2025
+        generateValue: true
       - key: GOOGLE_MAPS_API_KEY
-        value: your_google_maps_api_key_here
+        sync: false
       - key: EMAIL_SERVICE
         value: gmail
       - key: EMAIL_USER
-        value: rydoapp@gmail.com
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
       - key: RAZORPAY_COMMISSION_PERCENTAGE
         value: 7.5

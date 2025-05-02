@@ -14,22 +14,22 @@ const fileUpload = require('express-fileupload');
 require('dotenv').config();
 
 // Import MongoDB models
-require('./models/mongodb/User');
-require('./models/mongodb/Driver');
-require('./models/mongodb/Caretaker');
-require('./models/mongodb/Shuttle');
-require('./models/mongodb/Booking');
-require('./models/mongodb/Payment');
-require('./models/mongodb/Rating');
-require('./models/mongodb/Notification');
-require('./models/mongodb/Wallet');
-require('./models/mongodb/OTP');
-require('./models/mongodb/Profile');
-require('./models/mongodb/VehicleType');
+require('./backend/models/mongodb/User');
+require('./backend/models/mongodb/Driver');
+require('./backend/models/mongodb/Caretaker');
+require('./backend/models/mongodb/Shuttle');
+require('./backend/models/mongodb/Booking');
+require('./backend/models/mongodb/Payment');
+require('./backend/models/mongodb/Rating');
+require('./backend/models/mongodb/Notification');
+require('./backend/models/mongodb/Wallet');
+require('./backend/models/mongodb/OTP');
+require('./backend/models/mongodb/Profile');
+require('./backend/models/mongodb/VehicleType');
 
 // Import MongoDB services
-const trackingService = require('./services/mongodb-tracking-service');
-const notificationService = require('./services/mongodb-notification-service');
+const trackingService = require('./backend/services/mongodb-tracking-service');
+const notificationService = require('./backend/services/mongodb-notification-service');
 
 // Initialize express app
 const app = express();
