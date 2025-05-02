@@ -38,13 +38,17 @@ const PORT = process.env.PORT || 3002;
 // Connect to MongoDB
 const connectMongoDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    const mongoUrl = process.env.MONGODB_URI || 'mongodb+srv://rydoapp:RydoApp2025!@rydo-cluster.mongodb.net/rydo_db?retryWrites=true&w=majority';
+    console.log('Connecting to MongoDB with URI:', mongoUrl);
+    
+    await mongoose.connect(mongoUrl, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('Connected to MongoDB');
+    console.log('Connected to MongoDB successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
+    console.error('Please check your MongoDB URI and credentials');
     process.exit(1);
   }
 };
@@ -73,14 +77,18 @@ app.use(fileUpload({
 }));
 
 // Session middleware with MongoDB store
+const mongoUrl = process.env.MONGODB_URI || 'mongodb+srv://rydoapp:RydoApp2025!@rydo-cluster.mongodb.net/rydo_db?retryWrites=true&w=majority';
+console.log('MongoDB URI for session store:', mongoUrl);
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'rydo_secret_key',
+  secret: process.env.SESSION_SECRET || 'rydo_secure_session_key_for_production_2025',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
+    mongoUrl: mongoUrl,
     ttl: 14 * 24 * 60 * 60, // 14 days
-    autoRemove: 'native'
+    autoRemove: 'native',
+    touchAfter: 24 * 3600 // Only update the session once per day unless data changes
   }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',
