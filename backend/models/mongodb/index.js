@@ -3,15 +3,25 @@ const Booking = require('./Booking');
 const Payment = require('./Payment');
 const Profile = require('./Profile');
 const VehicleType = require('./VehicleType');
-const OTP = require('./OTP');
+const Driver = require('./Driver');
+const Caretaker = require('./Caretaker');
+const Shuttle = require('./Shuttle');
+const Rating = require('./Rating');
 const Notification = require('./Notification');
+const Wallet = require('./Wallet');
+const OTP = require('./OTP');
 
 module.exports = {
   User,
+  Driver,
+  Caretaker,
+  Shuttle,
   Booking,
   Payment,
-  Profile,
-  VehicleType,
+  Rating,
+  Notification,
+  Wallet,
   OTP,
-  Notification
+  Profile,
+  VehicleType
 };
