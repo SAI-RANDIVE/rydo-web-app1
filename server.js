@@ -115,23 +115,31 @@ let bookingRoutes, driverRoutes, walletRoutes, nearbyDriversRoutes;
 // Load appropriate routes based on database configuration
 if (useMongoDb) {
   try {
-    // Import MongoDB routes
-    authRoutes = require('./backend/routes/mongodb-auth');
-    userRoutes = require('./backend/routes/mongodb-user');
-    caretakerRoutes = require('./backend/routes/mongodb-caretaker');
-    shuttleRoutes = require('./backend/routes/mongodb-shuttle');
-    customerRoutes = require('./backend/routes/mongodb-customer');
-    paymentRoutes = require('./backend/routes/mongodb-payment');
-    trackingRoutes = require('./backend/routes/mongodb-tracking');
-    notificationRoutes = require('./backend/routes/mongodb-notification');
-    ratingRoutes = require('./backend/routes/mongodb-rating');
-    bookingRoutes = require('./backend/routes/mongodb-booking');
-    driverRoutes = require('./backend/routes/mongodb-driver');
-    walletRoutes = require('./backend/routes/mongodb-wallet');
-    nearbyDriversRoutes = require('./backend/routes/mongodb-nearbyDrivers');
+    // Import MongoDB routes - using try/catch for each route to prevent one missing route from breaking everything
+    try { authRoutes = require('./backend/routes/mongodb-auth'); } catch (e) { console.log('Auth routes not found:', e.message); }
+    try { userRoutes = require('./backend/routes/mongodb-user'); } catch (e) { console.log('User routes not found:', e.message); }
+    try { caretakerRoutes = require('./backend/routes/mongodb-caretaker'); } catch (e) { console.log('Caretaker routes not found:', e.message); }
+    try { shuttleRoutes = require('./backend/routes/mongodb-shuttle'); } catch (e) { console.log('Shuttle routes not found:', e.message); }
+    try { customerRoutes = require('./backend/routes/mongodb-customer'); } catch (e) { console.log('Customer routes not found:', e.message); }
+    try { paymentRoutes = require('./backend/routes/mongodb-payment'); } catch (e) { console.log('Payment routes not found:', e.message); }
+    try { trackingRoutes = require('./backend/routes/mongodb-tracking'); } catch (e) { console.log('Tracking routes not found:', e.message); }
+    try { notificationRoutes = require('./routes/notification'); } catch (e) {
+      try { notificationRoutes = require('./backend/routes/notification'); } catch (e2) {
+        console.log('Notification routes not found in either location');
+      }
+    }
+    try { ratingRoutes = require('./backend/routes/mongodb-rating'); } catch (e) { console.log('Rating routes not found:', e.message); }
+    try { bookingRoutes = require('./backend/routes/mongodb-booking'); } catch (e) { console.log('Booking routes not found:', e.message); }
+    try { driverRoutes = require('./backend/routes/mongodb-driver'); } catch (e) { console.log('Driver routes not found:', e.message); }
+    try { walletRoutes = require('./backend/routes/mongodb-wallet'); } catch (e) { console.log('Wallet routes not found:', e.message); }
+    try { nearbyDriversRoutes = require('./backend/routes/mongodb-nearbyDrivers'); } catch (e) {
+      try { nearbyDriversRoutes = require('./routes/nearbyDrivers'); } catch (e2) {
+        console.log('NearbyDrivers routes not found in either location');
+      }
+    }
     console.log('MongoDB routes loaded successfully');
   } catch (error) {
-    console.error('Error loading MongoDB routes:', error.message);
+    console.error('Error in route loading process:', error.message);
   }
 } else if (useMySql) {
   try {
@@ -179,12 +187,17 @@ app.get('*', (req, res) => {
 // Start the server
 const startServer = async () => {
   try {
-    // Connect to MongoDB
-    await connectMongoDB();
+    // Connect to the database using the unified interface
+    await db.connect();
     
-    // Initialize services
-    await trackingService.initialize();
-    await notificationService.initialize();
+    // Initialize services only if they exist
+    if (trackingService && typeof trackingService.initialize === 'function') {
+      await trackingService.initialize();
+    }
+    
+    if (notificationService && typeof notificationService.initialize === 'function') {
+      await notificationService.initialize();
+    }
     
     // Start the server
     const server = app.listen(PORT, () => {
