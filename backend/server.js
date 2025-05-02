@@ -159,6 +159,13 @@ const startServer = async () => {
       }
     });
     
+    // Verify payment signature
+    const crypto = require('crypto');
+    const generatedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(orderId + '|' + paymentId)
+      .digest('hex');
+    
     // Set up Socket.IO connection handling
     io.on('connection', (socket) => {
       console.log('New client connected');
