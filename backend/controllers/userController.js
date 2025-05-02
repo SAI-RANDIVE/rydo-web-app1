@@ -18,7 +18,17 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
-const db = require('../config/database');
+
+// Import MongoDB models
+const { User: MongoUser } = require('../models/mongodb');
+
+// Try to import MySQL database, but don't fail if not available
+let db = null;
+try {
+    db = require('../config/database');
+} catch (error) {
+    console.log('MySQL database not available, using MongoDB only');
+}
 const { v4: uuidv4 } = require('uuid');
 
 /**
