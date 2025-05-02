@@ -6,24 +6,32 @@
 const express = require('express');
 const router = express.Router();
 const nearbyDriversController = require('../controllers/nearbyDriversController');
-const authMiddleware = require('../middleware/authMiddleware');
 
-// Apply authentication middleware to all routes
-router.use(authMiddleware);
+// Authentication middleware function
+const isAuthenticated = (req, res, next) => {
+  if (req.session && req.session.user) {
+    next();
+  } else {
+    res.status(401).json({ success: false, message: 'Authentication required' });
+  }
+};
 
 // Find nearby drivers within a specified radius
-router.post('/find', nearbyDriversController.findNearbyDrivers);
+router.post('/find', isAuthenticated, nearbyDriversController.findNearbyDrivers);
 
 // Create a booking with expiration time
-router.post('/book', nearbyDriversController.createBookingWithTimeout);
+router.post('/book', isAuthenticated, nearbyDriversController.createBookingWithTimeout);
 
 // Check booking status and handle expiration
-router.get('/check-status/:booking_id', nearbyDriversController.checkBookingStatus);
+router.get('/check-status/:booking_id', isAuthenticated, nearbyDriversController.checkBookingStatus);
 
 // Retry expired booking
-router.post('/retry/:booking_id', nearbyDriversController.retryExpiredBooking);
+router.post('/retry/:booking_id', isAuthenticated, nearbyDriversController.retryExpiredBooking);
 
 // Get booking details
-router.get('/booking/:booking_id', nearbyDriversController.getBookingDetails);
+router.get('/booking/:booking_id', isAuthenticated, nearbyDriversController.getBookingDetails);
+
+// Cancel booking
+router.post('/cancel/:booking_id', isAuthenticated, nearbyDriversController.cancelBooking);
 
 module.exports = router;
