@@ -49,8 +49,8 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 // Import MongoDB models
 require('../../backend/models/mongodb/OTP');
 
-// Import MongoDB OTP service
-const otpService = require('../../functions/mongodb-otp-service');
+// Import the MongoDB API-based OTP service
+const otpService = require('../../functions/mongodb-otp-service-api');
 
 // Routes
 app.get('/', (req, res) => {
