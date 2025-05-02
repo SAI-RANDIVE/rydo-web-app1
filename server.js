@@ -15,6 +15,12 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use(express.static('frontend'));
 
+// Log when the server starts
+console.log(`Starting RYDO Web App server...`);
+console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+console.log(`Using PORT from environment: ${process.env.PORT || '(defaulting to 3002)'}`);
+
+
 // Simple API endpoint to check server status
 app.get('/api/status', (req, res) => {
   res.json({ status: 'online', version: '1.0.0' });
@@ -90,7 +96,7 @@ app.get('/shuttle-dashboard', (req, res) => {
 
 // Generic dashboard as fallback
 app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'customer-dashboard.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'dashboard.html'));
 });
 
 // Default route serves index.html

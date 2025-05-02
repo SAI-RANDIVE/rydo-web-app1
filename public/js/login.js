@@ -63,22 +63,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (response.ok) {
+                    // Store the token and user data
+                    if (data.token) {
+                        localStorage.setItem('token', data.token);
+                    }
+                    
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                    
+                    console.log('Login successful, redirecting to dashboard');
+                    
                     // Redirect based on user role
-                    switch(data.user.role) {
-                        case 'customer':
-                            window.location.href = '/customer-dashboard';
-                            break;
-                        case 'driver':
-                            window.location.href = '/driver-dashboard';
-                            break;
-                        case 'caretaker':
-                            window.location.href = '/caretaker-dashboard';
-                            break;
-                        case 'shuttle_driver':
-                            window.location.href = '/shuttle-dashboard';
-                            break;
-                        default:
-                            window.location.href = '/';
+                    if (data.user && data.user.role) {
+                        switch(data.user.role) {
+                            case 'customer':
+                                window.location.href = '/customer-dashboard';
+                                break;
+                            case 'driver':
+                                window.location.href = '/driver-dashboard';
+                                break;
+                            case 'caretaker':
+                                window.location.href = '/caretaker-dashboard';
+                                break;
+                            case 'shuttle_driver':
+                                window.location.href = '/shuttle-dashboard';
+                                break;
+                            default:
+                                window.location.href = '/dashboard';
+                        }
+                    } else {
+                        // Fallback to customer dashboard if role is not specified
+                        window.location.href = '/dashboard';
                     }
                 } else {
                     // Show error message
