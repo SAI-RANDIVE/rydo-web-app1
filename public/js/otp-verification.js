@@ -155,10 +155,8 @@ class OTPVerification {
         this.showLoading(true);
         
         try {
-            // Send OTP request
-            const endpoint = type === 'phone' 
-                ? '/.netlify/functions/verification/send-phone' 
-                : '/.netlify/functions/verification/send-email';
+            // Send OTP request to our simplified API
+            const endpoint = '/api/verification/send-otp';
             
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -221,8 +219,10 @@ class OTPVerification {
         this.showLoading(true);
         
         try {
-            // Send verification request
-            const response = await fetch('/.netlify/functions/verification/verify', {
+            // Send verification request to our simplified API
+            const endpoint = '/api/verification/verify-otp';
+            
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -115,7 +115,60 @@ app.post('/api/nearby-drivers/find', (req, res) => {
   });
 });
 
+// Mock OTP verification endpoints
+app.post('/api/verification/send-otp', (req, res) => {
+  // Get the email or phone from the request body
+  const { email, phone } = req.body;
+  const type = email ? 'email' : 'phone';
+  const value = email || phone;
+  
+  console.log(`Sending OTP to ${type}: ${value}`);
+  
+  // Generate a random request ID
+  const requestId = Math.random().toString(36).substring(2, 15);
+  
+  // Return a success response
+  res.json({
+    success: true,
+    message: `OTP sent to your ${type}`,
+    requestId: requestId,
+    [type]: value.substring(0, 2) + '*'.repeat(value.length - 4) + value.substring(value.length - 2)
+  });
+});
+
+// Mock OTP verification endpoint
+app.post('/api/verification/verify-otp', (req, res) => {
+  // Get the request ID and OTP from the request body
+  const { requestId, otp } = req.body;
+  
+  console.log(`Verifying OTP: ${otp} for request: ${requestId}`);
+  
+  // Always return success for demo purposes
+  res.json({
+    success: true,
+    message: 'OTP verified successfully',
+    token: 'demo-token-' + Math.random().toString(36).substring(2, 10)
+  });
+});
+
 console.log('API routes with mock data initialized');
+
+// Specific routes for static pages
+app.get('/terms', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'terms.html'));
+});
+
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
+});
+
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'about.html'));
+});
+
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'contact.html'));
+});
 
 // Serve frontend for all other routes
 app.get('*', (req, res) => {
