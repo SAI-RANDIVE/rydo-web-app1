@@ -2,13 +2,12 @@
   "name": "rydo-web-app",
   "version": "1.0.0",
   "description": "Uber-like booking system for personal drivers, caretakers, and shuttles.",
-  "main": "backend/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "nodemon backend/server.js",
-    "build": "netlify-lambda build functions",
-    "deploy": "netlify deploy --prod",
-    "start:render": "node backend/server-render.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'No build step required'",
+    "deploy": "echo 'Deploy to Render.com'"
   },
   "author": "Final Year Project",
   "license": "MIT",

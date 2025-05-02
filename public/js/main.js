@@ -1,6 +1,7 @@
 /**
  * RYDO Main JavaScript
  * Common functionality used across the application
+ * Updated for simplified backend API
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -15,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Check authentication status
     checkAuthStatus();
+    
+    // Check server status
+    checkServerStatus();
 });
 
 /**
@@ -99,22 +103,70 @@ function setupLogout() {
  * Check authentication status
  */
 function checkAuthStatus() {
-    // Check if user is authenticated
-    fetch('/auth/check-auth')
-        .then(response => response.json())
-        .then(data => {
-            if (!data.authenticated) {
-                // Redirect to login page if not authenticated
-                window.location.href = '/';
-            } else {
-                // Update user info if authenticated
-                if (data.user) {
-                    updateUserInfo(data.user);
-                }
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // Show authenticated UI elements
+        document.querySelectorAll('.auth-only').forEach(el => {
+            el.style.display = 'block';
+        });
+        
+        // Hide non-authenticated UI elements
+        document.querySelectorAll('.non-auth-only').forEach(el => {
+            el.style.display = 'none';
+        });
+    } else {
+        // Show non-authenticated UI elements
+        document.querySelectorAll('.non-auth-only').forEach(el => {
+            el.style.display = 'block';
+        });
+        
+        // Hide authenticated UI elements
+        document.querySelectorAll('.auth-only').forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+}
+
+/**
+ * Check server status
+ */
+function checkServerStatus() {
+    // Add a status indicator to the page if it doesn't exist
+    let statusIndicator = document.getElementById('server-status');
+    if (!statusIndicator) {
+        statusIndicator = document.createElement('div');
+        statusIndicator.id = 'server-status';
+        statusIndicator.style.position = 'fixed';
+        statusIndicator.style.bottom = '10px';
+        statusIndicator.style.right = '10px';
+        statusIndicator.style.padding = '5px 10px';
+        statusIndicator.style.borderRadius = '5px';
+        statusIndicator.style.fontSize = '12px';
+        statusIndicator.style.zIndex = '9999';
+        document.body.appendChild(statusIndicator);
+    }
+    
+    // Fetch server status
+    fetch('/api/status')
+        .then(response => {
+            if (response.ok) {
+                return response.json();
             }
+            throw new Error('Server connection failed');
+        })
+        .then(data => {
+            statusIndicator.textContent = `Server: Online (v${data.version})`;
+            statusIndicator.style.backgroundColor = '#4CAF50';
+            statusIndicator.style.color = 'white';
+            console.log('Server status:', data);
         })
         .catch(error => {
-            console.error('Error checking authentication status:', error);
+            statusIndicator.textContent = 'Server: Offline';
+            statusIndicator.style.backgroundColor = '#F44336';
+            statusIndicator.style.color = 'white';
+            console.error('Server status check failed:', error);
         });
 }
 
