@@ -71,6 +71,28 @@ app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
 });
 
+// Dashboard routes
+app.get('/customer-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'customer-dashboard.html'));
+});
+
+app.get('/driver-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'driver-dashboard.html'));
+});
+
+app.get('/caretaker-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'caretaker-dashboard.html'));
+});
+
+app.get('/shuttle-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'shuttle-dashboard.html'));
+});
+
+// Generic dashboard as fallback
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'customer-dashboard.html'));
+});
+
 // Default route serves index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
