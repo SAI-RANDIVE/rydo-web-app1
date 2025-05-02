@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Customer Dashboard</title>
+    <link rel="stylesheet" href="/css/customer-dashboard.css">
+    <link rel="stylesheet" href="/css/rating-styles.css">
+    <link rel="stylesheet" href="../public/css/customer-dashboard.css">
+    <link rel="stylesheet" href="../public/css/notifications.css">
+    <link rel="stylesheet" href="../public/css/booking-management.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <h1 class="logo">RYDO</h1>
+                <p class="tagline">ride with trust</p>
+            </div>
+            
+            <div class="header-actions">
+                <!-- Notification bell will be inserted here by notifications.js -->
+            </div>
+            
+            <div class="user-profile">
+                <div class="profile-image">
+                    <img src="/images/default-avatar.png" alt="User Profile" id="user-avatar">
+                </div>
+                <h3 id="user-name">Welcome, User</h3>
+                <p id="user-email">user@example.com</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#dashboard"><i class="fas fa-home"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#bookings"><i class="fas fa-calendar-check"></i> My Bookings</a>
+                    </li>
+                    <li>
+                        <a href="#book-service"><i class="fas fa-plus-circle"></i> Book a Service</a>
+                    </li>
+                    <li>
+                        <a href="#wallet"><i class="fas fa-wallet"></i> Wallet</a>
+                    </li>
+                    <li>
+                        <a href="#profile"><i class="fas fa-user"></i> My Profile</a>
+                    </li>
+                    <li>
+                        <a href="#support"><i class="fas fa-headset"></i> Support</a>
+                    </li>
+                    <li class="logout">
+                        <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>&copy; 2025 RYDO. All rights reserved.</p>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-navbar">
+                <div class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </div>
+                
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </div>
+                    
+                    <div class="location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="current-location">Bangalore, India</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard-content" id="dashboard-section">
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h2>Welcome back, <span id="welcome-name">User</span>!</h2>
+                        <p>What service do you need today?</p>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="action-btn driver-btn">
+                            <i class="fas fa-car"></i>
+                            <span>Book Driver</span>
+                        </button>
+                        <button class="action-btn caretaker-btn">
+                            <i class="fas fa-user-nurse"></i>
+                            <span>Book Caretaker</span>
+                        </button>
+                        <button class="action-btn shuttle-btn">
+                            <i class="fas fa-shuttle-van"></i>
+                            <span>Book Shuttle</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>0</h3>
+                            <p>Total Rides</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-nurse"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>0</h3>
+                            <p>Caretaker Bookings</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>₹0</h3>
+                            <p>Wallet Balance</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>0.0</h3>
+                            <p>Average Rating</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <div class="section-header">
+                        <h3>Recent Activity</h3>
+                        <a href="#bookings" class="view-all">View All</a>
+                    </div>
+                    
+                    <div class="activity-list">
+                        <div class="loading-indicator">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading recent activity...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nearby-services">
+                    <div class="section-header">
+                        <h3>Nearby Services</h3>
+                        <button class="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+                    
+                    <div class="services-map">
+                        <div id="map-container">
+                            <!-- Google Maps will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="nearby-list">
+                        <div class="nearby-item">
+                            <div class="nearby-image">
+                                <img src="/images/driver1.jpg" alt="Driver">
+                            </div>
+                            <div class="nearby-details">
+                                <h4>Rahul S.</h4>
+                                <p>Driver • 4.9 ★</p>
+                                <p><i class="fas fa-map-marker-alt"></i> 1.2 km away</p>
+                            </div>
+                            <button class="book-now-btn">Book Now</button>
+                        </div>
+                        
+                        <div class="nearby-item">
+                            <div class="nearby-image">
+                                <img src="/images/caretaker1.jpg" alt="Caretaker">
+                            </div>
+                            <div class="nearby-details">
+                                <h4>Priya M.</h4>
+                                <p>Caretaker • 4.8 ★</p>
+                                <p><i class="fas fa-map-marker-alt"></i> 2.5 km away</p>
+                            </div>
+                            <button class="book-now-btn">Book Now</button>
+                        </div>
+                        
+                        <div class="nearby-item">
+                            <div class="nearby-image">
+                                <img src="/images/shuttle1.jpg" alt="Shuttle">
+                            </div>
+                            <div class="nearby-details">
+                                <h4>City Shuttle</h4>
+                                <p>Shuttle • 4.7 ★</p>
+                                <p><i class="fas fa-map-marker-alt"></i> 3.0 km away</p>
+                            </div>
+                            <button class="book-now-btn">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bookings Section (Hidden by default) -->
+            <div class="dashboard-content hidden" id="bookings-section">
+                <div class="tab-content" id="bookings-tab">
+                    <h2>My Bookings</h2>
+                    <div class="bookings-container">
+                        <!-- Bookings will be loaded dynamically by booking-management.js -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Book Service Section (Hidden by default) -->
+            <div class="dashboard-content hidden" id="book-service-section">
+                <div class="section-header">
+                    <h2>Book a Service</h2>
+                </div>
+                
+                <div class="service-selection">
+                    <div class="service-card" data-service="driver">
+                        <div class="service-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <h3>Personal Driver</h3>
+                        <p>Book a verified driver for your travel needs</p>
+                        <button class="select-service-btn">Select</button>
+                    </div>
+                    
+                    <div class="service-card" data-service="caretaker">
+                        <div class="service-icon">
+                            <i class="fas fa-user-nurse"></i>
+                        </div>
+                        <h3>Medical Caretaker</h3>
+                        <p>Professional caretakers for medical assistance</p>
+                        <button class="select-service-btn">Select</button>
+                    </div>
+                    
+                    <div class="service-card" data-service="shuttle">
+                        <div class="service-icon">
+                            <i class="fas fa-shuttle-van"></i>
+                        </div>
+                        <h3>Shuttle Service</h3>
+                        <p>Comfortable shuttle services for group travel</p>
+                        <button class="select-service-btn">Select</button>
+                    </div>
+                </div>
+                
+                <div class="booking-form-container hidden" id="booking-form">
+                    <!-- Booking form will be loaded here based on selected service -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Notification Panel (Hidden by default) -->
+    <div class="notification-panel" id="notification-panel">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="close-notifications"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="notification-list">
+            <div class="notification-item unread">
+                <div class="notification-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <p>Your booking with Rahul S. has been confirmed.</p>
+                    <span class="notification-time">10 minutes ago</span>
+                </div>
+                <div class="notification-actions">
+                    <button class="mark-read-btn"><i class="fas fa-check"></i></button>
+                </div>
+            </div>
+            
+            <div class="notification-item unread">
+                <div class="notification-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="notification-content">
+                    <p>₹650 has been deducted from your wallet for your recent booking.</p>
+                    <span class="notification-time">1 hour ago</span>
+                </div>
+                <div class="notification-actions">
+                    <button class="mark-read-btn"><i class="fas fa-check"></i></button>
+                </div>
+            </div>
+            
+            <div class="notification-item">
+                <div class="notification-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="notification-content">
+                    <p>Please rate your experience with Priya M.</p>
+                    <span class="notification-time">Yesterday</span>
+                </div>
+                <div class="notification-actions">
+                    <button class="mark-read-btn"><i class="fas fa-check"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="notification-footer">
+            <button class="mark-all-read">Mark all as read</button>
+        </div>
+    </div>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc&libraries=places"></script>
+    <script src="/js/rating-component.js"></script>
+    <script src="../public/js/customer-dashboard.js"></script>
+    <script src="../public/js/notifications.js"></script>
+    <script src="../public/js/booking-management.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

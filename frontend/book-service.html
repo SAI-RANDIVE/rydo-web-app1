@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Service - RYDO</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/booking-service.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="/">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <span class="logo-text">RYDO</span>
+                </a>
+                <p class="tagline">ride with trust</p>
+            </div>
+            
+            <div class="header-actions">
+                <div class="location-btn">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="current-location">Detecting location...</span>
+                </div>
+                
+                <div class="user-profile">
+                    <img src="/images/default-avatar.png" alt="User Avatar" id="user-avatar">
+                    <div class="dropdown">
+                        <button class="dropdown-toggle">
+                            <span id="user-name">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="/customer-dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                            <a href="/edit-profile"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                            <a href="/logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="booking-container">
+            <div class="booking-header">
+                <h1>Book a Service</h1>
+                <p>Choose from our range of trusted services to meet your transportation and care needs.</p>
+            </div>
+            
+            <!-- Service Selection -->
+            <div class="service-cards">
+                <div class="service-card" data-service="driver">
+                    <div class="service-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3 class="service-name">Personal Driver</h3>
+                    <p class="service-description">Book a verified driver for your travel needs. Our drivers are trained professionals with clean records.</p>
+                    <div class="service-price">Starting from ₹100</div>
+                </div>
+                
+                <div class="service-card" data-service="caretaker">
+                    <div class="service-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <h3 class="service-name">Medical Caretaker</h3>
+                    <p class="service-description">Professional caretakers for medical assistance. Trained in first aid and patient care.</p>
+                    <div class="service-price">Starting from ₹300</div>
+                </div>
+                
+                <div class="service-card" data-service="shuttle">
+                    <div class="service-icon">
+                        <i class="fas fa-shuttle-van"></i>
+                    </div>
+                    <h3 class="service-name">Shuttle Service</h3>
+                    <p class="service-description">Comfortable shuttle services for group travel. Perfect for airport transfers and events.</p>
+                    <div class="service-price">Starting from ₹150</div>
+                </div>
+            </div>
+            
+            <!-- Booking Form -->
+            <div class="booking-form-container">
+                <form id="booking-form">
+                    <!-- Hidden inputs -->
+                    <input type="hidden" id="service-type" name="service_type">
+                    <input type="hidden" id="pickup-latitude" name="pickup_latitude">
+                    <input type="hidden" id="pickup-longitude" name="pickup_longitude">
+                    <input type="hidden" id="dropoff-latitude" name="dropoff_latitude">
+                    <input type="hidden" id="dropoff-longitude" name="dropoff_longitude">
+                    <input type="hidden" id="estimated-fare" name="estimated_fare">
+                    
+                    <!-- Driver Booking Form -->
+                    <div class="service-booking-form" data-service="driver">
+                        <h2 class="form-title">Book a Personal Driver</h2>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-map-marked-alt"></i> Location Details</h3>
+                            <div class="form-row">
+                                <div class="form-group location-input-group">
+                                    <label for="pickup-location">Pickup Location</label>
+                                    <input type="text" id="pickup-location" name="pickup_location" placeholder="Enter pickup location" required>
+                                    <button type="button" id="current-location-btn" class="current-location-btn"><i class="fas fa-map-marker-alt"></i></button>
+                                </div>
+                                <div class="form-group location-input-group">
+                                    <label for="dropoff-location">Dropoff Location</label>
+                                    <input type="text" id="dropoff-location" name="dropoff_location" placeholder="Enter destination" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-calendar-alt"></i> Date & Time</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="booking-date">Date</label>
+                                    <input type="date" id="booking-date" name="booking_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="booking-time">Time</label>
+                                    <input type="time" id="booking-time" name="booking_time" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-info-circle"></i> Additional Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="number-of-passengers">Number of Passengers</label>
+                                    <select id="number-of-passengers" name="number_of_passengers">
+                                        <option value="1">1 Passenger</option>
+                                        <option value="2">2 Passengers</option>
+                                        <option value="3">3 Passengers</option>
+                                        <option value="4">4 Passengers</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="special-requirements">Special Requirements</label>
+                                    <textarea id="special-requirements" name="special_requirements" placeholder="Any special requirements or instructions for the driver"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Fare Container -->
+                        <div class="fare-container"></div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-credit-card"></i> Payment Method</h3>
+                            <div class="payment-options">
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-cash" name="payment_method" value="cash" checked>
+                                    <label for="payment-cash"><i class="fas fa-money-bill-wave"></i> Cash</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-wallet" name="payment_method" value="wallet">
+                                    <label for="payment-wallet"><i class="fas fa-wallet"></i> Wallet</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-upi" name="payment_method" value="upi">
+                                    <label for="payment-upi"><i class="fas fa-mobile-alt"></i> UPI</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-card" name="payment_method" value="card">
+                                    <label for="payment-card"><i class="fas fa-credit-card"></i> Card</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Book Now</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Caretaker Booking Form -->
+                    <div class="service-booking-form" data-service="caretaker">
+                        <h2 class="form-title">Book a Medical Caretaker</h2>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-map-marked-alt"></i> Location Details</h3>
+                            <div class="form-group location-input-group">
+                                <label for="pickup-location">Service Location</label>
+                                <input type="text" id="pickup-location" name="pickup_location" placeholder="Enter service location" required>
+                                <button type="button" id="current-location-btn" class="current-location-btn"><i class="fas fa-map-marker-alt"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-calendar-alt"></i> Date & Time</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="booking-date">Date</label>
+                                    <input type="date" id="booking-date" name="booking_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="booking-time">Time</label>
+                                    <input type="time" id="booking-time" name="booking_time" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-info-circle"></i> Patient Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="patient-name">Patient Name</label>
+                                    <input type="text" id="patient-name" name="patient_name" placeholder="Enter patient name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="patient-age">Patient Age</label>
+                                    <input type="number" id="patient-age" name="patient_age" placeholder="Enter patient age" min="1" max="120">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="medical-condition">Medical Condition</label>
+                                <textarea id="medical-condition" name="medical_condition" placeholder="Describe the medical condition or care needed"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Fare Container -->
+                        <div class="fare-container"></div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-credit-card"></i> Payment Method</h3>
+                            <div class="payment-options">
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-cash-caretaker" name="payment_method" value="cash" checked>
+                                    <label for="payment-cash-caretaker"><i class="fas fa-money-bill-wave"></i> Cash</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-wallet-caretaker" name="payment_method" value="wallet">
+                                    <label for="payment-wallet-caretaker"><i class="fas fa-wallet"></i> Wallet</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-upi-caretaker" name="payment_method" value="upi">
+                                    <label for="payment-upi-caretaker"><i class="fas fa-mobile-alt"></i> UPI</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-card-caretaker" name="payment_method" value="card">
+                                    <label for="payment-card-caretaker"><i class="fas fa-credit-card"></i> Card</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Book Now</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Shuttle Booking Form -->
+                    <div class="service-booking-form" data-service="shuttle">
+                        <h2 class="form-title">Book a Shuttle Service</h2>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-map-marked-alt"></i> Location Details</h3>
+                            <div class="form-row">
+                                <div class="form-group location-input-group">
+                                    <label for="pickup-location">Pickup Location</label>
+                                    <input type="text" id="pickup-location" name="pickup_location" placeholder="Enter pickup location" required>
+                                    <button type="button" id="current-location-btn" class="current-location-btn"><i class="fas fa-map-marker-alt"></i></button>
+                                </div>
+                                <div class="form-group location-input-group">
+                                    <label for="dropoff-location">Dropoff Location</label>
+                                    <input type="text" id="dropoff-location" name="dropoff_location" placeholder="Enter destination" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-calendar-alt"></i> Date & Time</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="booking-date">Date</label>
+                                    <input type="date" id="booking-date" name="booking_date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="booking-time">Time</label>
+                                    <input type="time" id="booking-time" name="booking_time" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-info-circle"></i> Trip Details</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="number-of-passengers">Number of Passengers</label>
+                                    <select id="number-of-passengers" name="number_of_passengers">
+                                        <option value="1">1 Passenger</option>
+                                        <option value="2">2 Passengers</option>
+                                        <option value="3">3 Passengers</option>
+                                        <option value="4">4 Passengers</option>
+                                        <option value="5">5 Passengers</option>
+                                        <option value="6">6 Passengers</option>
+                                        <option value="7">7 Passengers</option>
+                                        <option value="8">8+ Passengers</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="luggage-items">Luggage Items</label>
+                                    <select id="luggage-items" name="luggage_items">
+                                        <option value="0">No Luggage</option>
+                                        <option value="1">1 Item</option>
+                                        <option value="2">2 Items</option>
+                                        <option value="3">3 Items</option>
+                                        <option value="4">4+ Items</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="special-requirements">Special Requirements</label>
+                                <textarea id="special-requirements" name="special_requirements" placeholder="Any special requirements or instructions for the shuttle service"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Fare Container -->
+                        <div class="fare-container"></div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fas fa-credit-card"></i> Payment Method</h3>
+                            <div class="payment-options">
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-cash-shuttle" name="payment_method" value="cash" checked>
+                                    <label for="payment-cash-shuttle"><i class="fas fa-money-bill-wave"></i> Cash</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-wallet-shuttle" name="payment_method" value="wallet">
+                                    <label for="payment-wallet-shuttle"><i class="fas fa-wallet"></i> Wallet</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-upi-shuttle" name="payment_method" value="upi">
+                                    <label for="payment-upi-shuttle"><i class="fas fa-mobile-alt"></i> UPI</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="payment-card-shuttle" name="payment_method" value="card">
+                                    <label for="payment-card-shuttle"><i class="fas fa-credit-card"></i> Card</label>
+                                    <span class="checkmark"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Book Now</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <div class="footer-logo-text">
+                        <h3>RYDO</h3>
+                        <p>ride with trust</p>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="/about">About Us</a></li>
+                            <li><a href="/contact">Contact Us</a></li>
+                            <li><a href="/careers">Careers</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Services</h4>
+                        <ul>
+                            <li><a href="/book-service?service=driver">Personal Driver</a></li>
+                            <li><a href="/book-service?service=caretaker">Medical Caretaker</a></li>
+                            <li><a href="/book-service?service=shuttle">Shuttle Service</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="/terms">Terms of Service</a></li>
+                            <li><a href="/privacy">Privacy Policy</a></li>
+                            <li><a href="/refund">Refund Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 RYDO. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc&libraries=places"></script>
+    
+    <!-- Main Scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/booking-service.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

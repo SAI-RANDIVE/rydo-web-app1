@@ -1,0 +1,617 @@
+/* Main Styles for RYDO Caretaker Registration Page */
+:root {
+    --primary-color: #5B6EF5;
+    --secondary-color: #304254;
+    --accent-color: #6C63FF;
+    --text-color: #333333;
+    --light-text: #777777;
+    --background-color: #F5F7FA;
+    --white: #FFFFFF;
+    --shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --border-radius: 12px;
+    --error-color: #FF5252;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    width: 1000px;
+    min-height: 650px;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+/* Left Panel Styles */
+.left-panel {
+    width: 40%;
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-container {
+    margin-bottom: 30px;
+}
+
+.logo {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.tagline {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.features {
+    margin-bottom: 40px;
+}
+
+.features h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.feature-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.feature-icon i {
+    font-size: 18px;
+}
+
+.feature-text h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.feature-text p {
+    font-size: 14px;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+.caretaker-illustration {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
+
+.caretaker-image {
+    width: 100%;
+    height: auto;
+}
+
+/* Right Panel Styles */
+.right-panel {
+    width: 60%;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.form-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: var(--secondary-color);
+    text-align: center;
+}
+
+.form-subtitle {
+    text-align: center;
+    color: var(--light-text);
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+/* Progress Bar Styles */
+.progress-container {
+    margin-bottom: 30px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress {
+    position: absolute;
+    height: 100%;
+    background-color: var(--primary-color);
+    width: 25%;
+    transition: width 0.3s ease;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.step {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.step.active {
+    background-color: var(--primary-color);
+}
+
+.step.completed {
+    background-color: var(--success-color);
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--light-text);
+}
+
+.step-label {
+    width: 25%;
+    text-align: center;
+    padding: 0 5px;
+}
+
+/* Form Step Styles */
+.form-step {
+    display: none;
+}
+
+.form-step[data-step="1"] {
+    display: block;
+}
+
+.form-step h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: var(--secondary-color);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+.required {
+    color: var(--error-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.name-group,
+.address-group {
+    display: flex;
+    gap: 15px;
+}
+
+.half {
+    flex: 1;
+}
+
+.third {
+    flex: 1;
+}
+
+.phone-input {
+    display: flex;
+    align-items: center;
+}
+
+.country-code {
+    background-color: #f5f5f5;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+.phone-input input {
+    border-radius: 0 8px 8px 0;
+}
+
+.password-input {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--light-text);
+}
+
+.password-strength {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.strength-label {
+    margin-right: 10px;
+    color: var(--light-text);
+}
+
+.strength-meter {
+    display: flex;
+    gap: 5px;
+    flex-grow: 1;
+}
+
+.strength-segment {
+    height: 4px;
+    flex-grow: 1;
+    background-color: #ddd;
+    border-radius: 2px;
+}
+
+.strength-segment.weak {
+    background-color: var(--error-color);
+}
+
+.strength-segment.medium {
+    background-color: var(--warning-color);
+}
+
+.strength-segment.strong {
+    background-color: var(--success-color);
+}
+
+/* File Upload Styles */
+.file-upload {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.file-upload input[type="file"] {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--secondary-color);
+    transition: background-color 0.3s ease;
+}
+
+.file-label i {
+    margin-right: 8px;
+}
+
+.file-label:hover {
+    background-color: #e0e0e0;
+}
+
+.file-name {
+    flex-grow: 1;
+    padding: 10px 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: var(--light-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-hint {
+    margin-top: 5px;
+    font-size: 12px;
+    color: var(--light-text);
+}
+
+/* Checkbox Styles */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    margin-bottom: 10px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: auto;
+    margin-right: 5px;
+}
+
+.checkbox-item label {
+    margin-bottom: 0;
+    font-weight: 400;
+}
+
+/* Form Navigation Styles */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn-prev,
+.btn-next,
+.btn-submit {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.btn-prev {
+    background-color: #f5f5f5;
+    color: var(--secondary-color);
+    border: 1px solid #ddd;
+}
+
+.btn-prev i {
+    margin-right: 8px;
+}
+
+.btn-next {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+}
+
+.btn-next i {
+    margin-left: 8px;
+}
+
+.btn-submit {
+    background-color: var(--success-color);
+    color: var(--white);
+    border: none;
+    margin-left: auto;
+}
+
+.btn-prev:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-next:hover {
+    background-color: var(--accent-color);
+}
+
+.btn-submit:hover {
+    background-color: #3d8b40;
+}
+
+/* Review Section Styles */
+.review-text {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--light-text);
+}
+
+.review-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.review-section h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: var(--secondary-color);
+}
+
+.review-data {
+    font-size: 14px;
+}
+
+.review-data p {
+    margin-bottom: 5px;
+    display: flex;
+}
+
+.review-data strong {
+    width: 40%;
+    color: var(--secondary-color);
+}
+
+/* Terms Checkbox Styles */
+.terms {
+    display: flex;
+    align-items: flex-start;
+}
+
+.terms input {
+    margin-right: 10px;
+    margin-top: 3px;
+    width: auto;
+}
+
+.terms label {
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.terms a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.field-hint {
+    margin-top: 5px;
+    font-size: 12px;
+    color: var(--light-text);
+}
+
+.login-prompt {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--light-text);
+}
+
+.login-prompt a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Error message styles */
+.error-message {
+    color: var(--error-color);
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+    }
+    
+    .left-panel, .right-panel {
+        width: 100%;
+    }
+    
+    .left-panel {
+        padding: 30px;
+        display: none;
+    }
+    
+    .right-panel {
+        padding: 20px;
+        max-height: none;
+    }
+    
+    .form-container {
+        max-width: 100%;
+    }
+    
+    .name-group,
+    .address-group {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .progress-labels {
+        display: none;
+    }
+}

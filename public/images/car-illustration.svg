@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Car body -->
+  <path d="M80,140 C80,140 90,100 160,100 L240,100 C310,100 320,140 320,140 L320,160 C320,160 310,170 300,170 L100,170 C90,170 80,160 80,160 L80,140 Z" fill="#6C63FF" stroke="#304254" stroke-width="2"/>
+  
+  <!-- Car roof -->
+  <path d="M130,100 L150,70 L250,70 L270,100" fill="#6C63FF" stroke="#304254" stroke-width="2"/>
+  
+  <!-- Windows -->
+  <path d="M150,70 L150,100 L250,100 L250,70" fill="#B3E5FC" stroke="#304254" stroke-width="2"/>
+  <line x1="200" y1="70" x2="200" y2="100" stroke="#304254" stroke-width="2"/>
+  
+  <!-- Wheels -->
+  <circle cx="120" cy="170" r="25" fill="#304254" stroke="#000" stroke-width="2"/>
+  <circle cx="120" cy="170" r="15" fill="#666" stroke="#000" stroke-width="2"/>
+  <circle cx="280" cy="170" r="25" fill="#304254" stroke="#000" stroke-width="2"/>
+  <circle cx="280" cy="170" r="15" fill="#666" stroke="#000" stroke-width="2"/>
+  
+  <!-- Headlights -->
+  <rect x="80" y="120" width="10" height="10" rx="2" fill="#FFEB3B" stroke="#304254" stroke-width="1"/>
+  <rect x="310" y="120" width="10" height="10" rx="2" fill="#FFEB3B" stroke="#304254" stroke-width="1"/>
+  
+  <!-- Door handles -->
+  <rect x="170" y="110" width="10" height="3" rx="1" fill="#304254"/>
+  <rect x="220" y="110" width="10" height="3" rx="1" fill="#304254"/>
+</svg>

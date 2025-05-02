@@ -1,0 +1,1090 @@
+/**
+ * RYDO Web App Animations
+ * Enhanced animations for a better user experience
+ * Primary color: #5B6EF5
+ */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Slide In From Right */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Slide In From Left */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+/* Slide In From Bottom */
+@keyframes slideInBottom {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-bottom {
+  animation: slideInBottom 0.5s ease-out;
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+
+.bounce {
+  animation: bounce 2s infinite;
+}
+
+/* Shake Animation */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+
+/* Rotate Animation */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate {
+  animation: rotate 2s linear infinite;
+}
+
+/* Glow Animation */
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(91, 110, 245, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(91, 110, 245, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(91, 110, 245, 0.5);
+  }
+}
+
+.glow {
+  animation: glow 2s infinite;
+}
+
+/* Typing Animation */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.typing {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid #5B6EF5;
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: #5B6EF5; }
+}
+
+/* Floating Animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Flip Animation */
+@keyframes flip {
+  0% {
+    transform: perspective(400px) rotateY(0);
+  }
+  100% {
+    transform: perspective(400px) rotateY(360deg);
+  }
+}
+
+.flip {
+  animation: flip 1s;
+  backface-visibility: visible !important;
+}
+
+/* Heartbeat Animation */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Countdown Timer Animation */
+@keyframes countdown {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 283; /* 2 * PI * radius */
+  }
+}
+
+.countdown-timer {
+  stroke-dasharray: 283; /* 2 * PI * radius */
+  stroke-dashoffset: 0;
+  transform-origin: center;
+  animation: countdown 15s linear forwards; /* 15 minutes in seconds */
+}
+
+/* Button Hover Effects */
+.btn-primary {
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(91, 110, 245, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 10px rgba(91, 110, 245, 0.2);
+}
+
+/* Card Hover Effects */
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Focus Animation */
+.form-control {
+  transition: all 0.3s ease;
+  border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+  border-color: #5B6EF5;
+  box-shadow: 0 0 0 0.2rem rgba(91, 110, 245, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Ripple Effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple:after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 1s;
+}
+
+.ripple:active:after {
+  transform: scale(0, 0);
+  opacity: 0.3;
+  transition: 0s;
+}
+
+/* Shimmer Loading Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.shimmer {
+  background: #f6f7f8;
+  background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-repeat: no-repeat;
+  background-size: 800px 104px;
+  display: inline-block;
+  position: relative;
+  animation-duration: 1.5s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+}
+
+/* Nearby Drivers Animation */
+.driver-card {
+  transition: all 0.3s ease;
+}
+
+.driver-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 20px rgba(91, 110, 245, 0.2);
+}
+
+.driver-distance {
+  transition: all 0.3s ease;
+}
+
+.driver-distance:hover {
+  color: #5B6EF5;
+  font-weight: bold;
+}
+
+/* Booking Animation */
+.booking-pulse {
+  box-shadow: 0 0 0 rgba(91, 110, 245, 0.4);
+  animation: booking-pulse 2s infinite;
+}
+
+@keyframes booking-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(91, 110, 245, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(91, 110, 245, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(91, 110, 245, 0);
+  }
+}
+
+/* Map Marker Animation */
+.map-marker {
+  animation: map-bounce 1s infinite alternate;
+}
+
+@keyframes map-bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+/* Notification Badge Animation */
+.notification-badge {
+  animation: notification-pulse 1.5s infinite;
+}
+
+@keyframes notification-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+  transition: width 0.6s ease;
+  animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* Page Transition */
+.page-transition {
+  animation: page-fade 0.5s ease-in-out;
+}
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid rgba(91, 110, 245, 0.1);
+  border-top-color: #5B6EF5;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Apply animations to specific elements */
+.navbar {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.sidebar {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.main-content {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.dashboard-card {
+  animation: slideInBottom 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.dashboard-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.dashboard-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dashboard-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.dashboard-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.booking-list-item {
+  animation: slideInRight 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.booking-list-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.booking-list-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.booking-list-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.booking-list-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.booking-list-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to login/signup forms */
+.auth-form {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.auth-form .form-group {
+  animation: slideInBottom 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.auth-form .form-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.auth-form .form-group:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.auth-form .form-group:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.auth-form .btn {
+  animation: slideInBottom 0.5s ease-out;
+  animation-delay: 0.4s;
+  animation-fill-mode: both;
+}
+
+/* Apply animations to nearby drivers */
+.nearby-driver {
+  animation: slideInRight 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.nearby-driver:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.nearby-driver:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.nearby-driver:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.nearby-driver:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.nearby-driver:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to booking countdown */
+.booking-countdown {
+  animation: pulse 1s infinite ease-in-out;
+}
+
+/* Apply animations to profile image */
+.profile-image {
+  transition: all 0.3s ease;
+}
+
+.profile-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(91, 110, 245, 0.5);
+}
+
+/* Apply animations to ratings */
+.rating-star {
+  animation: fadeIn 0.5s ease-in-out;
+  animation-fill-mode: both;
+}
+
+.rating-star:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.rating-star:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.rating-star:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.rating-star:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.rating-star:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to notifications */
+.notification-item {
+  animation: slideInRight 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.notification-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.notification-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.notification-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.notification-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.notification-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to wallet transactions */
+.transaction-item {
+  animation: slideInBottom 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.transaction-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.transaction-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.transaction-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.transaction-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.transaction-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to booking details */
+.booking-detail-item {
+  animation: fadeIn 0.5s ease-in-out;
+  animation-fill-mode: both;
+}
+
+.booking-detail-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.booking-detail-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.booking-detail-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.booking-detail-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.booking-detail-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to map */
+.map-container {
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Apply animations to buttons */
+.action-button {
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(91, 110, 245, 0.3);
+}
+
+.action-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 10px rgba(91, 110, 245, 0.2);
+}
+
+/* Apply animations to modal */
+.modal-content {
+  animation: slideInBottom 0.5s ease-out;
+}
+
+/* Apply animations to dropdown menu */
+.dropdown-menu {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.dropdown-item {
+  animation: slideInRight 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+.dropdown-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.dropdown-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.dropdown-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.dropdown-item:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.dropdown-item:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+/* Apply animations to toast notifications */
+.toast {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Apply animations to badges */
+.badge {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to alerts */
+.alert {
+  animation: slideInBottom 0.5s ease-out;
+}
+
+/* Apply animations to pagination */
+.pagination {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.page-item {
+  animation: fadeIn 0.5s ease-in-out;
+  animation-fill-mode: both;
+}
+
+.page-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.page-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.page-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.page-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.page-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to tabs */
+.nav-tabs {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.nav-item {
+  animation: fadeIn 0.5s ease-in-out;
+  animation-fill-mode: both;
+}
+
+.nav-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.nav-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.nav-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.nav-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.nav-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to accordion */
+.accordion {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.accordion-item {
+  animation: slideInBottom 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.accordion-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.accordion-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.accordion-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.accordion-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.accordion-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to tooltips */
+.tooltip {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Apply animations to popovers */
+.popover {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Apply animations to carousel */
+.carousel-item {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to progress */
+.progress {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to list groups */
+.list-group {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.list-group-item {
+  animation: slideInBottom 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.list-group-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.list-group-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.list-group-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.list-group-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.list-group-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to breadcrumbs */
+.breadcrumb {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.breadcrumb-item {
+  animation: fadeIn 0.5s ease-in-out;
+  animation-fill-mode: both;
+}
+
+.breadcrumb-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.breadcrumb-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.breadcrumb-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.breadcrumb-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.breadcrumb-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to jumbotron */
+.jumbotron {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to cards */
+.card {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to tables */
+.table {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.table tr {
+  animation: slideInBottom 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.table tr:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.table tr:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.table tr:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.table tr:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.table tr:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to forms */
+.form {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.form-group {
+  animation: slideInBottom 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.form-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.form-group:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.form-group:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.form-group:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.form-group:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Apply animations to buttons */
+.btn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to alerts */
+.alert {
+  animation: slideInBottom 0.5s ease-out;
+}
+
+/* Apply animations to badges */
+.badge {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to progress */
+.progress {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to spinners */
+.spinner-border, .spinner-grow {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to toasts */
+.toast {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Apply animations to modal */
+.modal-dialog {
+  animation: slideInBottom 0.5s ease-out;
+}
+
+/* Apply animations to offcanvas */
+.offcanvas {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+/* Apply animations to accordion */
+.accordion {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to carousel */
+.carousel {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to dropdown */
+.dropdown-menu {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to navbar */
+.navbar {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to pagination */
+.pagination {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to popover */
+.popover {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to tooltip */
+.tooltip {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to scrollspy */
+.scrollspy {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to tab */
+.tab-content {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Apply animations to toast */
+.toast {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* Apply animations to collapse */
+.collapse {
+  animation: fadeIn 0.5s ease-in-out;
+}

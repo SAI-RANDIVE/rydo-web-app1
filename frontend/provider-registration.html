@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Service Provider Registration</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/registration.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="/">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <span class="logo-text">RYDO</span>
+                </a>
+                <p class="tagline">ride with trust</p>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/login" class="btn-login">Login</a>
+                <a href="/register" class="btn-register">Register</a>
+            </div>
+            
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="registration-container">
+            <div class="registration-header">
+                <h1>Join RYDO as a Service Provider</h1>
+                <p>Choose your service type and start earning</p>
+            </div>
+            
+            <div class="service-type-selector">
+                <div class="service-type-option" data-type="driver">
+                    <div class="icon-container">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3>Driver</h3>
+                    <p>Provide driving services</p>
+                </div>
+                <div class="service-type-option" data-type="caretaker">
+                    <div class="icon-container">
+                        <i class="fas fa-user-nurse"></i>
+                    </div>
+                    <h3>Caretaker</h3>
+                    <p>Provide medical assistance</p>
+                </div>
+                <div class="service-type-option" data-type="shuttle">
+                    <div class="icon-container">
+                        <i class="fas fa-shuttle-van"></i>
+                    </div>
+                    <h3>Shuttle</h3>
+                    <p>Provide shuttle services</p>
+                </div>
+            </div>
+            
+            <form id="provider-registration-form" class="registration-form">
+                <div class="form-step" id="step-1">
+                    <h2>Basic Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="first-name">First Name*</label>
+                        <input type="text" id="first-name" name="first_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last-name">Last Name*</label>
+                        <input type="text" id="last-name" name="last_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address*</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number*</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password*</label>
+                        <input type="password" id="password" name="password" required>
+                        <div class="password-strength">
+                            <div class="strength-meter"></div>
+                            <span class="strength-text">Password strength</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password*</label>
+                        <input type="password" id="confirm-password" name="confirm_password" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-next" data-next="step-2">Next</button>
+                    </div>
+                </div>
+                
+                <div class="form-step" id="step-2" style="display: none;">
+                    <h2>Personal Details</h2>
+                    
+                    <div class="form-group">
+                        <label for="dob">Date of Birth*</label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gender">Gender*</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                            <option value="prefer_not_to_say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address*</label>
+                        <textarea id="address" name="address" required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City*</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="state">State*</label>
+                            <input type="text" id="state" name="state" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pincode">Pincode*</label>
+                            <input type="text" id="pincode" name="pincode" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="country">Country*</label>
+                            <input type="text" id="country" name="country" value="India" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-prev" data-prev="step-1">Previous</button>
+                        <button type="button" class="btn-next" data-next="step-3">Next</button>
+                    </div>
+                </div>
+                
+                <!-- Driver-specific form fields -->
+                <div class="form-step service-specific" id="driver-fields" style="display: none;">
+                    <h2>Driver Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="license-number">Driver's License Number*</label>
+                        <input type="text" id="license-number" name="license_number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="license-expiry">License Expiry Date*</label>
+                        <input type="date" id="license-expiry" name="license_expiry">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vehicle-type">Vehicle Type*</label>
+                        <select id="vehicle-type" name="vehicle_type">
+                            <option value="">Select Vehicle Type</option>
+                            <option value="sedan">Sedan</option>
+                            <option value="suv">SUV</option>
+                            <option value="hatchback">Hatchback</option>
+                            <option value="luxury">Luxury</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicle-make">Make*</label>
+                            <input type="text" id="vehicle-make" name="make" placeholder="e.g. Honda">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="vehicle-model">Model*</label>
+                            <input type="text" id="vehicle-model" name="model" placeholder="e.g. Civic">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicle-year">Year</label>
+                            <input type="number" id="vehicle-year" name="year" placeholder="e.g. 2020">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="vehicle-color">Color</label>
+                            <input type="text" id="vehicle-color" name="color" placeholder="e.g. Black">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="license-plate">License Plate Number*</label>
+                        <input type="text" id="license-plate" name="license_plate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registration-number">Registration Number*</label>
+                        <input type="text" id="registration-number" name="registration_number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registration-expiry">Registration Expiry Date</label>
+                        <input type="date" id="registration-expiry" name="registration_expiry">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="insurance-number">Insurance Policy Number</label>
+                        <input type="text" id="insurance-number" name="insurance_number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="insurance-expiry">Insurance Expiry Date</label>
+                        <input type="date" id="insurance-expiry" name="insurance_expiry">
+                    </div>
+                </div>
+                
+                <!-- Caretaker-specific form fields -->
+                <div class="form-step service-specific" id="caretaker-fields" style="display: none;">
+                    <h2>Caretaker Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="specialization">Specialization*</label>
+                        <select id="specialization" name="specialization">
+                            <option value="">Select Specialization</option>
+                            <option value="general">General Care</option>
+                            <option value="elderly">Elderly Care</option>
+                            <option value="pediatric">Pediatric Care</option>
+                            <option value="physiotherapy">Physiotherapy</option>
+                            <option value="nursing">Nursing</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience-years">Years of Experience*</label>
+                        <input type="number" id="experience-years" name="experience_years" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="certification">Certification/License*</label>
+                        <input type="text" id="certification" name="certification">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="education">Education</label>
+                        <input type="text" id="education" name="education" placeholder="e.g. BSc Nursing">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="languages">Languages Spoken</label>
+                        <input type="text" id="languages" name="languages" placeholder="e.g. English, Hindi, Tamil">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Professional Bio</label>
+                        <textarea id="bio" name="bio" placeholder="Tell us about your experience and expertise"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Shuttle-specific form fields -->
+                <div class="form-step service-specific" id="shuttle-fields" style="display: none;">
+                    <h2>Shuttle Service Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="shuttle-license-number">Driver's License Number*</label>
+                        <input type="text" id="shuttle-license-number" name="license_number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shuttle-license-expiry">License Expiry Date*</label>
+                        <input type="date" id="shuttle-license-expiry" name="license_expiry">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shuttle-vehicle-type">Vehicle Type*</label>
+                        <select id="shuttle-vehicle-type" name="vehicle_type">
+                            <option value="">Select Vehicle Type</option>
+                            <option value="van">Van</option>
+                            <option value="minibus">Minibus</option>
+                            <option value="bus">Bus</option>
+                            <option value="tempo">Tempo Traveller</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shuttle-make">Make*</label>
+                            <input type="text" id="shuttle-make" name="make" placeholder="e.g. Tata">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shuttle-model">Model*</label>
+                            <input type="text" id="shuttle-model" name="model" placeholder="e.g. Winger">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="seating-capacity">Seating Capacity*</label>
+                        <input type="number" id="seating-capacity" name="seating_capacity" min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shuttle-license-plate">License Plate Number*</label>
+                        <input type="text" id="shuttle-license-plate" name="license_plate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shuttle-registration-number">Registration Number*</label>
+                        <input type="text" id="shuttle-registration-number" name="registration_number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="route-info">Route Information</label>
+                        <textarea id="route-info" name="route_info" placeholder="Describe your regular routes or service areas"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-step" id="step-3" style="display: none;">
+                    <h2>Document Upload</h2>
+                    <p>Please upload clear photos or scans of the following documents:</p>
+                    
+                    <div class="form-group">
+                        <label for="id-proof">ID Proof (Aadhar/PAN/Voter ID)*</label>
+                        <input type="file" id="id-proof" name="id_proof" accept="image/*,.pdf" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address-proof">Address Proof*</label>
+                        <input type="file" id="address-proof" name="address_proof" accept="image/*,.pdf" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-photo">Profile Photo*</label>
+                        <input type="file" id="profile-photo" name="profile_photo" accept="image/*" required>
+                    </div>
+                    
+                    <div class="form-group service-document driver-document shuttle-document" style="display: none;">
+                        <label for="driving-license">Driving License*</label>
+                        <input type="file" id="driving-license" name="driving_license" accept="image/*,.pdf">
+                    </div>
+                    
+                    <div class="form-group service-document driver-document shuttle-document" style="display: none;">
+                        <label for="vehicle-registration">Vehicle Registration Certificate*</label>
+                        <input type="file" id="vehicle-registration" name="vehicle_registration" accept="image/*,.pdf">
+                    </div>
+                    
+                    <div class="form-group service-document driver-document shuttle-document" style="display: none;">
+                        <label for="vehicle-insurance">Vehicle Insurance*</label>
+                        <input type="file" id="vehicle-insurance" name="vehicle_insurance" accept="image/*,.pdf">
+                    </div>
+                    
+                    <div class="form-group service-document caretaker-document" style="display: none;">
+                        <label for="qualification-certificate">Qualification Certificate*</label>
+                        <input type="file" id="qualification-certificate" name="qualification_certificate" accept="image/*,.pdf">
+                    </div>
+                    
+                    <div class="form-group service-document caretaker-document" style="display: none;">
+                        <label for="experience-certificate">Experience Certificate (if any)</label>
+                        <input type="file" id="experience-certificate" name="experience_certificate" accept="image/*,.pdf">
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <label for="terms">I agree to the <a href="/terms" target="_blank">Terms and Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a>*</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-prev" data-prev="step-2">Previous</button>
+                        <button type="submit" class="btn-submit">Submit Application</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <div class="footer-logo-text">
+                        <h3>RYDO</h3>
+                        <p>ride with trust</p>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="/about">About Us</a></li>
+                            <li><a href="/contact">Contact Us</a></li>
+                            <li><a href="/careers">Careers</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Services</h4>
+                        <ul>
+                            <li><a href="/services/driver">Personal Driver</a></li>
+                            <li><a href="/services/caretaker">Medical Caretaker</a></li>
+                            <li><a href="/services/shuttle">Shuttle Service</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="/terms">Terms of Service</a></li>
+                            <li><a href="/privacy">Privacy Policy</a></li>
+                            <li><a href="/refund">Refund Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 RYDO. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/provider-registration.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

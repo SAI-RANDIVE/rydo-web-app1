@@ -1,0 +1,606 @@
+/* Wallet Page Styles */
+
+.wallet-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.wallet-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.wallet-header h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.wallet-header p {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Wallet Balance Card */
+.wallet-balance-card {
+    background: linear-gradient(135deg, #4a90e2, #6a5acd);
+    border-radius: 15px;
+    padding: 30px;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.balance-info h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.balance-amount {
+    display: flex;
+    align-items: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.balance-amount i {
+    margin-right: 15px;
+    font-size: 2rem;
+}
+
+.balance-updated {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.balance-actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.balance-actions button {
+    margin-bottom: 10px;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.balance-actions button i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: #fff;
+    color: #4a90e2;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Quick Add Money */
+.quick-add-money {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.quick-add-money h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.amount-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.amount-option {
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 30px;
+    padding: 10px 25px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.amount-option:hover {
+    background-color: #e8e8e8;
+    transform: translateY(-2px);
+}
+
+.amount-option.active {
+    background-color: #4a90e2;
+    color: #fff;
+    border-color: #4a90e2;
+}
+
+.amount-option.custom {
+    background-color: #fff;
+    border: 1px dashed #4a90e2;
+    color: #4a90e2;
+}
+
+/* Transactions Section */
+.transactions-section {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.section-header h3 {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.transaction-filters {
+    display: flex;
+    gap: 10px;
+}
+
+.transaction-filters select {
+    padding: 8px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    color: #333;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.transactions-list {
+    min-height: 300px;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.transaction-info {
+    display: flex;
+    align-items: center;
+}
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.transaction-icon.credit {
+    background-color: #4caf50;
+}
+
+.transaction-icon.debit {
+    background-color: #f44336;
+}
+
+.transaction-icon.refund {
+    background-color: #ff9800;
+}
+
+.transaction-details h4 {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.transaction-details p {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.transaction-amount {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.transaction-amount.credit {
+    color: #4caf50;
+}
+
+.transaction-amount.debit {
+    color: #f44336;
+}
+
+.transaction-amount.refund {
+    color: #ff9800;
+}
+
+.loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 0;
+    color: #666;
+}
+
+.loading-indicator i {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #4a90e2;
+}
+
+.transactions-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.pagination-btn {
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-btn i {
+    font-size: 0.8rem;
+}
+
+#prev-page i {
+    margin-right: 5px;
+}
+
+#next-page i {
+    margin-left: 5px;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 50px auto;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.payment-methods {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.payment-method {
+    flex: 1;
+}
+
+.payment-method input[type="radio"] {
+    display: none;
+}
+
+.payment-method label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-method input[type="radio"]:checked + label {
+    border-color: #4a90e2;
+    background-color: rgba(74, 144, 226, 0.05);
+}
+
+.payment-method label i {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #4a90e2;
+}
+
+.form-actions {
+    margin-top: 30px;
+}
+
+.form-actions button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Payment Processing Modal */
+.payment-processing {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.processing-animation {
+    margin-bottom: 20px;
+}
+
+.processing-animation i {
+    font-size: 3rem;
+    color: #4a90e2;
+}
+
+.progress-bar {
+    height: 6px;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: #4a90e2;
+    width: 0%;
+    animation: progress 2s infinite;
+}
+
+@keyframes progress {
+    0% {
+        width: 0%;
+    }
+    50% {
+        width: 70%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+/* Payment Success Modal */
+.payment-success {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.success-animation {
+    margin-bottom: 20px;
+}
+
+.success-animation i {
+    font-size: 4rem;
+    color: #4caf50;
+}
+
+.payment-success h2 {
+    color: #4caf50;
+    margin-bottom: 10px;
+}
+
+.payment-success p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.transaction-details {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.transaction-detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.transaction-detail:last-child {
+    border-bottom: none;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 50px 0;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-size: 0.9rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .wallet-balance-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .balance-amount {
+        justify-content: center;
+    }
+    
+    .balance-actions {
+        margin-top: 20px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .transaction-filters {
+        margin-top: 15px;
+        width: 100%;
+    }
+    
+    .transaction-filters select {
+        flex: 1;
+    }
+    
+    .transaction-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .transaction-amount {
+        margin-top: 10px;
+    }
+    
+    .modal-content {
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .payment-methods {
+        flex-direction: column;
+    }
+}

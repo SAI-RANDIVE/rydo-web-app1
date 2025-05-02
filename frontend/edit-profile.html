@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Edit Profile</title>
+    <link rel="stylesheet" href="/css/edit-profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <div class="profile-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <h1 class="logo">RYDO</h1>
+                <p class="tagline">ride with trust</p>
+            </div>
+            
+            <div class="user-profile">
+                <div class="profile-image">
+                    <img src="/images/default-avatar.png" alt="User Profile" id="user-avatar">
+                </div>
+                <h3 id="user-name">Welcome, User</h3>
+                <p id="user-email">user@example.com</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="/customer-dashboard"><i class="fas fa-home"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="/customer-dashboard#bookings"><i class="fas fa-calendar-check"></i> My Bookings</a>
+                    </li>
+                    <li>
+                        <a href="/customer-dashboard#book-service"><i class="fas fa-plus-circle"></i> Book a Service</a>
+                    </li>
+                    <li>
+                        <a href="/customer-dashboard#wallet"><i class="fas fa-wallet"></i> Wallet</a>
+                    </li>
+                    <li class="active">
+                        <a href="/edit-profile"><i class="fas fa-user"></i> My Profile</a>
+                    </li>
+                    <li>
+                        <a href="/customer-dashboard#support"><i class="fas fa-headset"></i> Support</a>
+                    </li>
+                    <li class="logout">
+                        <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>&copy; 2025 RYDO. All rights reserved.</p>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-navbar">
+                <div class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </div>
+                
+                <div class="page-title">
+                    <h2>Edit Profile</h2>
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </div>
+                    
+                    <div class="location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="current-location">Bangalore, India</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <div class="profile-header">
+                    <h2>Personal Information</h2>
+                    <p>Update your personal details and how we can reach you</p>
+                </div>
+                
+                <div class="alert-container">
+                    <div id="success-alert" class="alert success">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Profile updated successfully!</span>
+                    </div>
+                    
+                    <div id="error-alert" class="alert error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Error updating profile. Please try again.</span>
+                    </div>
+                </div>
+                
+                <div class="profile-form-container">
+                    <form id="profile-form" class="profile-form">
+                        <div class="form-section">
+                            <div class="profile-photo-section">
+                                <div class="current-photo">
+                                    <img id="profile-preview" src="/images/default-avatar.png" alt="Profile Photo">
+                                </div>
+                                <div class="photo-upload">
+                                    <label for="profile-photo" class="upload-btn">
+                                        <i class="fas fa-camera"></i> Change Photo
+                                    </label>
+                                    <input type="file" id="profile-photo" name="profile_photo" accept="image/*">
+                                    <p class="upload-info">Allowed JPG, PNG. Max size of 2MB</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Basic Information</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="first-name">First Name</label>
+                                    <input type="text" id="first-name" name="first_name" placeholder="Enter your first name" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="last-name">Last Name</label>
+                                    <input type="text" id="last-name" name="last_name" placeholder="Enter your last name" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <div class="input-with-badge">
+                                        <input type="email" id="email" name="email" placeholder="Enter your email" readonly>
+                                        <span id="email-verified" class="badge verified">
+                                            <i class="fas fa-check-circle"></i> Verified
+                                        </span>
+                                        <span id="email-unverified" class="badge unverified">
+                                            <i class="fas fa-exclamation-circle"></i> Unverified
+                                        </span>
+                                    </div>
+                                    <button type="button" id="verify-email-btn" class="verify-btn">
+                                        <i class="fas fa-envelope"></i> Verify Email
+                                    </button>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <div class="input-with-badge">
+                                        <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                                        <span id="phone-verified" class="badge verified">
+                                            <i class="fas fa-check-circle"></i> Verified
+                                        </span>
+                                        <span id="phone-unverified" class="badge unverified">
+                                            <i class="fas fa-exclamation-circle"></i> Unverified
+                                        </span>
+                                    </div>
+                                    <button type="button" id="verify-phone-btn" class="verify-btn">
+                                        <i class="fas fa-phone"></i> Verify Phone
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Address Information</h3>
+                            
+                            <div class="form-group">
+                                <label for="address">Address</label>
+                                <textarea id="address" name="address" rows="3" placeholder="Enter your address"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" name="city" placeholder="Enter your city">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="state">State</label>
+                                    <input type="text" id="state" name="state" placeholder="Enter your state">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pincode">Pincode</label>
+                                    <input type="text" id="pincode" name="pincode" placeholder="Enter your pincode">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="country">Country</label>
+                                    <input type="text" id="country" name="country" placeholder="Enter your country" value="India">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Emergency Contact</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="emergency-name">Contact Name</label>
+                                    <input type="text" id="emergency-name" name="emergency_name" placeholder="Enter emergency contact name">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="emergency-phone">Contact Phone</label>
+                                    <input type="tel" id="emergency-phone" name="emergency_phone" placeholder="Enter emergency contact phone">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="emergency-relation">Relationship</label>
+                                <input type="text" id="emergency-relation" name="emergency_relation" placeholder="E.g., Parent, Spouse, Sibling">
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" id="cancel-btn" class="cancel-btn">Cancel</button>
+                            <button type="submit" id="save-btn" class="save-btn">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Password Change Section -->
+                <div class="profile-header password-header">
+                    <h2>Change Password</h2>
+                    <p>Ensure your account is using a secure password</p>
+                </div>
+                
+                <div class="profile-form-container">
+                    <form id="password-form" class="profile-form">
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label for="current-password">Current Password</label>
+                                <div class="password-input">
+                                    <input type="password" id="current-password" name="current_password" placeholder="Enter your current password" required>
+                                    <i class="fas fa-eye-slash toggle-password"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+                                <div class="password-input">
+                                    <input type="password" id="new-password" name="new_password" placeholder="Enter your new password" required>
+                                    <i class="fas fa-eye-slash toggle-password"></i>
+                                </div>
+                                <div class="password-strength">
+                                    <span class="strength-label">Password strength:</span>
+                                    <div class="strength-meter">
+                                        <div class="strength-segment"></div>
+                                        <div class="strength-segment"></div>
+                                        <div class="strength-segment"></div>
+                                        <div class="strength-segment"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirm-password">Confirm New Password</label>
+                                <div class="password-input">
+                                    <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm your new password" required>
+                                    <i class="fas fa-eye-slash toggle-password"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn">Cancel</button>
+                            <button type="submit" class="save-btn">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Delete Account Section -->
+                <div class="profile-header delete-header">
+                    <h2>Delete Account</h2>
+                    <p>Permanently delete your account and all associated data</p>
+                </div>
+                
+                <div class="profile-form-container">
+                    <div class="delete-account-section">
+                        <div class="delete-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="warning-text">
+                                <h3>Warning: This action cannot be undone</h3>
+                                <p>Once you delete your account, all your data including booking history, wallet balance, and personal information will be permanently removed from our system.</p>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="delete-account-btn" class="delete-btn">Delete My Account</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Verification Modal -->
+    <div id="verification-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Verify Your <span id="verification-type">Email</span></h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="verification-message">We've sent a verification code to your email. Please enter the code below to verify your email address.</p>
+                
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" autofocus>
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                    <input type="text" class="otp-input" maxlength="1">
+                </div>
+                
+                <div class="resend-container">
+                    <p>Didn't receive the code? <button id="resend-btn" class="resend-btn">Resend</button></p>
+                    <p id="timer">Resend in <span id="countdown">60</span> seconds</p>
+                </div>
+                
+                <button id="verify-btn" class="verify-submit-btn">Verify</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Account Deletion</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Please type <strong>DELETE</strong> to confirm that you want to permanently delete your account.</p>
+                
+                <div class="form-group">
+                    <input type="text" id="delete-confirmation" placeholder="Type DELETE here">
+                </div>
+                
+                <div class="password-confirmation">
+                    <div class="form-group">
+                        <label for="delete-password">Enter your password</label>
+                        <input type="password" id="delete-password" placeholder="Enter your current password">
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="cancel-delete-btn" class="cancel-btn">Cancel</button>
+                    <button id="confirm-delete-btn" class="delete-btn" disabled>Permanently Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/edit-profile.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

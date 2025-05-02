@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <h1 class="logo">RYDO</h1>
+                <p class="tagline">Admin Panel</p>
+            </div>
+            
+            <div class="user-profile">
+                <div class="profile-image">
+                    <img src="/images/admin-avatar.png" alt="Admin Profile" id="admin-avatar">
+                </div>
+                <h3 id="admin-name">Admin User</h3>
+                <p id="admin-role">System Administrator</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#users"><i class="fas fa-users"></i> Users</a>
+                    </li>
+                    <li>
+                        <a href="#bookings"><i class="fas fa-calendar-check"></i> Bookings</a>
+                    </li>
+                    <li>
+                        <a href="#payments"><i class="fas fa-credit-card"></i> Payments</a>
+                    </li>
+                    <li>
+                        <a href="#routes"><i class="fas fa-route"></i> Shuttle Routes</a>
+                    </li>
+                    <li>
+                        <a href="#ratings"><i class="fas fa-star"></i> Ratings & Reviews</a>
+                    </li>
+                    <li>
+                        <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                    <li class="logout">
+                        <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>&copy; 2025 RYDO. All rights reserved.</p>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-navbar">
+                <div class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </div>
+                
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                
+                <div class="top-nav-actions">
+                    <div class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">5</span>
+                    </div>
+                    
+                    <div class="date-time">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="current-date">May 1, 2025</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard-content" id="dashboard-section">
+                <div class="section-header">
+                    <h2>Dashboard Overview</h2>
+                    <div class="date-filter">
+                        <select id="date-range">
+                            <option value="today">Today</option>
+                            <option value="week" selected>This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="total-users">1,245</h3>
+                            <p>Total Users</p>
+                        </div>
+                        <div class="stat-change increase">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="total-bookings">856</h3>
+                            <p>Total Bookings</p>
+                        </div>
+                        <div class="stat-change increase">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="total-revenue">₹2.8L</h3>
+                            <p>Total Revenue</p>
+                        </div>
+                        <div class="stat-change increase">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>15%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="avg-rating">4.7</h3>
+                            <p>Avg. Rating</p>
+                        </div>
+                        <div class="stat-change increase">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>2%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Booking Statistics</h3>
+                            <div class="chart-actions">
+                                <button class="chart-action active" data-type="all">All</button>
+                                <button class="chart-action" data-type="driver">Driver</button>
+                                <button class="chart-action" data-type="caretaker">Caretaker</button>
+                                <button class="chart-action" data-type="shuttle">Shuttle</button>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="bookings-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Revenue Distribution</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="revenue-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recent-activities">
+                    <div class="section-header">
+                        <h3>Recent Activities</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    
+                    <div class="activities-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Activity</th>
+                                    <th>User</th>
+                                    <th>Service</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activities-body">
+                                <tr>
+                                    <td>New Booking</td>
+                                    <td>Rahul Kumar</td>
+                                    <td>Driver</td>
+                                    <td>₹650</td>
+                                    <td><span class="status completed">Completed</span></td>
+                                    <td>10 min ago</td>
+                                </tr>
+                                <tr>
+                                    <td>Payment</td>
+                                    <td>Priya Sharma</td>
+                                    <td>Caretaker</td>
+                                    <td>₹850</td>
+                                    <td><span class="status success">Success</span></td>
+                                    <td>25 min ago</td>
+                                </tr>
+                                <tr>
+                                    <td>New Booking</td>
+                                    <td>Amit Patel</td>
+                                    <td>Shuttle</td>
+                                    <td>₹320</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                    <td>45 min ago</td>
+                                </tr>
+                                <tr>
+                                    <td>Cancellation</td>
+                                    <td>Neha Singh</td>
+                                    <td>Driver</td>
+                                    <td>₹450</td>
+                                    <td><span class="status cancelled">Cancelled</span></td>
+                                    <td>1 hour ago</td>
+                                </tr>
+                                <tr>
+                                    <td>New User</td>
+                                    <td>Vikram Reddy</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td><span class="status success">Registered</span></td>
+                                    <td>2 hours ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Users Section -->
+            <div class="dashboard-content hidden" id="users-section">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <button class="add-new-btn"><i class="fas fa-plus"></i> Add New User</button>
+                </div>
+                
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label>Role:</label>
+                        <select id="role-filter">
+                            <option value="all">All Roles</option>
+                            <option value="customer">Customers</option>
+                            <option value="driver">Drivers</option>
+                            <option value="caretaker">Caretakers</option>
+                            <option value="shuttle_driver">Shuttle Drivers</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select id="status-filter">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending Verification</option>
+                        </select>
+                    </div>
+                    
+                    <div class="search-filter">
+                        <input type="text" placeholder="Search users...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <div class="data-table-container">
+                    <table id="users-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- User data will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Bookings Section -->
+            <div class="dashboard-content hidden" id="bookings-section">
+                <div class="section-header">
+                    <h2>Booking Management</h2>
+                </div>
+                
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label>Type:</label>
+                        <select id="booking-type-filter">
+                            <option value="all">All Types</option>
+                            <option value="driver">Driver</option>
+                            <option value="caretaker">Caretaker</option>
+                            <option value="shuttle">Shuttle</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select id="booking-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Date Range:</label>
+                        <input type="date" id="date-from">
+                        <span>to</span>
+                        <input type="date" id="date-to">
+                    </div>
+                </div>
+                
+                <div class="data-table-container">
+                    <table id="bookings-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Customer</th>
+                                <th>Service Provider</th>
+                                <th>Type</th>
+                                <th>Date & Time</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Booking data will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Payments Section -->
+            <div class="dashboard-content hidden" id="payments-section">
+                <!-- Payment management content -->
+            </div>
+            
+            <!-- Routes Section -->
+            <div class="dashboard-content hidden" id="routes-section">
+                <!-- Shuttle routes management content -->
+            </div>
+            
+            <!-- Ratings Section -->
+            <div class="dashboard-content hidden" id="ratings-section">
+                <div class="section-header">
+                    <h2>Ratings & Reviews</h2>
+                </div>
+                
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label>Service Type:</label>
+                        <select id="rating-service-filter">
+                            <option value="all">All Services</option>
+                            <option value="driver">Driver</option>
+                            <option value="caretaker">Caretaker</option>
+                            <option value="shuttle">Shuttle</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Rating:</label>
+                        <select id="rating-filter">
+                            <option value="all">All Ratings</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="ratings-overview">
+                    <div class="rating-summary">
+                        <div class="average-rating">
+                            <h3>4.7</h3>
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <p>Average Rating</p>
+                        </div>
+                        
+                        <div class="rating-bars">
+                            <div class="rating-bar">
+                                <span class="rating-label">5 <i class="fas fa-star"></i></span>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: 75%"></div>
+                                </div>
+                                <span class="rating-count">450</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span class="rating-label">4 <i class="fas fa-star"></i></span>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: 18%"></div>
+                                </div>
+                                <span class="rating-count">108</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span class="rating-label">3 <i class="fas fa-star"></i></span>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: 5%"></div>
+                                </div>
+                                <span class="rating-count">30</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span class="rating-label">2 <i class="fas fa-star"></i></span>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: 1.5%"></div>
+                                </div>
+                                <span class="rating-count">9</span>
+                            </div>
+                            <div class="rating-bar">
+                                <span class="rating-label">1 <i class="fas fa-star"></i></span>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: 0.5%"></div>
+                                </div>
+                                <span class="rating-count">3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="data-table-container">
+                    <table id="ratings-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Service</th>
+                                <th>Customer</th>
+                                <th>Provider</th>
+                                <th>Rating</th>
+                                <th>Review</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rating data will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div class="dashboard-content hidden" id="settings-section">
+                <!-- System settings content -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal for User Details -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- User details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/admin-dashboard.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

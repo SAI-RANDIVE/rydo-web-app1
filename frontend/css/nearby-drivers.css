@@ -1,0 +1,512 @@
+/* Nearby Drivers Styles */
+
+.nearby-drivers-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.nearby-drivers-container h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Loading and Error States */
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #4a90e2;
+    font-size: 1rem;
+}
+
+.loading-spinner i {
+    margin-right: 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #e74c3c;
+    font-size: 1rem;
+}
+
+.error-message i {
+    margin-right: 10px;
+}
+
+.no-drivers-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #666;
+    font-size: 1rem;
+}
+
+.no-drivers-message i {
+    margin-right: 10px;
+    font-size: 1.5rem;
+    color: #4a90e2;
+}
+
+/* Drivers List */
+.drivers-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Driver Card */
+.driver-card {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.driver-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.driver-profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.driver-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+    border: 2px solid #4a90e2;
+}
+
+.driver-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.driver-info {
+    flex: 1;
+}
+
+.driver-info h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.driver-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.driver-rating i {
+    color: #f1c40f;
+    margin-right: 5px;
+}
+
+.total-rides {
+    margin-left: 5px;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.driver-distance {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.driver-distance i {
+    margin-right: 5px;
+    color: #4a90e2;
+}
+
+.driver-vehicle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-top: 1px solid #e0e0e0;
+    margin-bottom: 15px;
+}
+
+.vehicle-info {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.vehicle-info i {
+    margin-right: 5px;
+    color: #4a90e2;
+}
+
+.vehicle-type {
+    font-size: 0.8rem;
+    color: #fff;
+    background-color: #4a90e2;
+    padding: 3px 8px;
+    border-radius: 15px;
+}
+
+.book-driver-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #4a90e2;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.book-driver-btn:hover {
+    background-color: #3a7bc8;
+}
+
+/* Booking Confirmation */
+.booking-confirmation-container {
+    margin-top: 30px;
+    display: none;
+}
+
+.booking-confirmation {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.confirmation-header h2 {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0;
+}
+
+.booking-status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.booking-status.pending {
+    background-color: #f1c40f;
+    color: #fff;
+}
+
+.booking-status.accepted {
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.booking-status.expired {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+.booking-status.cancelled {
+    background-color: #95a5a6;
+    color: #fff;
+}
+
+.booking-status.completed {
+    background-color: #3498db;
+    color: #fff;
+}
+
+.confirmation-details {
+    margin-bottom: 20px;
+}
+
+.confirmation-details > div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.confirmation-details > div:last-child {
+    border-bottom: none;
+}
+
+.confirmation-details > div > span:first-child {
+    color: #666;
+}
+
+.confirmation-details > div > span:last-child {
+    font-weight: 500;
+    color: #333;
+}
+
+#booking-countdown {
+    font-family: monospace;
+    font-weight: 700;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.confirmation-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancel-booking-btn {
+    background-color: #f5f5f5;
+    color: #e74c3c;
+    border: 1px solid #e0e0e0;
+}
+
+.cancel-booking-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.view-details-btn {
+    background-color: #4a90e2;
+    color: #fff;
+    border: none;
+}
+
+.view-details-btn:hover {
+    background-color: #3a7bc8;
+}
+
+.retry-booking-btn {
+    background-color: #f1c40f;
+    color: #fff;
+    border: none;
+}
+
+.retry-booking-btn:hover {
+    background-color: #e6bb00;
+}
+
+.new-booking-btn {
+    background-color: #2ecc71;
+    color: #fff;
+    border: none;
+}
+
+.new-booking-btn:hover {
+    background-color: #27ae60;
+}
+
+/* Driver Details */
+.driver-details-container {
+    margin-top: 20px;
+    display: none;
+}
+
+.driver-details {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.driver-details h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.driver-details h4 {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.driver-contact {
+    margin-top: 10px;
+}
+
+.call-driver-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: #2ecc71;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.call-driver-btn i {
+    margin-right: 5px;
+}
+
+.call-driver-btn:hover {
+    background-color: #27ae60;
+}
+
+.vehicle-details {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.vehicle-info > div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.vehicle-info > div > span:first-child {
+    color: #666;
+}
+
+.vehicle-info > div > span:last-child {
+    font-weight: 500;
+    color: #333;
+}
+
+/* Loading Overlay */
+.booking-container.loading {
+    position: relative;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 10px;
+}
+
+/* Notifications */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 350px;
+}
+
+.notification {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-icon {
+    margin-right: 15px;
+    font-size: 1.2rem;
+}
+
+.notification.success .notification-icon {
+    color: #2ecc71;
+}
+
+.notification.error .notification-icon {
+    color: #e74c3c;
+}
+
+.notification.warning .notification-icon {
+    color: #f1c40f;
+}
+
+.notification.info .notification-icon {
+    color: #3498db;
+}
+
+.notification-message {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .drivers-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .confirmation-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .booking-status {
+        margin-top: 10px;
+    }
+    
+    .confirmation-actions {
+        flex-direction: column;
+    }
+    
+    .confirmation-actions button {
+        margin-bottom: 10px;
+    }
+}

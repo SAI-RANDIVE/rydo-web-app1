@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Driver Registration</title>
+    <link rel="stylesheet" href="/css/driver-signup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="logo-container">
+                <h1 class="logo">RYDO</h1>
+                <p class="tagline">ride with trust</p>
+            </div>
+            <div class="features">
+                <h2>Join Our Driver Network</h2>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Competitive Earnings</h3>
+                        <p>Earn more with our competitive rates and flexible working hours.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Flexible Schedule</h3>
+                        <p>Work when you want. You control your schedule and availability.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h3>Safety First</h3>
+                        <p>Our platform prioritizes your safety with verified customers and secure payments.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="car-illustration">
+                <img src="/images/car-illustration.svg" alt="Car illustration" class="car-image">
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="form-container">
+                <h2>Driver Registration</h2>
+                <p class="form-subtitle">Please fill in all the required information to join our driver network</p>
+                
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="form-progress"></div>
+                    </div>
+                    <div class="progress-steps">
+                        <div class="step active" data-step="1">1</div>
+                        <div class="step" data-step="2">2</div>
+                        <div class="step" data-step="3">3</div>
+                        <div class="step" data-step="4">4</div>
+                    </div>
+                    <div class="progress-labels">
+                        <div class="step-label">Personal Info</div>
+                        <div class="step-label">ID Verification</div>
+                        <div class="step-label">Professional Details</div>
+                        <div class="step-label">Review & Submit</div>
+                    </div>
+                </div>
+                
+                <form id="driver-signup-form" class="multi-step-form" action="/auth/driver-signup" method="POST" enctype="multipart/form-data">
+                    <!-- Step 1: Personal Information -->
+                    <div class="form-step" data-step="1">
+                        <h3>Personal Information</h3>
+                        
+                        <div class="name-group">
+                            <div class="form-group half">
+                                <label for="first_name">First Name <span class="required">*</span></label>
+                                <input type="text" id="first_name" name="first_name" placeholder="First name" required>
+                            </div>
+                            <div class="form-group half">
+                                <label for="last_name">Last Name <span class="required">*</span></label>
+                                <input type="text" id="last_name" name="last_name" placeholder="Last name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number <span class="required">*</span></label>
+                            <div class="phone-input">
+                                <span class="country-code">+91</span>
+                                <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gender">Gender <span class="required">*</span></label>
+                            <select id="gender" name="gender" required>
+                                <option value="" disabled selected>Select your gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date_of_birth">Date of Birth <span class="required">*</span></label>
+                            <input type="date" id="date_of_birth" name="date_of_birth" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">Address <span class="required">*</span></label>
+                            <textarea id="address" name="address" placeholder="Enter your full address" required></textarea>
+                        </div>
+                        
+                        <div class="address-group">
+                            <div class="form-group third">
+                                <label for="city">City <span class="required">*</span></label>
+                                <input type="text" id="city" name="city" placeholder="City" required>
+                            </div>
+                            <div class="form-group third">
+                                <label for="state">State <span class="required">*</span></label>
+                                <input type="text" id="state" name="state" placeholder="State" required>
+                            </div>
+                            <div class="form-group third">
+                                <label for="pincode">Pincode <span class="required">*</span></label>
+                                <input type="text" id="pincode" name="pincode" placeholder="Pincode" pattern="[0-9]{6}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profile_photo">Profile Photo <span class="required">*</span></label>
+                            <div class="file-upload">
+                                <input type="file" id="profile_photo" name="profile_photo" accept="image/*" required>
+                                <label for="profile_photo" class="file-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose a file</span>
+                                </label>
+                                <span class="file-name">No file chosen</span>
+                            </div>
+                            <p class="file-hint">Upload a clear passport-size photo with white background (Max: 2MB)</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Create Password <span class="required">*</span></label>
+                            <div class="password-input">
+                                <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                                <i class="fas fa-eye-slash toggle-password"></i>
+                            </div>
+                            <div class="password-strength">
+                                <span class="strength-label">Password strength:</span>
+                                <div class="strength-meter">
+                                    <div class="strength-segment"></div>
+                                    <div class="strength-segment"></div>
+                                    <div class="strength-segment"></div>
+                                    <div class="strength-segment"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password <span class="required">*</span></label>
+                            <div class="password-input">
+                                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                                <i class="fas fa-eye-slash toggle-password"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn-next">Continue <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: ID Verification -->
+                    <div class="form-step" data-step="2">
+                        <h3>ID Verification</h3>
+                        
+                        <div class="form-group">
+                            <label for="id_proof_type">ID Proof Type <span class="required">*</span></label>
+                            <select id="id_proof_type" name="id_proof_type" required>
+                                <option value="" disabled selected>Select ID proof type</option>
+                                <option value="aadhar">Aadhar Card</option>
+                                <option value="pan">PAN Card</option>
+                                <option value="voter">Voter ID</option>
+                                <option value="passport">Passport</option>
+                                <option value="driving_license">Driving License</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="id_proof_number">ID Proof Number <span class="required">*</span></label>
+                            <input type="text" id="id_proof_number" name="id_proof_number" placeholder="Enter your ID number" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="id_proof_photo">ID Proof Photo <span class="required">*</span></label>
+                            <div class="file-upload">
+                                <input type="file" id="id_proof_photo" name="id_proof_photo" accept="image/*" required>
+                                <label for="id_proof_photo" class="file-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose a file</span>
+                                </label>
+                                <span class="file-name">No file chosen</span>
+                            </div>
+                            <p class="file-hint">Upload a clear photo of your ID proof (Max: 2MB)</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="license_number">Driving License Number <span class="required">*</span></label>
+                            <input type="text" id="license_number" name="license_number" placeholder="Enter your driving license number" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="license_expiry">License Expiry Date <span class="required">*</span></label>
+                            <input type="date" id="license_expiry" name="license_expiry" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="license_photo_front">License Front Photo <span class="required">*</span></label>
+                            <div class="file-upload">
+                                <input type="file" id="license_photo_front" name="license_photo_front" accept="image/*" required>
+                                <label for="license_photo_front" class="file-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose a file</span>
+                                </label>
+                                <span class="file-name">No file chosen</span>
+                            </div>
+                            <p class="file-hint">Upload a clear photo of the front side of your driving license (Max: 2MB)</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="license_photo_back">License Back Photo <span class="required">*</span></label>
+                            <div class="file-upload">
+                                <input type="file" id="license_photo_back" name="license_photo_back" accept="image/*" required>
+                                <label for="license_photo_back" class="file-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose a file</span>
+                                </label>
+                                <span class="file-name">No file chosen</span>
+                            </div>
+                            <p class="file-hint">Upload a clear photo of the back side of your driving license (Max: 2MB)</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aadhar_number">Aadhar Card Number <span class="required">*</span></label>
+                            <input type="text" id="aadhar_number" name="aadhar_number" placeholder="Enter your 12-digit Aadhar number" pattern="[0-9]{12}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aadhar_photo_front">Aadhar Front Photo <span class="required">*</span></label>
+                            <div class="file-upload">
+                                <input type="file" id="aadhar_photo_front" name="aadhar_photo_front" accept="image/*" required>
+                                <label for="aadhar_photo_front" class="file-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose a file</span>
+                                </label>
+                                <span class="file-name">No file chosen</span>
+                            </div>
+                            <p class="file-hint">Upload a clear photo of the front side of your Aadhar card (Max: 2MB)</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="aadhar_photo_back">Aadhar Back Photo <span class="required">*</span></label>
+                            <div class="file-upload">
+                                <input type="file" id="aadhar_photo_back" name="aadhar_photo_back" accept="image/*" required>
+                                <label for="aadhar_photo_back" class="file-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Choose a file</span>
+                                </label>
+                                <span class="file-name">No file chosen</span>
+                            </div>
+                            <p class="file-hint">Upload a clear photo of the back side of your Aadhar card (Max: 2MB)</p>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn-prev"><i class="fas fa-arrow-left"></i> Back</button>
+                            <button type="button" class="btn-next">Continue <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Professional Details -->
+                    <div class="form-step" data-step="3">
+                        <h3>Professional Details</h3>
+                        
+                        <div class="form-group">
+                            <label for="education_level">Education Level <span class="required">*</span></label>
+                            <select id="education_level" name="education_level" required>
+                                <option value="" disabled selected>Select your education level</option>
+                                <option value="primary">Primary Education</option>
+                                <option value="secondary">Secondary Education</option>
+                                <option value="higher_secondary">Higher Secondary</option>
+                                <option value="graduate">Graduate</option>
+                                <option value="post_graduate">Post Graduate</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="languages_known">Languages Known <span class="required">*</span></label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lang_english" name="languages_known" value="English">
+                                    <label for="lang_english">English</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lang_hindi" name="languages_known" value="Hindi">
+                                    <label for="lang_hindi">Hindi</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lang_tamil" name="languages_known" value="Tamil">
+                                    <label for="lang_tamil">Tamil</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lang_telugu" name="languages_known" value="Telugu">
+                                    <label for="lang_telugu">Telugu</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lang_kannada" name="languages_known" value="Kannada">
+                                    <label for="lang_kannada">Kannada</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lang_malayalam" name="languages_known" value="Malayalam">
+                                    <label for="lang_malayalam">Malayalam</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="lang_other" name="languages_known" value="Other">
+                                    <label for="lang_other">Other</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="experience_years">Driving Experience (Years) <span class="required">*</span></label>
+                            <input type="number" id="experience_years" name="experience_years" min="1" max="50" placeholder="Years of driving experience" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="vehicle_types">Vehicle Types You Can Drive <span class="required">*</span></label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="vehicle_hatchback" name="vehicle_types" value="Hatchback">
+                                    <label for="vehicle_hatchback">Hatchback</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="vehicle_sedan" name="vehicle_types" value="Sedan">
+                                    <label for="vehicle_sedan">Sedan</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="vehicle_suv" name="vehicle_types" value="SUV">
+                                    <label for="vehicle_suv">SUV</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="vehicle_luxury" name="vehicle_types" value="Luxury">
+                                    <label for="vehicle_luxury">Luxury Car</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="vehicle_minivan" name="vehicle_types" value="Minivan">
+                                    <label for="vehicle_minivan">Minivan</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="vehicle_bus" name="vehicle_types" value="Bus">
+                                    <label for="vehicle_bus">Bus</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="skills">Special Skills</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill_defensive" name="skills" value="Defensive Driving">
+                                    <label for="skill_defensive">Defensive Driving</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill_firstaid" name="skills" value="First Aid">
+                                    <label for="skill_firstaid">First Aid</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill_mechanical" name="skills" value="Basic Mechanical Knowledge">
+                                    <label for="skill_mechanical">Basic Mechanical Knowledge</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill_navigation" name="skills" value="Expert Navigation">
+                                    <label for="skill_navigation">Expert Navigation</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="skill_customer" name="skills" value="Customer Service">
+                                    <label for="skill_customer">Customer Service</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preferred_locations">Preferred Working Locations</label>
+                            <textarea id="preferred_locations" name="preferred_locations" placeholder="Enter areas where you prefer to work (comma separated)"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="emergency_contact_name">Emergency Contact Name <span class="required">*</span></label>
+                            <input type="text" id="emergency_contact_name" name="emergency_contact_name" placeholder="Emergency contact person name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="emergency_contact_phone">Emergency Contact Number <span class="required">*</span></label>
+                            <div class="phone-input">
+                                <span class="country-code">+91</span>
+                                <input type="tel" id="emergency_contact_phone" name="emergency_contact_phone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="upi_id">UPI ID <span class="required">*</span></label>
+                            <input type="text" id="upi_id" name="upi_id" placeholder="Enter your UPI ID (e.g., name@upi)" required>
+                            <p class="field-hint">This will be used for direct payments to your account</p>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn-prev"><i class="fas fa-arrow-left"></i> Back</button>
+                            <button type="button" class="btn-next">Review Application <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4: Review & Submit -->
+                    <div class="form-step" data-step="4">
+                        <h3>Review Your Application</h3>
+                        <p class="review-text">Please review all the information you've provided. You won't be able to edit this information after submission without contacting support.</p>
+                        
+                        <div class="review-section">
+                            <h4>Personal Information</h4>
+                            <div class="review-data" id="review-personal"></div>
+                        </div>
+                        
+                        <div class="review-section">
+                            <h4>ID Verification</h4>
+                            <div class="review-data" id="review-id"></div>
+                        </div>
+                        
+                        <div class="review-section">
+                            <h4>Professional Details</h4>
+                            <div class="review-data" id="review-professional"></div>
+                        </div>
+                        
+                        <div class="form-group terms">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <label for="terms">I agree to the <a href="/terms" target="_blank">Terms of Service</a>, <a href="/privacy" target="_blank">Privacy Policy</a>, and <a href="/driver-agreement" target="_blank">Driver Agreement</a>.</label>
+                        </div>
+                        
+                        <div class="form-group terms">
+                            <input type="checkbox" id="data_consent" name="data_consent" required>
+                            <label for="data_consent">I consent to RYDO collecting, processing, and storing my personal information for verification and service purposes.</label>
+                        </div>
+                        
+                        <div class="form-group terms">
+                            <input type="checkbox" id="background_check" name="background_check" required>
+                            <label for="background_check">I authorize RYDO to conduct background verification checks to ensure safety and compliance.</label>
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" class="btn-prev"><i class="fas fa-arrow-left"></i> Back</button>
+                            <button type="submit" class="btn-submit">Submit Application</button>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="login-prompt">
+                    <p>Already registered? <a href="/">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc&libraries=places"></script>
+    <script src="/js/driver-signup.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

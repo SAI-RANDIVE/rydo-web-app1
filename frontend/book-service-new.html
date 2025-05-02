@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Book a Service</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/booking-service-new.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="/">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <span class="logo-text">RYDO</span>
+                </a>
+                <p class="tagline">ride with trust</p>
+            </div>
+            
+            <div class="header-actions">
+                <div class="location-btn">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="current-location">Detecting location...</span>
+                </div>
+                
+                <div class="user-profile">
+                    <img src="/images/default-avatar.png" alt="User Avatar" id="user-avatar">
+                    <div class="dropdown">
+                        <button class="dropdown-toggle">
+                            <span id="user-name">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="/customer-dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                            <a href="/wallet"><i class="fas fa-wallet"></i> My Wallet</a>
+                            <a href="/my-profile"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                            <a href="/logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="booking-container">
+            <div class="booking-header">
+                <h1>Book a Service</h1>
+                <p>Choose the service you need and we'll connect you with the best professionals</p>
+            </div>
+            
+            <!-- Service Type Selection -->
+            <div class="service-selector">
+                <div class="service-option active" data-service="driver">
+                    <div class="service-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3>Personal Driver</h3>
+                    <p>Get a professional driver for your vehicle</p>
+                </div>
+                
+                <div class="service-option" data-service="caretaker">
+                    <div class="service-icon">
+                        <i class="fas fa-user-nurse"></i>
+                    </div>
+                    <h3>Medical Caretaker</h3>
+                    <p>Professional medical assistance</p>
+                </div>
+                
+                <div class="service-option" data-service="shuttle">
+                    <div class="service-icon">
+                        <i class="fas fa-shuttle-van"></i>
+                    </div>
+                    <h3>Shuttle Service</h3>
+                    <p>Group transportation services</p>
+                </div>
+            </div>
+            
+            <!-- Booking Forms -->
+            <div class="booking-forms">
+                <!-- Driver Service Form -->
+                <div class="booking-form active" id="driver-form">
+                    <h2>Personal Driver Service</h2>
+                    
+                    <form id="driver-booking-form">
+                        <div class="form-group">
+                            <label for="driver-pickup-location">Pickup Location</label>
+                            <div class="location-input">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" id="driver-pickup-location" name="pickup_location" placeholder="Enter pickup location" required>
+                                <button type="button" class="use-current-location" data-target="driver-pickup-location">
+                                    <i class="fas fa-crosshairs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="driver-dropoff-location">Dropoff Location</label>
+                            <div class="location-input">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" id="driver-dropoff-location" name="dropoff_location" placeholder="Enter dropoff location" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="driver-date">Date</label>
+                                <div class="date-input">
+                                    <i class="fas fa-calendar"></i>
+                                    <input type="date" id="driver-date" name="date" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="driver-time">Time</label>
+                                <div class="time-input">
+                                    <i class="fas fa-clock"></i>
+                                    <input type="time" id="driver-time" name="time" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="driver-vehicle-type">Vehicle Type</label>
+                            <select id="driver-vehicle-type" name="vehicle_type" required>
+                                <option value="">Select Vehicle Type</option>
+                                <option value="sedan">Sedan</option>
+                                <option value="suv">SUV</option>
+                                <option value="hatchback">Hatchback</option>
+                                <option value="luxury">Luxury</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="driver-hours">Duration (hours)</label>
+                            <input type="number" id="driver-hours" name="hours" min="1" max="24" value="2" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="driver-notes">Additional Notes</label>
+                            <textarea id="driver-notes" name="notes" placeholder="Any special requirements or information for the driver"></textarea>
+                        </div>
+                        
+                        <div class="fare-estimate">
+                            <div class="fare-details">
+                                <div class="fare-item">
+                                    <span>Base Fare</span>
+                                    <span id="driver-base-fare">₹200</span>
+                                </div>
+                                <div class="fare-item">
+                                    <span>Duration Charge</span>
+                                    <span id="driver-duration-charge">₹300</span>
+                                </div>
+                                <div class="fare-item">
+                                    <span>Distance Charge</span>
+                                    <span id="driver-distance-charge">₹150</span>
+                                </div>
+                                <div class="fare-item total">
+                                    <span>Estimated Total</span>
+                                    <span id="driver-total-fare">₹650</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-methods">
+                            <h3>Payment Method</h3>
+                            <div class="payment-options">
+                                <div class="payment-option active">
+                                    <input type="radio" id="driver-wallet" name="payment_method" value="wallet" checked>
+                                    <label for="driver-wallet">
+                                        <i class="fas fa-wallet"></i>
+                                        <span>Wallet</span>
+                                        <span class="wallet-balance" id="driver-wallet-balance">₹1,200</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" id="driver-cash" name="payment_method" value="cash">
+                                    <label for="driver-cash">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span>Cash</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-book">Book Now</button>
+                    </form>
+                </div>
+                
+                <!-- Caretaker Service Form -->
+                <div class="booking-form" id="caretaker-form">
+                    <h2>Medical Caretaker Service</h2>
+                    
+                    <form id="caretaker-booking-form">
+                        <div class="form-group">
+                            <label for="caretaker-location">Service Location</label>
+                            <div class="location-input">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" id="caretaker-location" name="location" placeholder="Enter service location" required>
+                                <button type="button" class="use-current-location" data-target="caretaker-location">
+                                    <i class="fas fa-crosshairs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="caretaker-date">Date</label>
+                                <div class="date-input">
+                                    <i class="fas fa-calendar"></i>
+                                    <input type="date" id="caretaker-date" name="date" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="caretaker-time">Time</label>
+                                <div class="time-input">
+                                    <i class="fas fa-clock"></i>
+                                    <input type="time" id="caretaker-time" name="time" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="caretaker-type">Caretaker Type</label>
+                            <select id="caretaker-type" name="caretaker_type" required>
+                                <option value="">Select Caretaker Type</option>
+                                <option value="general">General Care</option>
+                                <option value="elderly">Elderly Care</option>
+                                <option value="pediatric">Pediatric Care</option>
+                                <option value="physiotherapy">Physiotherapy</option>
+                                <option value="nursing">Nursing</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="caretaker-hours">Duration (hours)</label>
+                            <input type="number" id="caretaker-hours" name="hours" min="1" max="24" value="4" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="caretaker-patient-details">Patient Details</label>
+                            <textarea id="caretaker-patient-details" name="patient_details" placeholder="Age, medical condition, and any specific requirements" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="caretaker-notes">Additional Notes</label>
+                            <textarea id="caretaker-notes" name="notes" placeholder="Any special requirements or information for the caretaker"></textarea>
+                        </div>
+                        
+                        <div class="fare-estimate">
+                            <div class="fare-details">
+                                <div class="fare-item">
+                                    <span>Base Fare</span>
+                                    <span id="caretaker-base-fare">₹300</span>
+                                </div>
+                                <div class="fare-item">
+                                    <span>Duration Charge</span>
+                                    <span id="caretaker-duration-charge">₹800</span>
+                                </div>
+                                <div class="fare-item">
+                                    <span>Specialization Charge</span>
+                                    <span id="caretaker-specialization-charge">₹200</span>
+                                </div>
+                                <div class="fare-item total">
+                                    <span>Estimated Total</span>
+                                    <span id="caretaker-total-fare">₹1,300</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-methods">
+                            <h3>Payment Method</h3>
+                            <div class="payment-options">
+                                <div class="payment-option active">
+                                    <input type="radio" id="caretaker-wallet" name="payment_method" value="wallet" checked>
+                                    <label for="caretaker-wallet">
+                                        <i class="fas fa-wallet"></i>
+                                        <span>Wallet</span>
+                                        <span class="wallet-balance" id="caretaker-wallet-balance">₹1,200</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" id="caretaker-cash" name="payment_method" value="cash">
+                                    <label for="caretaker-cash">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span>Cash</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-book">Book Now</button>
+                    </form>
+                </div>
+                
+                <!-- Shuttle Service Form -->
+                <div class="booking-form" id="shuttle-form">
+                    <h2>Shuttle Service</h2>
+                    
+                    <form id="shuttle-booking-form">
+                        <div class="form-group">
+                            <label for="shuttle-pickup-location">Pickup Location</label>
+                            <div class="location-input">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" id="shuttle-pickup-location" name="pickup_location" placeholder="Enter pickup location" required>
+                                <button type="button" class="use-current-location" data-target="shuttle-pickup-location">
+                                    <i class="fas fa-crosshairs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shuttle-dropoff-location">Dropoff Location</label>
+                            <div class="location-input">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" id="shuttle-dropoff-location" name="dropoff_location" placeholder="Enter dropoff location" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shuttle-date">Date</label>
+                                <div class="date-input">
+                                    <i class="fas fa-calendar"></i>
+                                    <input type="date" id="shuttle-date" name="date" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="shuttle-time">Time</label>
+                                <div class="time-input">
+                                    <i class="fas fa-clock"></i>
+                                    <input type="time" id="shuttle-time" name="time" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shuttle-vehicle-type">Vehicle Type</label>
+                                <select id="shuttle-vehicle-type" name="vehicle_type" required>
+                                    <option value="">Select Vehicle Type</option>
+                                    <option value="van">Van (up to 8 people)</option>
+                                    <option value="minibus">Minibus (up to 15 people)</option>
+                                    <option value="bus">Bus (up to 30 people)</option>
+                                    <option value="tempo">Tempo Traveller (up to 12 people)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="shuttle-passengers">Number of Passengers</label>
+                                <input type="number" id="shuttle-passengers" name="passengers" min="1" max="30" value="4" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shuttle-notes">Additional Notes</label>
+                            <textarea id="shuttle-notes" name="notes" placeholder="Any special requirements or information for the shuttle service"></textarea>
+                        </div>
+                        
+                        <div class="fare-estimate">
+                            <div class="fare-details">
+                                <div class="fare-item">
+                                    <span>Base Fare</span>
+                                    <span id="shuttle-base-fare">₹500</span>
+                                </div>
+                                <div class="fare-item">
+                                    <span>Distance Charge</span>
+                                    <span id="shuttle-distance-charge">₹350</span>
+                                </div>
+                                <div class="fare-item">
+                                    <span>Vehicle Charge</span>
+                                    <span id="shuttle-vehicle-charge">₹250</span>
+                                </div>
+                                <div class="fare-item total">
+                                    <span>Estimated Total</span>
+                                    <span id="shuttle-total-fare">₹1,100</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-methods">
+                            <h3>Payment Method</h3>
+                            <div class="payment-options">
+                                <div class="payment-option active">
+                                    <input type="radio" id="shuttle-wallet" name="payment_method" value="wallet" checked>
+                                    <label for="shuttle-wallet">
+                                        <i class="fas fa-wallet"></i>
+                                        <span>Wallet</span>
+                                        <span class="wallet-balance" id="shuttle-wallet-balance">₹1,200</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="payment-option">
+                                    <input type="radio" id="shuttle-cash" name="payment_method" value="cash">
+                                    <label for="shuttle-cash">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span>Cash</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-book">Book Now</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Booking Confirmation Modal -->
+    <div class="modal" id="booking-confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Booking Confirmation</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Booking Successful!</h3>
+                <p>Your booking has been confirmed. A confirmation has been sent to your email and phone.</p>
+                
+                <div class="booking-details">
+                    <div class="booking-detail">
+                        <span>Booking Reference:</span>
+                        <span id="booking-reference">RYDO123456</span>
+                    </div>
+                    <div class="booking-detail">
+                        <span>Service Type:</span>
+                        <span id="booking-service-type">Personal Driver</span>
+                    </div>
+                    <div class="booking-detail">
+                        <span>Date & Time:</span>
+                        <span id="booking-datetime">May 3, 2025 10:00 AM</span>
+                    </div>
+                    <div class="booking-detail">
+                        <span>Amount Paid:</span>
+                        <span id="booking-amount">₹650</span>
+                    </div>
+                </div>
+                
+                <div class="booking-actions">
+                    <a href="/customer-dashboard" class="btn-dashboard">Go to Dashboard</a>
+                    <button id="book-another" class="btn-book-another">Book Another Service</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Modal -->
+    <div class="modal" id="loading-modal">
+        <div class="modal-content loading-content">
+            <div class="loading-animation">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <h3>Processing Your Booking</h3>
+            <p>Please wait while we confirm your booking...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <div class="footer-logo-text">
+                        <h3>RYDO</h3>
+                        <p>ride with trust</p>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="/about">About Us</a></li>
+                            <li><a href="/contact">Contact Us</a></li>
+                            <li><a href="/careers">Careers</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Services</h4>
+                        <ul>
+                            <li><a href="/book-service?service=driver">Personal Driver</a></li>
+                            <li><a href="/book-service?service=caretaker">Medical Caretaker</a></li>
+                            <li><a href="/book-service?service=shuttle">Shuttle Service</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="/terms">Terms of Service</a></li>
+                            <li><a href="/privacy">Privacy Policy</a></li>
+                            <li><a href="/refund">Refund Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 RYDO. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&loading=async"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/booking-service-new.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

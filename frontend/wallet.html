@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Wallet</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/wallet.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="/">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <span class="logo-text">RYDO</span>
+                </a>
+                <p class="tagline">ride with trust</p>
+            </div>
+            
+            <div class="header-actions">
+                <div class="location-btn">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="current-location">Detecting location...</span>
+                </div>
+                
+                <div class="user-profile">
+                    <img src="/images/default-avatar.png" alt="User Avatar" id="user-avatar">
+                    <div class="dropdown">
+                        <button class="dropdown-toggle">
+                            <span id="user-name">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="/customer-dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                            <a href="/edit-profile"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                            <a href="/logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="wallet-container">
+            <div class="wallet-header">
+                <h1>My Wallet</h1>
+                <p>Manage your RYDO wallet, add funds, and view transaction history</p>
+            </div>
+            
+            <!-- Wallet Balance Card -->
+            <div class="wallet-balance-card">
+                <div class="balance-info">
+                    <h2>Wallet Balance</h2>
+                    <div class="balance-amount">
+                        <i class="fas fa-wallet"></i>
+                        <span id="wallet-balance">₹0.00</span>
+                    </div>
+                    <p class="balance-updated">Last updated: <span id="last-updated">Just now</span></p>
+                </div>
+                <div class="balance-actions">
+                    <button id="add-money-btn" class="btn-primary"><i class="fas fa-plus-circle"></i> Add Money</button>
+                    <button id="withdraw-money-btn" class="btn-secondary"><i class="fas fa-arrow-alt-circle-down"></i> Withdraw</button>
+                </div>
+            </div>
+            
+            <!-- Quick Add Money Options -->
+            <div class="quick-add-money">
+                <h3>Quick Add</h3>
+                <div class="amount-options">
+                    <button class="amount-option" data-amount="100">₹100</button>
+                    <button class="amount-option" data-amount="200">₹200</button>
+                    <button class="amount-option" data-amount="500">₹500</button>
+                    <button class="amount-option" data-amount="1000">₹1000</button>
+                    <button class="amount-option custom" data-amount="custom">Custom</button>
+                </div>
+            </div>
+            
+            <!-- Transaction History -->
+            <div class="transactions-section">
+                <div class="section-header">
+                    <h3>Transaction History</h3>
+                    <div class="transaction-filters">
+                        <select id="transaction-type-filter">
+                            <option value="all">All Transactions</option>
+                            <option value="credit">Money Added</option>
+                            <option value="debit">Money Spent</option>
+                            <option value="refund">Refunds</option>
+                        </select>
+                        <select id="transaction-date-filter">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="transactions-list" id="transactions-list">
+                    <div class="loading-indicator">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading transactions...</p>
+                    </div>
+                </div>
+                
+                <div class="transactions-pagination">
+                    <button id="prev-page" class="pagination-btn" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                    <span id="pagination-info">Page 1 of 1</span>
+                    <button id="next-page" class="pagination-btn" disabled>Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Money Modal -->
+    <div id="add-money-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Money to Wallet</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-money-form">
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" name="amount" min="1" max="10000" placeholder="Enter amount" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <div class="payment-methods">
+                            <div class="payment-method">
+                                <input type="radio" id="upi" name="payment_method" value="upi" checked>
+                                <label for="upi">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>UPI</span>
+                                </label>
+                            </div>
+                            <div class="payment-method">
+                                <input type="radio" id="card" name="payment_method" value="card">
+                                <label for="card">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Card</span>
+                                </label>
+                            </div>
+                            <div class="payment-method">
+                                <input type="radio" id="netbanking" name="payment_method" value="netbanking">
+                                <label for="netbanking">
+                                    <i class="fas fa-university"></i>
+                                    <span>Net Banking</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- UPI Payment Fields -->
+                    <div id="upi-fields" class="payment-fields">
+                        <div class="form-group">
+                            <label for="upi-id">UPI ID</label>
+                            <input type="text" id="upi-id" name="upi_id" placeholder="yourname@upi">
+                        </div>
+                    </div>
+                    
+                    <!-- Card Payment Fields -->
+                    <div id="card-fields" class="payment-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="card-number">Card Number</label>
+                            <input type="text" id="card-number" name="card_number" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiry-date">Expiry Date</label>
+                                <input type="text" id="expiry-date" name="expiry_date" placeholder="MM/YY">
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="password" id="cvv" name="cvv" placeholder="123">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="card-name">Name on Card</label>
+                            <input type="text" id="card-name" name="card_name" placeholder="John Doe">
+                        </div>
+                    </div>
+                    
+                    <!-- Net Banking Fields -->
+                    <div id="netbanking-fields" class="payment-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="bank">Select Bank</label>
+                            <select id="bank" name="bank">
+                                <option value="">Select a bank</option>
+                                <option value="sbi">State Bank of India</option>
+                                <option value="hdfc">HDFC Bank</option>
+                                <option value="icici">ICICI Bank</option>
+                                <option value="axis">Axis Bank</option>
+                                <option value="kotak">Kotak Mahindra Bank</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Proceed to Pay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Withdraw Money Modal -->
+    <div id="withdraw-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Withdraw Money</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="withdraw-form">
+                    <div class="form-group">
+                        <label for="withdraw-amount">Amount (₹)</label>
+                        <input type="number" id="withdraw-amount" name="amount" min="1" max="10000" placeholder="Enter amount" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Withdraw To</label>
+                        <div class="payment-methods">
+                            <div class="payment-method">
+                                <input type="radio" id="withdraw-upi" name="withdraw_method" value="upi" checked>
+                                <label for="withdraw-upi">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    <span>UPI</span>
+                                </label>
+                            </div>
+                            <div class="payment-method">
+                                <input type="radio" id="withdraw-bank" name="withdraw_method" value="bank">
+                                <label for="withdraw-bank">
+                                    <i class="fas fa-university"></i>
+                                    <span>Bank Account</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- UPI Withdrawal Fields -->
+                    <div id="withdraw-upi-fields" class="payment-fields">
+                        <div class="form-group">
+                            <label for="withdraw-upi-id">UPI ID</label>
+                            <input type="text" id="withdraw-upi-id" name="upi_id" placeholder="yourname@upi">
+                        </div>
+                    </div>
+                    
+                    <!-- Bank Withdrawal Fields -->
+                    <div id="withdraw-bank-fields" class="payment-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="account-name">Account Holder Name</label>
+                            <input type="text" id="account-name" name="account_name" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="account-number">Account Number</label>
+                            <input type="text" id="account-number" name="account_number" placeholder="1234567890">
+                        </div>
+                        <div class="form-group">
+                            <label for="ifsc-code">IFSC Code</label>
+                            <input type="text" id="ifsc-code" name="ifsc_code" placeholder="SBIN0001234">
+                        </div>
+                        <div class="form-group">
+                            <label for="bank-name">Bank Name</label>
+                            <input type="text" id="bank-name" name="bank_name" placeholder="State Bank of India">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Request Withdrawal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Processing Modal -->
+    <div id="payment-processing-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body payment-processing">
+                <div class="processing-animation">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <h2>Processing Payment</h2>
+                <p>Please wait while we process your payment...</p>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Success Modal -->
+    <div id="payment-success-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body payment-success">
+                <div class="success-animation">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Payment Successful!</h2>
+                <p>Your wallet has been credited with <span id="credited-amount">₹0</span></p>
+                <div class="transaction-details">
+                    <div class="transaction-detail">
+                        <span>Transaction ID:</span>
+                        <span id="transaction-id">TXN123456789</span>
+                    </div>
+                    <div class="transaction-detail">
+                        <span>Date & Time:</span>
+                        <span id="transaction-date">May 2, 2025 02:00 PM</span>
+                    </div>
+                    <div class="transaction-detail">
+                        <span>Payment Method:</span>
+                        <span id="payment-method">UPI</span>
+                    </div>
+                </div>
+                <button id="close-success-modal" class="btn-primary">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="/images/logo.png" alt="RYDO Logo">
+                    <div class="footer-logo-text">
+                        <h3>RYDO</h3>
+                        <p>ride with trust</p>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="/about">About Us</a></li>
+                            <li><a href="/contact">Contact Us</a></li>
+                            <li><a href="/careers">Careers</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Services</h4>
+                        <ul>
+                            <li><a href="/book-service?service=driver">Personal Driver</a></li>
+                            <li><a href="/book-service?service=caretaker">Medical Caretaker</a></li>
+                            <li><a href="/book-service?service=shuttle">Shuttle Service</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="/terms">Terms of Service</a></li>
+                            <li><a href="/privacy">Privacy Policy</a></li>
+                            <li><a href="/refund">Refund Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 RYDO. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script src="/js/wallet.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>

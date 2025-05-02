@@ -1,0 +1,24 @@
+services:
+  # Web service for the RYDO Web App
+  - type: web
+    name: rydo-web-app
+    env: node
+    buildCommand: npm install && node netlify-deploy.js
+    startCommand: node backend/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3002
+      - key: MONGODB_URI
+        value: mongodb+srv://rydoapp:rydoapp123@cluster0.mongodb.net/rydo_db?retryWrites=true&w=majority
+      - key: SESSION_SECRET
+        value: rydo_secure_session_key_for_production_2025
+      - key: GOOGLE_MAPS_API_KEY
+        value: AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc
+      - key: EMAIL_SERVICE
+        value: gmail
+      - key: EMAIL_USER
+        value: rydoapp@gmail.com
+      - key: RAZORPAY_COMMISSION_PERCENTAGE
+        value: 7.5

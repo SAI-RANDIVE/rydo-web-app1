@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background elements -->
+  <rect width="400" height="300" fill="#F5F7FA" fill-opacity="0.2"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="200" cy="150" r="120" fill="#5B6EF5" fill-opacity="0.1"/>
+  <circle cx="200" cy="150" r="100" fill="#5B6EF5" fill-opacity="0.05"/>
+  
+  <!-- Caretaker figure -->
+  <g transform="translate(125, 50)">
+    <!-- Head -->
+    <circle cx="75" cy="60" r="40" fill="#FFD8BE"/>
+    
+    <!-- Hair -->
+    <path d="M45 40C45 40 35 20 55 15C75 10 95 15 105 35C115 55 105 65 105 65" fill="#4A4A4A"/>
+    
+    <!-- Face -->
+    <circle cx="60" cy="55" r="5" fill="#333333"/> <!-- Left eye -->
+    <circle cx="90" cy="55" r="5" fill="#333333"/> <!-- Right eye -->
+    <path d="M65 75 Q75 85 85 75" stroke="#333333" stroke-width="2" fill="none"/> <!-- Smile -->
+    
+    <!-- Body -->
+    <rect x="50" y="100" width="50" height="80" rx="10" fill="#6C63FF"/>
+    
+    <!-- Arms -->
+    <rect x="30" y="110" width="20" height="60" rx="10" fill="#6C63FF"/>
+    <rect x="100" y="110" width="20" height="60" rx="10" fill="#6C63FF"/>
+    
+    <!-- Hands -->
+    <circle cx="30" cy="170" r="10" fill="#FFD8BE"/>
+    <circle cx="120" cy="170" r="10" fill="#FFD8BE"/>
+    
+    <!-- Medical symbols -->
+    <rect x="65" y="120" width="20" height="40" rx="2" fill="white"/>
+    <rect x="55" y="130" width="40" height="20" rx="2" fill="white"/>
+    
+    <!-- Stethoscope -->
+    <path d="M30 130 Q10 140 20 160 Q30 170 40 160" stroke="#333333" stroke-width="3" fill="none"/>
+    <circle cx="20" cy="160" r="5" fill="#333333"/>
+  </g>
+  
+  <!-- Decorative elements -->
+  <circle cx="50" cy="50" r="20" fill="#6C63FF" fill-opacity="0.2"/>
+  <circle cx="350" cy="250" r="30" fill="#6C63FF" fill-opacity="0.2"/>
+  <circle cx="300" cy="70" r="15" fill="#6C63FF" fill-opacity="0.2"/>
+  <circle cx="100" cy="250" r="25" fill="#6C63FF" fill-opacity="0.2"/>
+  
+  <!-- RYDO text -->
+  <text x="200" y="270" font-family="Arial" font-size="16" font-weight="bold" fill="#5B6EF5" text-anchor="middle">RYDO - Care with Compassion</text>
+</svg>

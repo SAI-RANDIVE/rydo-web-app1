@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "name": "rydo-web-app",
+  "builds": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/verification/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|html|svg))",
+      "dest": "frontend/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/index.html"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "MONGODB_URI": "mongodb+srv://rydoapp:rydoapp123@cluster0.mongodb.net/rydo_db?retryWrites=true&w=majority",
+    "SESSION_SECRET": "rydo_secure_session_key_for_production_2025",
+    "GOOGLE_MAPS_API_KEY": "AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc",
+    "EMAIL_SERVICE": "gmail",
+    "EMAIL_USER": "rydoapp@gmail.com",
+    "RAZORPAY_COMMISSION_PERCENTAGE": "7.5"
+  }
+}

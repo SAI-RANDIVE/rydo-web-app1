@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDO - Book a Service</title>
+    <link rel="stylesheet" href="/css/booking.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+    <div class="booking-container">
+        <!-- Left Panel - Map View -->
+        <div class="map-panel">
+            <div id="map"></div>
+            <div class="back-button">
+                <a href="/customer-dashboard"><i class="fas fa-arrow-left"></i></a>
+            </div>
+            <div class="location-markers">
+                <div class="pickup-marker">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="pickup-address">Select pickup location</span>
+                </div>
+                <div class="destination-marker">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="destination-address">Select destination</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Booking Form -->
+        <div class="booking-panel">
+            <div class="booking-header">
+                <h2>Book Your Service</h2>
+                <p>Select service type, location, and get instant fare estimate</p>
+            </div>
+            
+            <!-- Service Type Selection -->
+            <div class="service-selector">
+                <div class="service-tab active" data-service="driver">
+                    <i class="fas fa-car"></i>
+                    <span>Driver</span>
+                </div>
+                <div class="service-tab" data-service="caretaker">
+                    <i class="fas fa-user-nurse"></i>
+                    <span>Caretaker</span>
+                </div>
+                <div class="service-tab" data-service="shuttle">
+                    <i class="fas fa-shuttle-van"></i>
+                    <span>Shuttle</span>
+                </div>
+            </div>
+            
+            <!-- Booking Steps -->
+            <div class="booking-steps">
+                <!-- Step 1: Location Selection -->
+                <div class="booking-step active" id="step-location">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h3>Enter Location Details</h3>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pickup-location">
+                            <i class="fas fa-circle pickup-icon"></i> Pickup Location
+                        </label>
+                        <div class="location-input">
+                            <input type="text" id="pickup-location" placeholder="Enter pickup location">
+                            <button class="current-location-btn" id="current-location-btn">
+                                <i class="fas fa-crosshairs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="destination-location">
+                            <i class="fas fa-map-marker-alt destination-icon"></i> Destination
+                        </label>
+                        <input type="text" id="destination-location" placeholder="Enter destination">
+                    </div>
+                    
+                    <div class="form-group date-time-group">
+                        <div class="date-input">
+                            <label for="pickup-date">Date</label>
+                            <input type="date" id="pickup-date">
+                        </div>
+                        <div class="time-input">
+                            <label for="pickup-time">Time</label>
+                            <input type="time" id="pickup-time">
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="next-step-btn" id="location-next">Continue</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Service Options -->
+                <div class="booking-step" id="step-options">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h3>Choose Service Options</h3>
+                    </div>
+                    
+                    <!-- Driver Options -->
+                    <div class="service-options" id="driver-options">
+                        <div class="option-group">
+                            <h4>Vehicle Type</h4>
+                            <div class="option-cards">
+                                <div class="option-card active" data-option="hatchback">
+                                    <div class="option-icon">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Hatchback</h5>
+                                        <p>Economic & Comfortable</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="hatchback-price">250</span></span>
+                                        <span class="unit">base fare</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="sedan">
+                                    <div class="option-icon">
+                                        <i class="fas fa-car-side"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Sedan</h5>
+                                        <p>Spacious & Comfortable</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="sedan-price">350</span></span>
+                                        <span class="unit">base fare</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="suv">
+                                    <div class="option-icon">
+                                        <i class="fas fa-truck-monster"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>SUV</h5>
+                                        <p>Spacious & Premium</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="suv-price">450</span></span>
+                                        <span class="unit">base fare</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="luxury">
+                                    <div class="option-icon">
+                                        <i class="fas fa-car-alt"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Luxury</h5>
+                                        <p>Premium & Exclusive</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="luxury-price">650</span></span>
+                                        <span class="unit">base fare</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <h4>Duration</h4>
+                            <div class="duration-selector">
+                                <div class="duration-option active" data-duration="2">2 hrs</div>
+                                <div class="duration-option" data-duration="4">4 hrs</div>
+                                <div class="duration-option" data-duration="8">8 hrs</div>
+                                <div class="duration-option" data-duration="12">12 hrs</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Caretaker Options -->
+                    <div class="service-options" id="caretaker-options" style="display: none;">
+                        <div class="option-group">
+                            <h4>Caretaker Type</h4>
+                            <div class="option-cards">
+                                <div class="option-card active" data-option="general">
+                                    <div class="option-icon">
+                                        <i class="fas fa-user-nurse"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>General Care</h5>
+                                        <p>Basic assistance & care</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="general-price">300</span></span>
+                                        <span class="unit">per hour</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="elderly">
+                                    <div class="option-icon">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Elderly Care</h5>
+                                        <p>Specialized elderly care</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="elderly-price">400</span></span>
+                                        <span class="unit">per hour</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="medical">
+                                    <div class="option-icon">
+                                        <i class="fas fa-heartbeat"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Medical Care</h5>
+                                        <p>Medical assistance & care</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="medical-price">500</span></span>
+                                        <span class="unit">per hour</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="physio">
+                                    <div class="option-icon">
+                                        <i class="fas fa-walking"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Physiotherapy</h5>
+                                        <p>Professional physiotherapy</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="physio-price">600</span></span>
+                                        <span class="unit">per hour</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <h4>Duration</h4>
+                            <div class="duration-selector">
+                                <div class="duration-option active" data-duration="4">4 hrs</div>
+                                <div class="duration-option" data-duration="8">8 hrs</div>
+                                <div class="duration-option" data-duration="12">12 hrs</div>
+                                <div class="duration-option" data-duration="24">24 hrs</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shuttle Options -->
+                    <div class="service-options" id="shuttle-options" style="display: none;">
+                        <div class="option-group">
+                            <h4>Shuttle Type</h4>
+                            <div class="option-cards">
+                                <div class="option-card active" data-option="mini">
+                                    <div class="option-icon">
+                                        <i class="fas fa-shuttle-van"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Mini Shuttle</h5>
+                                        <p>Up to 8 passengers</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="mini-price">800</span></span>
+                                        <span class="unit">base fare</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="standard">
+                                    <div class="option-icon">
+                                        <i class="fas fa-bus-alt"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Standard</h5>
+                                        <p>Up to 15 passengers</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="standard-price">1200</span></span>
+                                        <span class="unit">base fare</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="option-card" data-option="luxury-shuttle">
+                                    <div class="option-icon">
+                                        <i class="fas fa-bus"></i>
+                                    </div>
+                                    <div class="option-details">
+                                        <h5>Luxury Shuttle</h5>
+                                        <p>Premium comfort for groups</p>
+                                    </div>
+                                    <div class="option-price">
+                                        <span class="price">₹<span id="luxury-shuttle-price">1800</span></span>
+                                        <span class="unit">base fare</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <h4>Passenger Count</h4>
+                            <div class="passenger-selector">
+                                <button class="passenger-btn" id="decrease-passengers">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span id="passenger-count">8</span>
+                                <button class="passenger-btn" id="increase-passengers">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="prev-step-btn" id="options-prev">Back</button>
+                        <button class="next-step-btn" id="options-next">Continue</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Provider Selection -->
+                <div class="booking-step" id="step-provider">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h3>Choose Your Provider</h3>
+                    </div>
+                    
+                    <div class="providers-list" id="providers-container">
+                        <!-- Providers will be loaded dynamically -->
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="prev-step-btn" id="provider-prev">Back</button>
+                        <button class="next-step-btn" id="provider-next">Continue</button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Fare Estimate & Confirmation -->
+                <div class="booking-step" id="step-confirmation">
+                    <div class="step-header">
+                        <span class="step-number">4</span>
+                        <h3>Confirm Booking</h3>
+                    </div>
+                    
+                    <div class="fare-breakdown">
+                        <h4>Fare Breakdown</h4>
+                        
+                        <div class="fare-item">
+                            <span class="fare-label">Base Fare</span>
+                            <span class="fare-value">₹<span id="base-fare">0</span></span>
+                        </div>
+                        
+                        <div class="fare-item">
+                            <span class="fare-label">Distance Charge</span>
+                            <span class="fare-value">₹<span id="distance-charge">0</span></span>
+                        </div>
+                        
+                        <div class="fare-item">
+                            <span class="fare-label">Duration Charge</span>
+                            <span class="fare-value">₹<span id="duration-charge">0</span></span>
+                        </div>
+                        
+                        <div class="fare-item">
+                            <span class="fare-label">Service Fee</span>
+                            <span class="fare-value">₹<span id="service-fee">0</span></span>
+                        </div>
+                        
+                        <div class="fare-item total">
+                            <span class="fare-label">Total Fare</span>
+                            <span class="fare-value">₹<span id="total-fare">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="booking-summary">
+                        <h4>Booking Summary</h4>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Service Type</span>
+                            <span class="summary-value" id="summary-service-type">Driver</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Service Option</span>
+                            <span class="summary-value" id="summary-service-option">Hatchback</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Provider</span>
+                            <span class="summary-value" id="summary-provider">Rahul S.</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Pickup Location</span>
+                            <span class="summary-value" id="summary-pickup">Not selected</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Destination</span>
+                            <span class="summary-value" id="summary-destination">Not selected</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Date & Time</span>
+                            <span class="summary-value" id="summary-datetime">Not selected</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Duration</span>
+                            <span class="summary-value" id="summary-duration">2 hours</span>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-options">
+                        <h4>Payment Method</h4>
+                        
+                        <div class="payment-methods">
+                            <div class="payment-method active" data-method="wallet">
+                                <i class="fas fa-wallet"></i>
+                                <span>Wallet</span>
+                                <span class="wallet-balance">₹1,250</span>
+                            </div>
+                            
+                            <div class="payment-method" data-method="upi">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>UPI</span>
+                            </div>
+                            
+                            <div class="payment-method" data-method="card">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Card</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="prev-step-btn" id="confirmation-prev">Back</button>
+                        <button class="book-now-btn" id="confirm-booking">Book Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Booking Success Modal -->
+    <div class="modal" id="booking-success-modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Booking Confirmed!</h2>
+            <p>Your booking has been confirmed. Your provider will contact you shortly.</p>
+            <div class="booking-id">
+                <span>Booking ID:</span>
+                <span id="booking-id">RYDO123456</span>
+            </div>
+            <button class="close-modal-btn" id="view-bookings-btn">View My Bookings</button>
+            <button class="secondary-btn" id="back-to-home-btn">Back to Home</button>
+        </div>
+    </div>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeQRIk26TAxjwxFU0-YFV19lJf7Oe8sjc&libraries=places,geometry"></script>
+    <script src="/js/booking.js"></script>
+  <script src="/js/include-animations.js"></script>
+</body>
+</html>
