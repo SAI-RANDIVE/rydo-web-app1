@@ -312,7 +312,7 @@ app.post('/api/auth/signup', async (req, res) => {
   }
 });
 
-// Authentication middleware
+// Local authentication middleware for routes not using the middleware module
 function authenticateTokenLocal(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -363,23 +363,6 @@ app.get('/terms', (req, res) => {
 app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
 });
-
-// Authentication middleware
-const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ success: false, message: 'Access denied. No token provided.' });
-  }
-  
-  try {
-    const decoded = jwt.verify(token, process.env.SESSION_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ success: false, message: 'Invalid token.' });
-  }
-};
 
 // Authentication endpoints
 app.post('/api/auth/login', async (req, res) => {
