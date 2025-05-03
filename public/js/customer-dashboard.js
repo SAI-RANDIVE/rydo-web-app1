@@ -3,44 +3,53 @@
  * Handles all customer dashboard functionality including bookings, profile management, and ride history
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('Customer dashboard initializing...');
-    // Check if user is logged in
-    if (checkUserSession()) {
-        console.log('User session valid, initializing dashboard...');
-        // Initialize user data
-        initUserData();
+    
+    try {
+        // Check if user is logged in (async function)
+        const isLoggedIn = await checkUserSession();
         
-        // Initialize navigation
-        initNavigation();
-        
-        // Initialize notification panel
-        initNotifications();
-        
-        // Initialize booking form
-        initBookingForm();
-        
-        // Initialize map if available
-        if (typeof initMap === 'function') {
-            initMap();
-        }
-        
-        // Initialize recent activity
-        loadRecentActivity();
-        
-        // Initialize booking history if function exists
-        if (typeof loadBookingHistory === 'function') {
-            loadBookingHistory();
+        if (isLoggedIn) {
+            console.log('User session valid, initializing dashboard...');
+            // Initialize user data
+            await initUserData();
+            
+            // Initialize navigation
+            initNavigation();
+            
+            // Initialize notification panel
+            initNotifications();
+            
+            // Initialize booking form
+            initBookingForm();
+            
+            // Initialize map if available
+            if (typeof initMap === 'function') {
+                initMap();
+            }
+            
+            // Initialize recent activity
+            await loadRecentActivity();
+            
+            // Initialize booking history if function exists
+            if (typeof loadBookingHistory === 'function') {
+                await loadBookingHistory();
+            } else {
+                // Fallback implementation
+                await loadBookingHistoryFallback();
+            }
+            
+            // Initialize logout functionality
+            initLogout();
+            
+            // Check if there's a hash in the URL and navigate to that section
+            handleHashNavigation();
         } else {
-            // Fallback implementation
-            loadBookingHistoryFallback();
+            console.log('User not logged in, redirecting to login page');
         }
-        
-        // Initialize logout functionality
-        initLogout();
-        
-        // Check if there's a hash in the URL and navigate to that section
-        handleHashNavigation();
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
     }
 });
 
@@ -102,60 +111,64 @@ function handleHashNavigation() {
 window.addEventListener('hashchange', handleHashNavigation);
 
 // Check if user is logged in
-function checkUserSession() {
+async function checkUserSession() {
     // Get token from localStorage
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     
     if (!token) {
+        console.log('No token found, redirecting to login');
         // Redirect to login if not authenticated
         window.location.href = '/login.html';
         return false;
     }
     
-    // Verify token with server
-    verifyToken(token)
-        .then(isValid => {
-            if (!isValid) {
-                // Token is invalid, redirect to login
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login.html';
-                return false;
-            }
-        })
-        .catch(error => {
-            console.error('Error verifying token:', error);
-            // On error, keep the user logged in but log the error
-        });
-    
-    // Update user info in the dashboard
-    updateUserInfo(user);
-    return true;
+    try {
+        // Verify token with server
+        const isValid = await verifyToken(token);
+        
+        if (!isValid) {
+            console.log('Invalid token, redirecting to login');
+            // Token is invalid, redirect to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+            return false;
+        }
+        
+        // Token is valid, update user info in the dashboard
+        updateUserInfo(user);
+        return true;
+    } catch (error) {
+        console.error('Error in checkUserSession:', error);
+        // On error, keep the user logged in but log the error
+        updateUserInfo(user);
+        return true;
+    }
 }
 
 // Verify token with server
-function verifyToken(token) {
-    return fetch('/api/auth/verify', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
+async function verifyToken(token) {
+    try {
+        const response = await fetch('/api/auth/verify', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            console.error(`HTTP error! Status: ${response.status}`);
+            return false;
         }
-        return response.json();
-    })
-    .then(data => {
-        return data.success;
-    })
-    .catch(error => {
+        
+        const data = await response.json();
+        return data.success === true;
+    } catch (error) {
         console.error('Error verifying token:', error);
         return false;
-    });
+    }
 }
 
 // Initialize dashboard with dynamic data
@@ -590,17 +603,31 @@ async function loadDashboardData() {
 
 // Initialize booking form functionality
 function initBookingForm() {
-    const bookingForm = document.getElementById('booking-form');
+    console.log('Initializing booking forms...');
+    
+    // Initialize driver booking form
+    initDriverBookingForm();
+    
+    // Initialize caretaker booking form
+    initCaretakerBookingForm();
+    
+    // Initialize shuttle booking form
+    initShuttleBookingForm();
+}
+
+// Initialize driver booking form
+function initDriverBookingForm() {
+    const bookingForm = document.getElementById('driver-booking-form');
     if (!bookingForm) return;
     
     // Get form elements
-    const pickupInput = document.getElementById('pickup-location');
-    const dropoffInput = document.getElementById('dropoff-location');
-    const dateInput = document.getElementById('booking-date');
-    const timeInput = document.getElementById('booking-time');
-    const serviceTypeInputs = document.querySelectorAll('input[name="service-type"]');
-    const fareEstimateElement = document.getElementById('fare-estimate');
-    const bookNowBtn = document.getElementById('book-now-btn');
+    const pickupInput = bookingForm.querySelector('#driver-pickup-location');
+    const dropoffInput = bookingForm.querySelector('#driver-dropoff-location');
+    const dateInput = bookingForm.querySelector('#driver-booking-date');
+    const timeInput = bookingForm.querySelector('#driver-booking-time');
+    const vehicleTypeSelect = bookingForm.querySelector('#driver-vehicle-type');
+    const fareEstimateElement = bookingForm.querySelector('.fare-estimate');
+    const bookNowBtn = bookingForm.querySelector('.book-now-btn');
     
     // Set default date and time (today + 1 hour)
     if (dateInput && timeInput) {
@@ -618,6 +645,156 @@ function initBookingForm() {
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         timeInput.value = `${hours}:${minutes}`;
+    }
+    
+    // Add event listeners to form inputs for fare estimation
+    if (pickupInput && dropoffInput && vehicleTypeSelect) {
+        [pickupInput, dropoffInput, vehicleTypeSelect].forEach(input => {
+            input.addEventListener('change', () => updateDriverFareEstimate(bookingForm));
+            if (input !== vehicleTypeSelect) {
+                input.addEventListener('blur', () => updateDriverFareEstimate(bookingForm));
+            }
+        });
+    }
+    
+    // Handle form submission
+    bookingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        createDriverBooking(bookingForm);
+    });
+    
+    // Book Now button click handler
+    if (bookNowBtn) {
+        bookNowBtn.addEventListener('click', function() {
+            createDriverBooking(bookingForm);
+        });
+    }
+}
+
+// Initialize caretaker booking form
+function initCaretakerBookingForm() {
+    const bookingForm = document.getElementById('caretaker-booking-form');
+    if (!bookingForm) return;
+    
+    // Get form elements
+    const locationInput = bookingForm.querySelector('#caretaker-service-location');
+    const dateInput = bookingForm.querySelector('#caretaker-booking-date');
+    const timeInput = bookingForm.querySelector('#caretaker-booking-time');
+    const durationInput = bookingForm.querySelector('#caretaker-duration-hours');
+    const careTypeSelect = bookingForm.querySelector('#caretaker-care-type');
+    const medicalConditionsInput = bookingForm.querySelector('#caretaker-medical-conditions');
+    const fareEstimateElement = bookingForm.querySelector('.fare-estimate');
+    const bookNowBtn = bookingForm.querySelector('.book-now-btn');
+    
+    // Set default date and time (today + 1 hour)
+    if (dateInput && timeInput) {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate());
+        
+        // Format date as YYYY-MM-DD
+        const formattedDate = tomorrow.toISOString().split('T')[0];
+        dateInput.value = formattedDate;
+        dateInput.min = formattedDate;
+        
+        // Set time to current time + 1 hour
+        now.setHours(now.getHours() + 1);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        timeInput.value = `${hours}:${minutes}`;
+    }
+    
+    // Set default duration
+    if (durationInput) {
+        durationInput.value = 3; // Default 3 hours
+    }
+    
+    // Add event listeners to form inputs for fare estimation
+    if (durationInput && careTypeSelect) {
+        [durationInput, careTypeSelect].forEach(input => {
+            input.addEventListener('change', () => updateCaretakerFareEstimate(bookingForm));
+            if (input === durationInput) {
+                input.addEventListener('blur', () => updateCaretakerFareEstimate(bookingForm));
+            }
+        });
+    }
+    
+    // Handle form submission
+    bookingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        createCaretakerBooking(bookingForm);
+    });
+    
+    // Book Now button click handler
+    if (bookNowBtn) {
+        bookNowBtn.addEventListener('click', function() {
+            createCaretakerBooking(bookingForm);
+        });
+    }
+    
+    // Initial fare estimate
+    updateCaretakerFareEstimate(bookingForm);
+}
+
+// Initialize shuttle booking form
+function initShuttleBookingForm() {
+    const bookingForm = document.getElementById('shuttle-booking-form');
+    if (!bookingForm) return;
+    
+    // Get form elements
+    const pickupInput = bookingForm.querySelector('#shuttle-pickup-location');
+    const dropoffInput = bookingForm.querySelector('#shuttle-dropoff-location');
+    const dateInput = bookingForm.querySelector('#shuttle-booking-date');
+    const timeInput = bookingForm.querySelector('#shuttle-booking-time');
+    const passengersInput = bookingForm.querySelector('#shuttle-passengers');
+    const shuttleTypeSelect = bookingForm.querySelector('#shuttle-type');
+    const fareEstimateElement = bookingForm.querySelector('.fare-estimate');
+    const bookNowBtn = bookingForm.querySelector('.book-now-btn');
+    
+    // Set default date and time (today + 1 hour)
+    if (dateInput && timeInput) {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate());
+        
+        // Format date as YYYY-MM-DD
+        const formattedDate = tomorrow.toISOString().split('T')[0];
+        dateInput.value = formattedDate;
+        dateInput.min = formattedDate;
+        
+        // Set time to current time + 1 hour
+        now.setHours(now.getHours() + 1);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        timeInput.value = `${hours}:${minutes}`;
+    }
+    
+    // Set default passengers
+    if (passengersInput) {
+        passengersInput.value = 2; // Default 2 passengers
+    }
+    
+    // Add event listeners to form inputs for fare estimation
+    if (pickupInput && dropoffInput && passengersInput && shuttleTypeSelect) {
+        [pickupInput, dropoffInput, passengersInput, shuttleTypeSelect].forEach(input => {
+            input.addEventListener('change', () => updateShuttleFareEstimate(bookingForm));
+            if (input !== shuttleTypeSelect) {
+                input.addEventListener('blur', () => updateShuttleFareEstimate(bookingForm));
+            }
+        });
+    }
+    
+    // Handle form submission
+    bookingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        createShuttleBooking(bookingForm);
+    });
+    
+    // Book Now button click handler
+    if (bookNowBtn) {
+        bookNowBtn.addEventListener('click', function() {
+            createShuttleBooking(bookingForm);
+        });
     }
     
     // Add event listeners to form inputs for fare estimation
@@ -694,183 +871,563 @@ function initBookingForm() {
             });
     }
     
-    // Function to calculate fare
-    function calculateFare(pickup, dropoff, serviceType) {
-        return new Promise((resolve, reject) => {
-            // In a real app, this would be an API call to a fare calculation service
-            // For demo purposes, we'll generate random values
-            setTimeout(() => {
-                try {
-                    // Generate random distance between 2 and 20 km
-                    const distance = Math.floor(Math.random() * 18) + 2;
-                    
-                    // Calculate duration (approx. 2 mins per km)
-                    const duration = distance * 120; // in seconds
-                    
-                    // Calculate fare based on service type and distance
-                    let baseFare = 0;
-                    let perKmRate = 0;
-                    
-                    switch (serviceType) {
-                        case 'premium':
-                            baseFare = 80;
-                            perKmRate = 18;
-                            break;
-                        case 'shuttle':
-                            baseFare = 30;
-                            perKmRate = 8;
-                            break;
-                        default: // standard
-                            baseFare = 50;
-                            perKmRate = 12;
-                            break;
-                    }
-                    
-                    const fare = Math.floor(baseFare + (distance * perKmRate));
-                    
-                    resolve({
-                        distance,
-                        duration,
-                        fare
-                    });
-                } catch (error) {
-                    reject(error);
-                }
-            }, 1000);
-        });
+    // Function to update driver fare estimate
+function updateDriverFareEstimate(form) {
+    const pickupInput = form.querySelector('#driver-pickup-location');
+    const dropoffInput = form.querySelector('#driver-dropoff-location');
+    const vehicleTypeSelect = form.querySelector('#driver-vehicle-type');
+    const fareEstimateElement = form.querySelector('.fare-estimate');
+    
+    if (!pickupInput || !dropoffInput || !vehicleTypeSelect || !fareEstimateElement) return;
+    
+    if (!pickupInput.value || !dropoffInput.value) return;
+    
+    // Show loading state
+    fareEstimateElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating fare...';
+    
+    // Get selected vehicle type
+    const vehicleType = vehicleTypeSelect.value;
+    
+    // Generate a random distance between 2 and 20 km
+    const distance = Math.floor(Math.random() * 18) + 2;
+    
+    // Calculate duration (approx. 2 mins per km)
+    const duration = distance * 120; // in seconds
+    
+    // Calculate fare based on vehicle type and distance
+    const fare = calculateDriverFare(distance, vehicleType);
+    
+    // Update fare estimate after a short delay (simulating API call)
+    setTimeout(() => {
+        fareEstimateElement.innerHTML = `
+            <div class="fare-details">
+                <div class="fare-item">
+                    <span class="fare-label">Distance:</span>
+                    <span class="fare-value">${distance} km</span>
+                </div>
+                <div class="fare-item">
+                    <span class="fare-label">Duration:</span>
+                    <span class="fare-value">${Math.floor(duration / 60)} mins</span>
+                </div>
+                <div class="fare-item fare-total">
+                    <span class="fare-label">Estimated Fare:</span>
+                    <span class="fare-value">₹${fare}</span>
+                </div>
+            </div>
+        `;
+        
+        // Store fare details for booking
+        form.dataset.distance = distance;
+        form.dataset.duration = duration;
+        form.dataset.fare = fare;
+    }, 1000);
+}
+
+// Function to update caretaker fare estimate
+function updateCaretakerFareEstimate(form) {
+    const durationInput = form.querySelector('#caretaker-duration-hours');
+    const careTypeSelect = form.querySelector('#caretaker-care-type');
+    const fareEstimateElement = form.querySelector('.fare-estimate');
+    
+    if (!durationInput || !careTypeSelect || !fareEstimateElement) return;
+    
+    // Show loading state
+    fareEstimateElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating fare...';
+    
+    // Get selected care type and duration
+    const careType = careTypeSelect.value;
+    const durationHours = durationInput.value;
+    
+    // Calculate fare based on care type and duration
+    const fare = calculateCaretakerFare(durationHours, careType);
+    
+    // Update fare estimate after a short delay (simulating API call)
+    setTimeout(() => {
+        fareEstimateElement.innerHTML = `
+            <div class="fare-details">
+                <div class="fare-item">
+                    <span class="fare-label">Duration:</span>
+                    <span class="fare-value">${durationHours} hours</span>
+                </div>
+                <div class="fare-item">
+                    <span class="fare-label">Care Type:</span>
+                    <span class="fare-value">${careType.charAt(0).toUpperCase() + careType.slice(1)}</span>
+                </div>
+                <div class="fare-item fare-total">
+                    <span class="fare-label">Estimated Fare:</span>
+                    <span class="fare-value">₹${fare}</span>
+                </div>
+            </div>
+        `;
+        
+        // Store fare details for booking
+        form.dataset.fare = fare;
+    }, 1000);
+}
+
+// Function to update shuttle fare estimate
+function updateShuttleFareEstimate(form) {
+    const pickupInput = form.querySelector('#shuttle-pickup-location');
+    const dropoffInput = form.querySelector('#shuttle-dropoff-location');
+    const passengersInput = form.querySelector('#shuttle-passengers');
+    const shuttleTypeSelect = form.querySelector('#shuttle-type');
+    const fareEstimateElement = form.querySelector('.fare-estimate');
+    
+    if (!pickupInput || !dropoffInput || !passengersInput || !shuttleTypeSelect || !fareEstimateElement) return;
+    
+    if (!pickupInput.value || !dropoffInput.value) return;
+    
+    // Show loading state
+    fareEstimateElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating fare...';
+    
+    // Get selected shuttle type and passengers
+    const shuttleType = shuttleTypeSelect.value;
+    const passengers = passengersInput.value;
+    
+    // Generate a random distance between 5 and 30 km
+    const distance = Math.floor(Math.random() * 25) + 5;
+    
+    // Calculate duration (approx. 2 mins per km)
+    const duration = distance * 120; // in seconds
+    
+    // Calculate fare based on shuttle type, distance, and passengers
+    const fare = calculateShuttleFare(distance, shuttleType, passengers);
+    
+    // Update fare estimate after a short delay (simulating API call)
+    setTimeout(() => {
+        fareEstimateElement.innerHTML = `
+            <div class="fare-details">
+                <div class="fare-item">
+                    <span class="fare-label">Distance:</span>
+                    <span class="fare-value">${distance} km</span>
+                </div>
+                <div class="fare-item">
+                    <span class="fare-label">Passengers:</span>
+                    <span class="fare-value">${passengers}</span>
+                </div>
+                <div class="fare-item">
+                    <span class="fare-label">Duration:</span>
+                    <span class="fare-value">${Math.floor(duration / 60)} mins</span>
+                </div>
+                <div class="fare-item fare-total">
+                    <span class="fare-label">Estimated Fare:</span>
+                    <span class="fare-value">₹${fare}</span>
+                </div>
+            </div>
+        `;
+        
+        // Store fare details for booking
+        form.dataset.distance = distance;
+        form.dataset.duration = duration;
+        form.dataset.fare = fare;
+    }, 1000);
+}
+
+// Function to calculate fare for driver service
+function calculateDriverFare(distance, vehicleType) {
+    // Base fare based on vehicle type
+    let baseFare = 100;
+    let ratePerKm = 10;
+    
+    if (vehicleType === 'premium') {
+        baseFare = 200;
+        ratePerKm = 15;
+    } else if (vehicleType === 'luxury') {
+        baseFare = 300;
+        ratePerKm = 20;
     }
     
-    // Function to create a booking
-    function createBooking() {
-        // Validate form
-        if (!pickupInput.value) {
-            showToast('Please enter a pickup location', 'error');
-            pickupInput.focus();
-            return;
-        }
-        
-        if (!dropoffInput.value) {
-            showToast('Please enter a dropoff location', 'error');
-            dropoffInput.focus();
-            return;
-        }
-        
-        if (!dateInput.value) {
-            showToast('Please select a date', 'error');
-            dateInput.focus();
-            return;
-        }
-        
-        if (!timeInput.value) {
-            showToast('Please select a time', 'error');
-            timeInput.focus();
-            return;
-        }
-        
-        // Get selected service type
-        const serviceType = document.querySelector('input[name="service-type"]:checked')?.value || 'standard';
-        
-        // Get token from localStorage
-        const token = localStorage.getItem('token');
-        
-        if (!token) {
-            showToast('You must be logged in to book a ride', 'error');
-            return;
-        }
-        
-        // Show loading state
-        const bookBtn = document.getElementById('book-now-btn');
-        const originalBtnText = bookBtn.innerHTML;
-        bookBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        bookBtn.disabled = true;
-        
-        // Get fare details from form dataset
-        const distance = parseFloat(bookingForm.dataset.distance || '0');
-        const duration = parseInt(bookingForm.dataset.duration || '0');
-        const fare = parseInt(bookingForm.dataset.fare || '0');
-        
-        // Prepare booking data
-        const bookingData = {
-            service_type: serviceType,
-            pickup_location: pickupInput.value,
-            dropoff_location: dropoffInput.value,
-            booking_date: dateInput.value,
-            booking_time: timeInput.value,
-            distance: distance,
-            duration: duration,
-            fare_amount: fare,
-            payment_method: 'wallet' // Default payment method
-        };
-        
-        // Send booking request to server
-        fetch('/api/customer/create-booking', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(bookingData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Show success message
-                showToast('Booking created successfully!', 'success');
-                
-                // Reset form
-                bookingForm.reset();
-                
-                // Set default date and time again
-                const now = new Date();
-                const tomorrow = new Date(now);
-                tomorrow.setDate(now.getDate());
-                
-                // Format date as YYYY-MM-DD
-                const formattedDate = tomorrow.toISOString().split('T')[0];
-                dateInput.value = formattedDate;
-                
-                // Set time to current time + 1 hour
-                now.setHours(now.getHours() + 1);
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                timeInput.value = `${hours}:${minutes}`;
-                
-                // Clear fare estimate
-                if (fareEstimateElement) {
-                    fareEstimateElement.innerHTML = '';
-                }
-                
-                // Show booking confirmation modal
-                showBookingConfirmation(data.booking);
-                
-                // Refresh recent activity and booking history
-                setTimeout(() => {
-                    loadRecentActivity();
-                    if (typeof loadBookingHistory === 'function') {
-                        loadBookingHistory();
-                    } else if (typeof loadBookingHistoryFallback === 'function') {
-                        loadBookingHistoryFallback();
-                    }
-                }, 1000);
-            } else {
-                showToast(data.message || 'Failed to create booking', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error creating booking:', error);
-            showToast('Failed to create booking. Please try again.', 'error');
-        })
-        .finally(() => {
-            // Reset button state
-            bookBtn.innerHTML = originalBtnText;
-            bookBtn.disabled = false;
-        });
+    // Calculate fare based on distance
+    const distanceValue = parseFloat(distance) || 5; // Default to 5km if not provided
+    return Math.floor(baseFare + (distanceValue * ratePerKm));
+}
+
+// Function to calculate fare for caretaker service
+function calculateCaretakerFare(durationHours, careType) {
+    // Base fare based on care type
+    let hourlyRate = 200;
+    
+    if (careType === 'medical') {
+        hourlyRate = 300;
+    } else if (careType === 'specialized') {
+        hourlyRate = 400;
     }
+    
+    // Calculate fare based on duration
+    const hours = parseFloat(durationHours) || 3; // Default to 3 hours if not provided
+    return Math.floor(hourlyRate * hours);
+}
+
+// Function to calculate fare for shuttle service
+function calculateShuttleFare(distance, shuttleType, passengers) {
+    // Base fare based on shuttle type
+    let baseFare = 200;
+    let ratePerKm = 8;
+    let passengerSurcharge = 0;
+    
+    if (shuttleType === 'airport') {
+        baseFare = 300;
+        ratePerKm = 10;
+    } else if (shuttleType === 'event') {
+        baseFare = 400;
+        ratePerKm = 12;
+    }
+    
+    // Additional charge for more passengers
+    const passengerCount = parseInt(passengers) || 1;
+    if (passengerCount > 4) {
+        passengerSurcharge = (passengerCount - 4) * 50; // 50 per additional passenger
+    }
+    
+    // Calculate fare based on distance
+    const distanceValue = parseFloat(distance) || 5; // Default to 5km if not provided
+    return Math.floor(baseFare + (distanceValue * ratePerKm) + passengerSurcharge);
+}
+
+// Function to create driver booking
+function createDriverBooking(form) {
+    // Get form elements
+    const pickupInput = form.querySelector('#driver-pickup-location');
+    const dropoffInput = form.querySelector('#driver-dropoff-location');
+    const dateInput = form.querySelector('#driver-booking-date');
+    const timeInput = form.querySelector('#driver-booking-time');
+    const vehicleTypeSelect = form.querySelector('#driver-vehicle-type');
+    const specialInstructionsInput = form.querySelector('#driver-special-instructions');
+    const bookNowBtn = form.querySelector('.book-now-btn');
+    
+    // Validate form
+    if (!pickupInput.value) {
+        showToast('Please enter a pickup location', 'error');
+        pickupInput.focus();
+        return;
+    }
+    
+    if (!dropoffInput.value) {
+        showToast('Please enter a dropoff location', 'error');
+        dropoffInput.focus();
+        return;
+    }
+    
+    if (!dateInput.value) {
+        showToast('Please select a date', 'error');
+        dateInput.focus();
+        return;
+    }
+    
+    if (!timeInput.value) {
+        showToast('Please select a time', 'error');
+        timeInput.focus();
+        return;
+    }
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        showToast('You must be logged in to book a ride', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const originalBtnText = bookNowBtn.innerHTML;
+    bookNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    bookNowBtn.disabled = true;
+    
+    // Get fare details from form dataset
+    const distance = parseFloat(form.dataset.distance || '0');
+    const duration = parseFloat(form.dataset.duration || '0');
+    const fare = parseFloat(form.dataset.fare || '0');
+    
+    // Create booking object
+    const booking = {
+        service_type: 'driver',
+        pickup_location: pickupInput.value,
+        dropoff_location: dropoffInput.value,
+        booking_date: dateInput.value,
+        booking_time: timeInput.value,
+        vehicle_type: vehicleTypeSelect.value,
+        special_instructions: specialInstructionsInput ? specialInstructionsInput.value : '',
+        distance,
+        duration,
+        fare,
+        fare_amount: fare // For compatibility with showBookingConfirmation
+    };
+    
+    // Generate a reference number
+    booking.reference = `DR${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
+    
+    // Send booking request to server
+    fetch('/api/customer/create-booking', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(booking)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button state
+        bookNowBtn.innerHTML = originalBtnText;
+        bookNowBtn.disabled = false;
+        
+        if (data.success) {
+            // Show success message
+            showToast('Driver booking created successfully!', 'success');
+            
+            // Show booking confirmation
+            showBookingConfirmation(data.booking || booking);
+            
+            // Reset form
+            form.reset();
+            
+            // Update recent activity
+            loadRecentActivity();
+        } else {
+            showToast(data.message || 'Failed to create booking', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error creating booking:', error);
+        bookNowBtn.innerHTML = originalBtnText;
+        bookNowBtn.disabled = false;
+        showToast('An error occurred while creating your booking', 'error');
+    });
+}
+
+// Function to create caretaker booking
+function createCaretakerBooking(form) {
+    // Get form elements
+    const locationInput = form.querySelector('#caretaker-service-location');
+    const dateInput = form.querySelector('#caretaker-booking-date');
+    const timeInput = form.querySelector('#caretaker-booking-time');
+    const durationInput = form.querySelector('#caretaker-duration-hours');
+    const careTypeSelect = form.querySelector('#caretaker-care-type');
+    const medicalConditionsInput = form.querySelector('#caretaker-medical-conditions');
+    const bookNowBtn = form.querySelector('.book-now-btn');
+    
+    // Validate form
+    if (!locationInput.value) {
+        showToast('Please enter a service location', 'error');
+        locationInput.focus();
+        return;
+    }
+    
+    if (!dateInput.value) {
+        showToast('Please select a date', 'error');
+        dateInput.focus();
+        return;
+    }
+    
+    if (!timeInput.value) {
+        showToast('Please select a time', 'error');
+        timeInput.focus();
+        return;
+    }
+    
+    if (!durationInput.value) {
+        showToast('Please enter duration hours', 'error');
+        durationInput.focus();
+        return;
+    }
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        showToast('You must be logged in to book a caretaker', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const originalBtnText = bookNowBtn.innerHTML;
+    bookNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    bookNowBtn.disabled = true;
+    
+    // Get fare details from form dataset
+    const fare = parseFloat(form.dataset.fare || '0');
+    
+    // Create booking object
+    const booking = {
+        service_type: 'caretaker',
+        service_location: locationInput.value,
+        booking_date: dateInput.value,
+        booking_time: timeInput.value,
+        duration_hours: durationInput.value,
+        care_type: careTypeSelect.value,
+        medical_conditions: medicalConditionsInput ? medicalConditionsInput.value : '',
+        fare,
+        fare_amount: fare, // For compatibility with showBookingConfirmation
+        pickup_location: locationInput.value, // For compatibility with showBookingConfirmation
+        dropoff_location: 'N/A' // For compatibility with showBookingConfirmation
+    };
+    
+    // Generate a reference number
+    booking.reference = `CT${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
+    
+    // Send booking request to server
+    fetch('/api/customer/create-booking', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(booking)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button state
+        bookNowBtn.innerHTML = originalBtnText;
+        bookNowBtn.disabled = false;
+        
+        if (data.success) {
+            // Show success message
+            showToast('Caretaker booking created successfully!', 'success');
+            
+            // Show booking confirmation
+            showBookingConfirmation(data.booking || booking);
+            
+            // Reset form
+            form.reset();
+            
+            // Update recent activity
+            loadRecentActivity();
+        } else {
+            showToast(data.message || 'Failed to create booking', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error creating booking:', error);
+        bookNowBtn.innerHTML = originalBtnText;
+        bookNowBtn.disabled = false;
+        showToast('An error occurred while creating your booking', 'error');
+    });
+}
+
+// Function to create shuttle booking
+function createShuttleBooking(form) {
+    // Get form elements
+    const pickupInput = form.querySelector('#shuttle-pickup-location');
+    const dropoffInput = form.querySelector('#shuttle-dropoff-location');
+    const dateInput = form.querySelector('#shuttle-booking-date');
+    const timeInput = form.querySelector('#shuttle-booking-time');
+    const passengersInput = form.querySelector('#shuttle-passengers');
+    const shuttleTypeSelect = form.querySelector('#shuttle-type');
+    const specialInstructionsInput = form.querySelector('#shuttle-special-instructions');
+    const bookNowBtn = form.querySelector('.book-now-btn');
+    
+    // Validate form
+    if (!pickupInput.value) {
+        showToast('Please enter a pickup location', 'error');
+        pickupInput.focus();
+        return;
+    }
+    
+    if (!dropoffInput.value) {
+        showToast('Please enter a dropoff location', 'error');
+        dropoffInput.focus();
+        return;
+    }
+    
+    if (!dateInput.value) {
+        showToast('Please select a date', 'error');
+        dateInput.focus();
+        return;
+    }
+    
+    if (!timeInput.value) {
+        showToast('Please select a time', 'error');
+        timeInput.focus();
+        return;
+    }
+    
+    if (!passengersInput.value) {
+        showToast('Please enter number of passengers', 'error');
+        passengersInput.focus();
+        return;
+    }
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        showToast('You must be logged in to book a shuttle', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const originalBtnText = bookNowBtn.innerHTML;
+    bookNowBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    bookNowBtn.disabled = true;
+    
+    // Get fare details from form dataset
+    const distance = parseFloat(form.dataset.distance || '0');
+    const duration = parseFloat(form.dataset.duration || '0');
+    const fare = parseFloat(form.dataset.fare || '0');
+    
+    // Create booking object
+    const booking = {
+        service_type: 'shuttle',
+        pickup_location: pickupInput.value,
+        dropoff_location: dropoffInput.value,
+        booking_date: dateInput.value,
+        booking_time: timeInput.value,
+        passengers: passengersInput.value,
+        shuttle_type: shuttleTypeSelect.value,
+        special_instructions: specialInstructionsInput ? specialInstructionsInput.value : '',
+        distance,
+        duration,
+        fare,
+        fare_amount: fare // For compatibility with showBookingConfirmation
+    };
+    
+    // Generate a reference number
+    booking.reference = `SH${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
+    
+    // Send booking request to server
+    fetch('/api/customer/create-booking', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(booking)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button state
+        bookNowBtn.innerHTML = originalBtnText;
+        bookNowBtn.disabled = false;
+        
+        if (data.success) {
+            // Show success message
+            showToast('Shuttle booking created successfully!', 'success');
+            
+            // Show booking confirmation
+            showBookingConfirmation(data.booking || booking);
+            
+            // Reset form
+            form.reset();
+            
+            // Update recent activity
+            loadRecentActivity();
+        } else {
+            showToast(data.message || 'Failed to create booking', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error creating booking:', error);
+        bookNowBtn.innerHTML = originalBtnText;
+        bookNowBtn.disabled = false;
+        showToast('An error occurred while creating your booking', 'error');
+    });
+}
+// Function to modify showBookingConfirmation for different service types
+function updateShowBookingConfirmation() {
+    // This function can be extended to customize the booking confirmation
+    // based on the service type if needed in the future
+    console.log('Booking confirmation system ready');
+}
     
     // Function to show booking confirmation
     function showBookingConfirmation(booking) {
@@ -1648,52 +2205,69 @@ function initUserLocation() {
 // Initialize user data
 async function initUserData() {
     try {
-        // Get user data from session storage or fetch from server
-        let userData = null;
+        // Get user data from localStorage
+        const token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || '{}');
         
-        // Try to get user data from session storage
-        const sessionUser = sessionStorage.getItem('user');
-        if (sessionUser) {
-            userData = JSON.parse(sessionUser);
-            console.log('User data loaded from session storage:', userData);
-        } else {
-            // Fetch user data from server
-            const response = await fetch('/user/profile', {
+        if (!token) {
+            console.error('No authentication token found');
+            return;
+        }
+        
+        try {
+            // Fetch user profile from server
+            const response = await fetch('/api/user/profile', {
                 method: 'GET',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
             
             if (response.ok) {
-                userData = await response.json();
-                // Store in session storage for future use
-                sessionStorage.setItem('user', JSON.stringify(userData));
-                console.log('User data fetched from server:', userData);
-            } else {
-                console.error('Failed to fetch user data:', await response.text());
-                // Redirect to login if unauthorized
-                if (response.status === 401) {
-                    window.location.href = '/';
-                    return;
+                const data = await response.json();
+                if (data.success && data.user) {
+                    // Update user data in localStorage
+                    user = data.user;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    console.log('User profile updated from server:', user);
                 }
+            } else {
+                console.warn('Could not fetch updated user profile');
             }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            // Continue with existing user data
         }
         
-        // If we have user data, update the UI
-        if (userData) {
-            // Update user profile in sidebar
-            document.getElementById('user-name').textContent = `${userData.first_name} ${userData.last_name}`;
+        // Update user info in the dashboard
+        updateUserInfo(user);
+        
+        // Update profile information in the UI
+        updateProfileInfo(user);
+        
+        // Fetch dashboard stats
+        try {
+            const statsResponse = await fetch('/api/dashboard/stats', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             
-            // Update profile information in the UI
-            updateProfileInfo(userData);
-            
-            // Fetch additional user data
-            fetchUserStats();
+            if (statsResponse.ok) {
+                const statsData = await statsResponse.json();
+                if (statsData.success && statsData.stats) {
+                    updateDashboardStats(statsData.stats);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching dashboard stats:', error);
         }
     } catch (error) {
         console.error('Error initializing user data:', error);
-        showToast('Error loading user data. Please refresh the page.', 'error');
+        showNotification('Error loading user data. Please refresh the page.', 'error');
     }
 }
 

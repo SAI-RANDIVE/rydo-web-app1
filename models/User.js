@@ -73,6 +73,77 @@ const User = sequelize.define('User', {
     totalRides: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+    },
+    verificationStatus: {
+        type: DataTypes.ENUM('pending', 'verified', 'rejected'),
+        defaultValue: 'pending'
+    },
+    documents: {
+        idProof: {
+            type: DataTypes.STRING
+        },
+        addressProof: {
+            type: DataTypes.STRING
+        },
+        license: {
+            type: DataTypes.STRING
+        },
+        insurance: {
+            type: DataTypes.STRING
+        },
+        vehicleRegistration: {
+            type: DataTypes.STRING
+        },
+        medicalCertificate: {
+            type: DataTypes.STRING
+        }
+    },
+    serviceDetails: {
+        vehicleType: {
+            type: DataTypes.STRING
+        },
+        vehicleModel: {
+            type: DataTypes.STRING
+        },
+        vehicleYear: {
+            type: DataTypes.INTEGER
+        },
+        vehicleColor: {
+            type: DataTypes.STRING
+        },
+        vehiclePlate: {
+            type: DataTypes.STRING
+        },
+        serviceAreas: {
+            type: DataTypes.ARRAY(DataTypes.STRING)
+        },
+        specializations: {
+            type: DataTypes.ARRAY(DataTypes.STRING)
+        },
+        yearsOfExperience: {
+            type: DataTypes.INTEGER
+        },
+        shuttleCapacity: {
+            type: DataTypes.INTEGER
+        },
+        careType: {
+            type: DataTypes.ENUM('elderly', 'child', 'medical', 'specialized')
+        }
+    },
+    walletBalance: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0
+    },
+    isOnline: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    currentLocation: {
+        type: DataTypes.GEOMETRY('POINT', 4326),
+        allowNull: true
+    },
+    rejectionReason: {
+        type: DataTypes.STRING
     }
 }, {
     timestamps: true,

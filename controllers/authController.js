@@ -1,8 +1,10 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
-const db = require('../../config/db');
+const User = require('../models/UserMongo');
+const mongoose = require('mongoose');
 
 // Helper function to generate OTP
 const generateOTP = () => {
@@ -384,106 +386,128 @@ exports.login = async (req, res) => {
       // Generate new OTP for verification
       const otp = generateOTP();
       const expiryTime = new Date();
-      expiryTime.setMinutes(expiryTime.getMinutes() + 10); // OTP valid for 10 minutes
       
-      // Store OTP in database
-      await db.query(
-        'INSERT INTO otp_verifications (user_id, phone, email, otp, type, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
-        [user.id, user.phone, user.email, otp, 'phone', expiryTime]
-      );
-      
-      // Send OTP via SMS (mock implementation)
-      console.log(`OTP sent to ${user.phone}: ${otp}`);
-      
-      // Set partial user session
-      req.session.user = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        is_verified: false
-      };
-      
-      return res.status(200).json({
-        message: 'Please verify your phone number to continue.',
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          is_verified: false
-        },
-        verification_required: true
+      return res.status(403).json({ 
+        success: false,
+        message: user.verification_status === 'pending' ? 
+          'Your account is pending verification. Please wait for admin approval.' : 
+          'Your account verification was rejected. Please contact support.',
+        verification_status: user.verification_status,
+        rejection_reason: user.rejection_reason || null
       });
     }
     
-    // Set user session
-    req.session.user = {
-      id: user.id,
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role }, 
+      process.env.SESSION_SECRET, 
+      { expiresIn: '24h' }
+    );
+    
+    // Prepare user data for response (excluding sensitive information)
+    const userData = {
+      id: user._id,
+      name: user.name,
       email: user.email,
+      phone: user.phone,
       role: user.role,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      is_verified: true
+      profile_image: user.profile_image,
+      verification_status: user.verification_status
     };
     
-    // Return user data based on role
-    let additionalData = {};
-    
-    if (user.role === 'driver') {
-      const [driverData] = await db.query(
-        'SELECT * FROM drivers WHERE user_id = ?',
-        [user.id]
-      );
-      if (driverData.length > 0) {
-        additionalData = driverData[0];
-      }
-    } else if (user.role === 'caretaker') {
-      const [caretakerData] = await db.query(
-        'SELECT * FROM caretakers WHERE user_id = ?',
-        [user.id]
-      );
-      if (caretakerData.length > 0) {
-        additionalData = caretakerData[0];
-      }
-    } else if (user.role === 'shuttle_driver') {
-      const [shuttleData] = await db.query(
-        'SELECT * FROM shuttle_services WHERE user_id = ?',
-        [user.id]
-      );
-      if (shuttleData.length > 0) {
-        additionalData = shuttleData[0];
-      }
-    } else if (user.role === 'customer') {
-      const [customerData] = await db.query(
-        'SELECT * FROM customers WHERE user_id = ?',
-        [user.id]
-      );
-      if (customerData.length > 0) {
-        additionalData = customerData[0];
-      }
+    // Add role-specific data
+    if (user.role === 'driver' || user.role === 'caretaker' || user.role === 'shuttle_driver') {
+      userData.service_details = user.service_details;
+      userData.rating = user.rating;
+      userData.total_rides = user.total_rides;
+      userData.total_earnings = user.total_earnings;
+      userData.is_online = user.is_online;
     }
     
     res.status(200).json({
+      success: true,
       message: 'Login successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        profile_photo: user.profile_photo,
-        is_verified: true,
-        ...additionalData
-      }
+      token,
+      user: userData
     });
     
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// Signup user
+exports.signup = async (req, res) => {
+  try {
+    // Extract required fields
+    const {
+      email, phone, password, role, first_name, last_name, gender, date_of_birth,
+      address, city, state, pincode, id_proof_type, id_proof_number,
+      emergency_contact_name, emergency_contact_phone, upi_id
+    } = req.body;
+    
+    // Check if email or phone already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create new user
+    const user = new User({
+      email,
+      phone,
+      password: hashedPassword,
+      role,
+      first_name,
+      last_name,
+      gender,
+      date_of_birth,
+      address,
+      city,
+      state,
+      pincode,
+      id_proof_type,
+      id_proof_number,
+      emergency_contact_name,
+      emergency_contact_phone,
+      upi_id
+    });
+    
+    // Save user to database
+    await user.save();
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role }, 
+      process.env.SESSION_SECRET, 
+      { expiresIn: '24h' }
+    );
+    
+    // Prepare user data for response (excluding sensitive information)
+    const userData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      profile_image: user.profile_image,
+      verification_status: user.verification_status
+    };
+    
+    res.status(201).json({
+      success: true,
+      message: 'Signup successful',
+      token,
+      user: userData
+    });
+    
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 

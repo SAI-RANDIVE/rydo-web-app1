@@ -1,6 +1,6 @@
 /**
- * RYDO Web App - Ultra Simple Server
- * Minimal server for Render.com deployment
+ * RYDO Web App - Server
+ * MongoDB-integrated server for Render.com deployment
  */
 
 const express = require('express');
@@ -14,8 +14,15 @@ const cors = require('cors');
 // Load environment variables
 dotenv.config({ path: './.env.render.final' });
 
+// Import models
+const User = require('./models/UserMongo');
+const Booking = require('./models/BookingMongo');
+
+// Import middleware
+const { authenticateToken, isAdmin, isVerifier, isServiceProvider, isCustomer } = require('./middleware/auth');
+
 const app = express();
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3002;
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
@@ -29,58 +36,17 @@ mongoose.connect(process.env.MONGODB_URI, {
   console.log('Using in-memory data as fallback');
 });
 
-// Define User Schema
-const userSchema = new mongoose.Schema({
-  first_name: { type: String, required: true },
-  last_name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  phone: { type: String, required: true },
-  password: { type: String, required: true },
-  role: { type: String, required: true, enum: ['customer', 'driver', 'caretaker', 'shuttle_driver', 'admin'] },
-  profile_image: { type: String, default: '/images/default-profile.png' },
-  is_active: { type: Boolean, default: true },
-  is_verified: { type: Boolean, default: false },
-  is_available: { type: Boolean, default: false },
-  average_rating: { type: Number, default: 0 },
-  total_rides: { type: Number, default: 0 },
-  wallet_balance: { type: Number, default: 0 },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now }
-});
-
-// Define Vehicle Schema
-const vehicleSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  vehicle_type: { type: String, required: true },
-  vehicle_make: { type: String, required: true },
-  vehicle_model: { type: String, required: true },
-  vehicle_year: { type: Number, required: true },
-  vehicle_color: { type: String, required: true },
-  vehicle_number: { type: String, required: true },
-  vehicle_capacity: { type: Number, default: 4 },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now }
-});
-
-// Define User Location Schema
-const userLocationSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  latitude: { type: Number, required: true },
-  longitude: { type: Number, required: true },
-  accuracy: { type: Number },
-  updated_at: { type: Date, default: Date.now }
-});
-
-// Create models
-const User = mongoose.model('User', userSchema);
-const Vehicle = mongoose.model('Vehicle', vehicleSchema);
-const UserLocation = mongoose.model('UserLocation', userLocationSchema);
-
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Import API routes
+const apiRoutes = require('./routes/api');
+
+// Use API routes
+app.use('/api', apiRoutes);
 
 // Log when the server starts
 console.log(`Starting RYDO Web App server...`);
@@ -93,43 +59,276 @@ app.get('/api/status', (req, res) => {
   res.json({ status: 'online', version: '1.0.0' });
 });
 
-// Simple mock authentication endpoints
-app.post('/api/auth/login', (req, res) => {
-  res.json({
-    success: true,
-    token: 'demo-token-123',
-    user: { 
-      id: 'user123',
-      first_name: 'Demo', 
-      last_name: 'User',
-      email: 'demo@example.com',
-      phone: '+91 9876543210',
-      role: 'customer' 
+// Authentication endpoints
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
+      });
     }
-  });
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format'
+      });
+    }
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Fallback to hardcoded users if database is not connected
+      const validUsers = [
+        {
+          _id: 'usr_001',
+          email: 'customer@example.com',
+          password: '$2a$10$XgNuWDXMQte9.OUJsaDcMeXbfXZn0kidRdvZf9nSvQqFYpCuYq1ZW', // password123
+          name: 'Demo Customer',
+          role: 'customer'
+        },
+        {
+          _id: 'usr_002',
+          email: 'driver@example.com',
+          password: '$2a$10$XgNuWDXMQte9.OUJsaDcMeXbfXZn0kidRdvZf9nSvQqFYpCuYq1ZW', // password123
+          name: 'Demo Driver',
+          role: 'driver'
+        },
+        {
+          _id: 'usr_003',
+          email: 'admin@example.com',
+          password: '$2a$10$XgNuWDXMQte9.OUJsaDcMeXbfXZn0kidRdvZf9nSvQqFYpCuYq1ZW', // password123
+          name: 'Demo Admin',
+          role: 'admin'
+        }
+      ];
+      
+      const user = validUsers.find(u => u.email === email);
+      
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+      
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user._id, email: user.email, role: user.role },
+        process.env.SESSION_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      // Remove password from user object before sending response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      return res.json({
+        success: true,
+        message: 'Login successful',
+        token,
+        user: userWithoutPassword
+      });
+    }
+    
+    // Find user in the database
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    // Check if user exists
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+    
+    // Check if password matches
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.SESSION_SECRET,
+      { expiresIn: '24h' }
+    );
+    
+    // Remove password from user object before sending response
+    const userObject = user.toObject();
+    delete userObject.password;
+    
+    res.json({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: userObject
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred during login. Please try again.'
+    });
+  }
 });
 
-app.post('/api/auth/signup', (req, res) => {
-  // Extract user data from request body
-  const { first_name, last_name, email, phone, role } = req.body;
-  
-  // Generate a unique user ID
-  const userId = 'user_' + Date.now();
-  
-  // Create a response with the user's actual data
-  res.json({
-    success: true,
-    token: 'demo-token-' + userId,
-    user: { 
-      id: userId,
-      first_name: first_name || 'New', 
-      last_name: last_name || 'User',
-      email: email || 'user@example.com',
-      phone: phone || '+91 9876543211',
-      role: role || 'customer' 
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { name, email, phone, password, role } = req.body;
+    
+    // Validate required fields
+    if (!name || !email || !phone || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
     }
-  });
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format'
+      });
+    }
+    
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
+    }
+    
+    // Validate role
+    const validRoles = ['customer', 'driver', 'caretaker', 'shuttle_driver', 'admin', 'verifier'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role'
+      });
+    }
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Fallback to in-memory signup if database is not connected
+      // Hash the password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      
+      // Generate a unique user ID
+      const userId = 'user_' + Date.now();
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: userId, email, role },
+        process.env.SESSION_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      return res.status(201).json({
+        success: true,
+        message: 'Signup successful',
+        token,
+        user: {
+          id: userId,
+          name,
+          email,
+          phone,
+          role
+        }
+      });
+    }
+    
+    // Check if email already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already registered'
+      });
+    }
+    
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Create new user
+    const newUser = new User({
+      name,
+      email: email.toLowerCase(),
+      phone,
+      password: hashedPassword,
+      role,
+      verification_status: role === 'customer' ? 'verified' : 'pending',
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+    
+    // Save user to database
+    const savedUser = await newUser.save();
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: savedUser._id, email: savedUser.email, role: savedUser.role },
+      process.env.SESSION_SECRET,
+      { expiresIn: '24h' }
+    );
+    
+    // Remove password from user object before sending response
+    const userObject = savedUser.toObject();
+    delete userObject.password;
+    
+    res.status(201).json({
+      success: true,
+      message: 'Signup successful',
+      token,
+      user: userObject
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred during signup. Please try again.'
+    });
+  }
 });
+
+// Authentication middleware
+function authenticateTokenLocal(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied. No token provided.' });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: 'Invalid token.' });
+  }
+}
 
 // Serve static HTML pages
 app.get('/login.html', (req, res) => {
@@ -511,6 +710,440 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching user profile'
+    });
+  }
+});
+
+// Dashboard stats endpoint
+app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
+  try {
+    // Get user ID from the authenticated token
+    const userId = req.user.id;
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Generate random stats if database is not connected
+      const userRole = req.user.role || 'customer';
+      let stats = {};
+      
+      switch(userRole) {
+        case 'customer':
+          // Generate random stats for customer
+          const totalRides = Math.floor(Math.random() * 50) + 10;
+          
+          stats = {
+            total_rides: totalRides,
+            caretaker_bookings: Math.floor(Math.random() * 10),
+            wallet_balance: Math.floor(Math.random() * 2000) + 500,
+            average_rating: (4 + Math.random()).toFixed(1)
+          };
+          break;
+        case 'driver':
+          // Generate random stats for driver
+          const rides = Math.floor(Math.random() * 100) + 20;
+          const earnings = Math.floor(Math.random() * 10000) + 5000;
+          
+          stats = {
+            total_rides: rides,
+            total_earnings: earnings,
+            average_rating: (4 + Math.random()).toFixed(1),
+            hours_online: Math.floor(Math.random() * 200) + 50
+          };
+          break;
+        case 'caretaker':
+          // Generate random stats for caretaker
+          const appointments = Math.floor(Math.random() * 30) + 5;
+          const earnings2 = Math.floor(Math.random() * 8000) + 3000;
+          
+          stats = {
+            total_appointments: appointments,
+            total_earnings: earnings2,
+            average_rating: (4 + Math.random()).toFixed(1),
+            hours_online: Math.floor(Math.random() * 150) + 30
+          };
+          break;
+        default:
+          stats = {
+            total_rides: 0,
+            total_earnings: 0,
+            average_rating: '0.0',
+            hours_online: 0
+          };
+      }
+      
+      return res.json({
+        success: true,
+        stats: stats
+      });
+    }
+    
+    // If database is connected, fetch real stats from database
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    // Get user role and fetch appropriate stats
+    const userRole = user.role;
+    let stats = {};
+    
+    switch(userRole) {
+      case 'customer':
+        stats = {
+          total_rides: user.total_rides || 0,
+          caretaker_bookings: 0, // This would be fetched from a bookings collection
+          wallet_balance: user.wallet_balance || 0,
+          average_rating: user.average_rating || 0
+        };
+        break;
+      case 'driver':
+        stats = {
+          total_rides: user.total_rides || 0,
+          total_earnings: user.wallet_balance || 0,
+          average_rating: user.average_rating || 0,
+          hours_online: 0 // This would be calculated from a sessions collection
+        };
+        break;
+      case 'caretaker':
+        stats = {
+          total_appointments: 0, // This would be fetched from an appointments collection
+          total_earnings: user.wallet_balance || 0,
+          average_rating: user.average_rating || 0,
+          hours_online: 0 // This would be calculated from a sessions collection
+        };
+        break;
+      default:
+        stats = {
+          total_rides: 0,
+          total_earnings: 0,
+          average_rating: 0,
+          hours_online: 0
+        };
+    }
+    
+    res.json({
+      success: true,
+      stats: stats
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching dashboard stats'
+    });
+  }
+});
+
+// Recent activity endpoint
+app.get('/api/customer/recent-activity', authenticateToken, async (req, res) => {
+  try {
+    // Get user ID from the authenticated token
+    const userId = req.user.id;
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Generate mock activities if database is not connected
+      const mockActivities = [
+        {
+          id: 'act_001',
+          title: 'Ride Completed',
+          description: 'Your ride from City Center to Airport was completed',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+          status: 'success',
+          icon: 'fa-check-circle'
+        },
+        {
+          id: 'act_002',
+          title: 'Booking Confirmed',
+          description: 'Your booking for tomorrow at 10:00 AM is confirmed',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+          status: 'info',
+          icon: 'fa-calendar-check'
+        },
+        {
+          id: 'act_003',
+          title: 'Payment Received',
+          description: 'Payment of ₹450 was added to your wallet',
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
+          status: 'success',
+          icon: 'fa-wallet'
+        }
+      ];
+      
+      return res.json({
+        success: true,
+        activities: mockActivities
+      });
+    }
+    
+    // If database is connected, fetch real activities from database
+    // This would typically query a bookings or activities collection
+    // For now, we'll return the same mock data
+    const mockActivities = [
+      {
+        id: 'act_001',
+        title: 'Ride Completed',
+        description: 'Your ride from City Center to Airport was completed',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+        status: 'success',
+        icon: 'fa-check-circle'
+      },
+      {
+        id: 'act_002',
+        title: 'Booking Confirmed',
+        description: 'Your booking for tomorrow at 10:00 AM is confirmed',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+        status: 'info',
+        icon: 'fa-calendar-check'
+      },
+      {
+        id: 'act_003',
+        title: 'Payment Received',
+        description: 'Payment of ₹450 was added to your wallet',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
+        status: 'success',
+        icon: 'fa-wallet'
+      }
+    ];
+    
+    res.json({
+      success: true,
+      activities: mockActivities
+    });
+  } catch (error) {
+    console.error('Error fetching recent activity:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching recent activity'
+    });
+  }
+});
+
+// Define Booking Schema
+const bookingSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  service_type: { type: String, required: true, enum: ['driver', 'caretaker', 'shuttle'] },
+  pickup_location: { type: String },
+  dropoff_location: { type: String },
+  service_location: { type: String },
+  booking_date: { type: String, required: true },
+  booking_time: { type: String, required: true },
+  duration_hours: { type: Number },
+  vehicle_type: { type: String },
+  passengers: { type: Number },
+  special_instructions: { type: String },
+  medical_conditions: { type: String },
+  care_type: { type: String },
+  shuttle_type: { type: String },
+  status: { type: String, default: 'pending', enum: ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'] },
+  fare: { type: Number, required: true },
+  distance: { type: Number },
+  duration: { type: Number },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
+});
+
+// Create Booking model
+const Booking = mongoose.model('Booking', bookingSchema);
+
+// Create booking endpoint
+app.post('/api/customer/create-booking', authenticateToken, async (req, res) => {
+  try {
+    // Get user ID from the authenticated token
+    const userId = req.user.id;
+    
+    // Get booking data from request body
+    const {
+      service_type,
+      pickup_location,
+      dropoff_location,
+      service_location,
+      booking_date,
+      booking_time,
+      duration_hours,
+      vehicle_type,
+      passengers,
+      special_instructions,
+      medical_conditions,
+      care_type,
+      shuttle_type,
+      fare,
+      distance,
+      duration
+    } = req.body;
+    
+    // Validate required fields based on service type
+    if (!service_type || !booking_date || !booking_time || !fare) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Additional validation based on service type
+    if (service_type === 'driver' && (!pickup_location || !dropoff_location)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Pickup and dropoff locations are required for driver service'
+      });
+    }
+    
+    if (service_type === 'caretaker' && !service_location) {
+      return res.status(400).json({
+        success: false,
+        message: 'Service location is required for caretaker service'
+      });
+    }
+    
+    if (service_type === 'shuttle' && (!pickup_location || !dropoff_location)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Pickup and dropoff locations are required for shuttle service'
+      });
+    }
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Generate a mock booking if database is not connected
+      const mockBooking = {
+        id: `booking_${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`,
+        user_id: userId,
+        service_type,
+        pickup_location,
+        dropoff_location,
+        service_location,
+        booking_date,
+        booking_time,
+        duration_hours,
+        vehicle_type,
+        passengers,
+        special_instructions,
+        medical_conditions,
+        care_type,
+        shuttle_type,
+        status: 'confirmed',
+        fare,
+        distance,
+        duration,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      return res.status(201).json({
+        success: true,
+        message: 'Booking created successfully',
+        booking: mockBooking
+      });
+    }
+    
+    // If database is connected, create a new booking
+    const newBooking = new Booking({
+      user_id: userId,
+      service_type,
+      pickup_location,
+      dropoff_location,
+      service_location,
+      booking_date,
+      booking_time,
+      duration_hours,
+      vehicle_type,
+      passengers,
+      special_instructions,
+      medical_conditions,
+      care_type,
+      shuttle_type,
+      fare,
+      distance,
+      duration
+    });
+    
+    // Save booking to database
+    await newBooking.save();
+    
+    res.status(201).json({
+      success: true,
+      message: 'Booking created successfully',
+      booking: newBooking
+    });
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while creating the booking'
+    });
+  }
+});
+
+// Get booking history endpoint
+app.get('/api/customer/booking-history', authenticateToken, async (req, res) => {
+  try {
+    // Get user ID from the authenticated token
+    const userId = req.user.id;
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Generate mock bookings if database is not connected
+      const mockBookings = [
+        {
+          id: 'booking_0001',
+          service_type: 'driver',
+          pickup_location: 'Home',
+          dropoff_location: 'Office',
+          booking_date: '2025-05-01',
+          booking_time: '09:00',
+          fare: 350,
+          status: 'completed',
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString() // 2 days ago
+        },
+        {
+          id: 'booking_0002',
+          service_type: 'caretaker',
+          service_location: 'Home',
+          booking_date: '2025-05-02',
+          booking_time: '10:00',
+          duration_hours: 3,
+          care_type: 'Elderly Care',
+          fare: 750,
+          status: 'completed',
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() // 1 day ago
+        },
+        {
+          id: 'booking_0003',
+          service_type: 'shuttle',
+          pickup_location: 'Home',
+          dropoff_location: 'Airport',
+          booking_date: '2025-05-03',
+          booking_time: '14:00',
+          passengers: 4,
+          shuttle_type: 'Airport Shuttle',
+          fare: 600,
+          status: 'confirmed',
+          created_at: new Date().toISOString() // Today
+        }
+      ];
+      
+      return res.json({
+        success: true,
+        bookings: mockBookings
+      });
+    }
+    
+    // If database is connected, fetch bookings from database
+    const bookings = await Booking.find({ user_id: userId }).sort({ created_at: -1 });
+    
+    res.json({
+      success: true,
+      bookings
+    });
+  } catch (error) {
+    console.error('Error fetching booking history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching booking history'
     });
   }
 });
