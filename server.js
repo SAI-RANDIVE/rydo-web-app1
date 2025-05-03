@@ -83,47 +83,38 @@ app.post('/api/auth/login', async (req, res) => {
     
     // Check if MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
-      // Fallback to hardcoded users if database is not connected
-      const validUsers = [
-        {
-          _id: 'usr_001',
-          email: 'customer@example.com',
-          password: '$2a$10$XgNuWDXMQte9.OUJsaDcMeXbfXZn0kidRdvZf9nSvQqFYpCuYq1ZW', // password123
-          name: 'Demo Customer',
-          role: 'customer'
-        },
-        {
-          _id: 'usr_002',
-          email: 'driver@example.com',
-          password: '$2a$10$XgNuWDXMQte9.OUJsaDcMeXbfXZn0kidRdvZf9nSvQqFYpCuYq1ZW', // password123
-          name: 'Demo Driver',
-          role: 'driver'
-        },
-        {
-          _id: 'usr_003',
-          email: 'admin@example.com',
-          password: '$2a$10$XgNuWDXMQte9.OUJsaDcMeXbfXZn0kidRdvZf9nSvQqFYpCuYq1ZW', // password123
-          name: 'Demo Admin',
-          role: 'admin'
-        }
-      ];
+      // DEMO MODE: Accept any login credentials for demonstration purposes
+      console.log('Demo mode: Accepting any login credentials');
       
-      const user = validUsers.find(u => u.email === email);
+      // Extract username from email (before @)
+      const username = email.split('@')[0];
       
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid email or password'
-        });
+      // Determine role based on email domain or default to customer
+      let role = 'customer';
+      if (email.includes('driver')) {
+        role = 'driver';
+      } else if (email.includes('admin')) {
+        role = 'admin';
+      } else if (email.includes('caretaker')) {
+        role = 'caretaker';
+      } else if (email.includes('shuttle')) {
+        role = 'shuttle_driver';
       }
       
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid email or password'
-        });
-      }
+      // Create a demo user
+      const user = {
+        _id: `usr_${Date.now()}`,
+        email: email,
+        name: username.charAt(0).toUpperCase() + username.slice(1),
+        role: role,
+        first_name: username.charAt(0).toUpperCase() + username.slice(1),
+        last_name: 'Demo',
+        phone: '+91 9876543210',
+        wallet_balance: 2500,
+        total_rides: Math.floor(Math.random() * 20)
+      };
+      
+      // For demo purposes, we'll skip password validation
       
       // Generate JWT token
       const token = jwt.sign(
@@ -191,15 +182,18 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/signup', async (req, res) => {
   try {
-    const { name, email, phone, password, role } = req.body;
+    const { first_name, last_name, email, phone, password, role } = req.body;
     
     // Validate required fields
-    if (!name || !email || !phone || !password || !role) {
+    if (!first_name || !last_name || !email || !phone || !password || !role) {
       return res.status(400).json({
         success: false,
         message: 'All fields are required'
       });
     }
+    
+    // Combine first_name and last_name for backwards compatibility
+    const name = `${first_name} ${last_name}`;
     
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -362,6 +356,31 @@ app.get('/terms', (req, res) => {
 
 app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
+});
+
+// Dashboard routes
+app.get('/customer-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'customer-dashboard.html'));
+});
+
+app.get('/driver-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'driver-dashboard.html'));
+});
+
+app.get('/caretaker-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'caretaker-dashboard.html'));
+});
+
+app.get('/shuttle-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'shuttle-dashboard.html'));
+});
+
+app.get('/admin-dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'admin-dashboard.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'dashboard.html'));
 });
 
 // Authentication endpoints

@@ -320,6 +320,7 @@ exports.driverSignup = async (req, res) => {
 };
 
 // Login user
+const jwt = require('jsonwebtoken');
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -386,9 +387,19 @@ exports.login = async (req, res) => {
       last_name: user.lastName,
       is_verified: true
     };
-    
+
+    // Generate JWT token
+    const tokenPayload = {
+      id: user._id,
+      email: user.email,
+      role: user.userType
+    };
+    const jwtSecret = process.env.SESSION_SECRET || 'your_local_secret';
+    const token = jwt.sign(tokenPayload, jwtSecret, { expiresIn: '7d' });
+
     res.status(200).json({
       message: 'Login successful',
+      token,
       user: {
         id: user._id,
         email: user.email,
@@ -398,7 +409,7 @@ exports.login = async (req, res) => {
         is_verified: true
       }
     });
-    
+
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error: ' + (error.message || 'Unknown error') });
