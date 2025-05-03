@@ -5,15 +5,82 @@
 
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const cors = require('cors');
 
-// Initialize express app
+// Load environment variables
+dotenv.config({ path: './.env.render.final' });
+
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3003;
 
-// Basic middleware
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected successfully'))
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  // Fall back to in-memory data if database connection fails
+  console.log('Using in-memory data as fallback');
+});
+
+// Define User Schema
+const userSchema = new mongoose.Schema({
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: { type: String, required: true },
+  password: { type: String, required: true },
+  role: { type: String, required: true, enum: ['customer', 'driver', 'caretaker', 'shuttle_driver', 'admin'] },
+  profile_image: { type: String, default: '/images/default-profile.png' },
+  is_active: { type: Boolean, default: true },
+  is_verified: { type: Boolean, default: false },
+  is_available: { type: Boolean, default: false },
+  average_rating: { type: Number, default: 0 },
+  total_rides: { type: Number, default: 0 },
+  wallet_balance: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
+});
+
+// Define Vehicle Schema
+const vehicleSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  vehicle_type: { type: String, required: true },
+  vehicle_make: { type: String, required: true },
+  vehicle_model: { type: String, required: true },
+  vehicle_year: { type: Number, required: true },
+  vehicle_color: { type: String, required: true },
+  vehicle_number: { type: String, required: true },
+  vehicle_capacity: { type: Number, default: 4 },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now }
+});
+
+// Define User Location Schema
+const userLocationSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  latitude: { type: Number, required: true },
+  longitude: { type: Number, required: true },
+  accuracy: { type: Number },
+  updated_at: { type: Date, default: Date.now }
+});
+
+// Create models
+const User = mongoose.model('User', userSchema);
+const Vehicle = mongoose.model('Vehicle', vehicleSchema);
+const UserLocation = mongoose.model('UserLocation', userLocationSchema);
+
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
-app.use(express.static('frontend'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Log when the server starts
 console.log(`Starting RYDO Web App server...`);
@@ -98,195 +165,294 @@ app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'privacy-policy.html'));
 });
 
+// Authentication middleware
+const authenticateToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Access denied. No token provided.' });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, message: 'Invalid token.' });
+  }
+};
+
 // Authentication endpoints
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  
-  // Validate required fields
-  if (!email || !password) {
-    return res.status(400).json({
-      success: false,
-      message: 'Email and password are required'
-    });
-  }
-  
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid email format'
-    });
-  }
-  
-  // In a real app, we would check against a database
-  // For demo purposes, we'll use some hardcoded credentials
-  const validUsers = [
-    {
-      id: 'usr_001',
-      email: 'customer@example.com',
-      password: 'password123',
-      role: 'customer',
-      first_name: 'John',
-      last_name: 'Doe',
-      phone: '+91 9876543210',
-      profile_image: '/images/profile/customer.jpg'
-    },
-    {
-      id: 'usr_002',
-      email: 'driver@example.com',
-      password: 'password123',
-      role: 'driver',
-      first_name: 'Rahul',
-      last_name: 'Singh',
-      phone: '+91 9876543211',
-      profile_image: '/images/profile/driver.jpg',
-      is_available: true,
-      vehicle_type: 'sedan'
-    },
-    {
-      id: 'usr_003',
-      email: 'caretaker@example.com',
-      password: 'password123',
-      role: 'caretaker',
-      first_name: 'Priya',
-      last_name: 'Sharma',
-      phone: '+91 9876543212',
-      profile_image: '/images/profile/caretaker.jpg',
-      specialization: 'elderly care'
-    },
-    {
-      id: 'usr_004',
-      email: 'shuttle@example.com',
-      password: 'password123',
-      role: 'shuttle_driver',
-      first_name: 'Suresh',
-      last_name: 'Kumar',
-      phone: '+91 9876543213',
-      profile_image: '/images/profile/shuttle.jpg',
-      vehicle_capacity: 12
-    },
-    {
-      id: 'usr_005',
-      email: 'admin@example.com',
-      password: 'admin123',
-      role: 'admin',
-      first_name: 'Admin',
-      last_name: 'User',
-      phone: '+91 9876543214',
-      profile_image: '/images/profile/admin.jpg'
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required'
+      });
     }
-  ];
-  
-  // Find user with matching email
-  const user = validUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
-  
-  // Check if user exists and password matches
-  if (!user || user.password !== password) {
-    return res.status(401).json({
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format'
+      });
+    }
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Fallback to hardcoded users if database is not connected
+      const validUsers = [
+        {
+          _id: 'usr_001',
+          email: 'customer@example.com',
+          password: '$2a$10$XFE/UQEjIjzxpQnFbS0Fwe7V8CvlLQJgFqJUEfH9GJxLG/G.qIxJi', // hashed 'password123'
+          role: 'customer',
+          first_name: 'John',
+          last_name: 'Doe',
+          phone: '+91 9876543210',
+          profile_image: '/images/profile/customer.jpg'
+        },
+        {
+          _id: 'usr_002',
+          email: 'driver@example.com',
+          password: '$2a$10$XFE/UQEjIjzxpQnFbS0Fwe7V8CvlLQJgFqJUEfH9GJxLG/G.qIxJi', // hashed 'password123'
+          role: 'driver',
+          first_name: 'Rahul',
+          last_name: 'Singh',
+          phone: '+91 9876543211',
+          profile_image: '/images/profile/driver.jpg',
+          is_available: true
+        }
+      ];
+      
+      // Find user with matching email
+      const user = validUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      
+      // Check if user exists
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+      
+      // Check if password matches
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password'
+        });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user._id, email: user.email, role: user.role },
+        process.env.SESSION_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      // Remove password from user object before sending response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      return res.json({
+        success: true,
+        message: 'Login successful',
+        token,
+        user: userWithoutPassword
+      });
+    }
+    
+    // Find user in the database
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    // Check if user exists
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+    
+    // Check if password matches
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.SESSION_SECRET,
+      { expiresIn: '24h' }
+    );
+    
+    // Remove password from user object before sending response
+    const userObject = user.toObject();
+    delete userObject.password;
+    
+    res.json({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: userObject
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
       success: false,
-      message: 'Invalid email or password'
+      message: 'An error occurred during login. Please try again.'
     });
   }
-  
-  // Generate JWT token (in a real app, use a proper JWT library)
-  const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${Buffer.from(JSON.stringify({
-    id: user.id,
-    email: user.email,
-    role: user.role
-  })).toString('base64')}.SIGNATURE`;
-  
-  // Remove password from user object before sending response
-  const { password: _, ...userWithoutPassword } = user;
-  
-  res.json({
-    success: true,
-    message: 'Login successful',
-    token,
-    user: userWithoutPassword
-  });
 });
 
-app.post('/api/auth/signup', (req, res) => {
-  const { first_name, last_name, email, phone, password, role } = req.body;
-  
-  // Validate required fields
-  if (!first_name || !last_name || !email || !phone || !password || !role) {
-    return res.status(400).json({
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { first_name, last_name, email, phone, password, role } = req.body;
+    
+    // Validate required fields
+    if (!first_name || !last_name || !email || !phone || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format'
+      });
+    }
+    
+    // Validate phone format (simple validation for demo)
+    const phoneRegex = /^\+?[0-9\s]{10,15}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone number format'
+      });
+    }
+    
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long'
+      });
+    }
+    
+    // Validate role
+    const validRoles = ['customer', 'driver', 'caretaker', 'shuttle_driver'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role'
+      });
+    }
+    
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Fallback to in-memory signup if database is not connected
+      // Hash the password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      
+      // Generate a new user ID
+      const userId = `usr_${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: userId, email, role },
+        process.env.SESSION_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      // Create user object
+      const newUser = {
+        _id: userId,
+        first_name,
+        last_name,
+        email,
+        phone,
+        role,
+        created_at: new Date().toISOString()
+      };
+      
+      return res.status(201).json({
+        success: true,
+        message: 'Account created successfully',
+        token,
+        user: newUser
+      });
+    }
+    
+    // Check if email already exists in the database
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already registered'
+      });
+    }
+    
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // Create new user
+    const newUser = new User({
+      first_name,
+      last_name,
+      email: email.toLowerCase(),
+      phone,
+      password: hashedPassword,
+      role,
+      is_verified: true // For demo purposes, auto-verify users
+    });
+    
+    // Save user to database
+    await newUser.save();
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email, role: newUser.role },
+      process.env.SESSION_SECRET,
+      { expiresIn: '24h' }
+    );
+    
+    // Remove password from user object before sending response
+    const userObject = newUser.toObject();
+    delete userObject.password;
+    
+    res.status(201).json({
+      success: true,
+      message: 'Account created successfully',
+      token,
+      user: userObject
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({
       success: false,
-      message: 'All fields are required'
+      message: 'An error occurred during signup. Please try again.'
     });
   }
-  
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid email format'
-    });
-  }
-  
-  // Validate phone format (simple validation for demo)
-  const phoneRegex = /^\+?[0-9\s]{10,15}$/;
-  if (!phoneRegex.test(phone)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid phone number format'
-    });
-  }
-  
-  // Validate password strength
-  if (password.length < 8) {
-    return res.status(400).json({
-      success: false,
-      message: 'Password must be at least 8 characters long'
-    });
-  }
-  
-  // Validate role
-  const validRoles = ['customer', 'driver', 'caretaker', 'shuttle_driver'];
-  if (!validRoles.includes(role)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid role'
-    });
-  }
-  
-  // In a real app, we would check if the email already exists in the database
-  // and then create a new user record
-  
-  // Generate a new user ID
-  const userId = `usr_${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-  
-  // Generate JWT token (in a real app, use a proper JWT library)
-  const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${Buffer.from(JSON.stringify({
-    id: userId,
-    email,
-    role
-  })).toString('base64')}.SIGNATURE`;
-  
-  // Create user object
-  const newUser = {
-    id: userId,
-    first_name,
-    last_name,
-    email,
-    phone,
-    role,
-    created_at: new Date().toISOString()
-  };
-  
-  res.status(201).json({
-    success: true,
-    message: 'Account created successfully',
-    token,
-    user: newUser
-  });
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  // In a real app, we would invalidate the token in a token blacklist
+  // In a real app with refresh tokens, we would invalidate the token in a token blacklist
   // For this demo, we'll just return a success response
   res.json({
     success: true,
@@ -294,44 +460,57 @@ app.post('/api/auth/logout', (req, res) => {
   });
 });
 
-app.get('/api/auth/verify', (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'No token provided'
-    });
-  }
-  
+app.get('/api/auth/verify', authenticateToken, (req, res) => {
+  // If the middleware passes, the token is valid
+  // Return user information from the token
+  res.json({
+    success: true,
+    message: 'Token is valid',
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role
+    }
+  });
+});
+
+// Get user profile
+app.get('/api/user/profile', authenticateToken, async (req, res) => {
   try {
-    // In a real app, we would verify the JWT token
-    // For this demo, we'll just check if it's in the expected format
-    const parts = token.split('.');
-    
-    if (parts.length !== 3) {
-      throw new Error('Invalid token format');
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      // Fallback to hardcoded user if database is not connected
+      return res.json({
+        success: true,
+        user: {
+          id: req.user.id,
+          email: req.user.email,
+          role: req.user.role,
+          first_name: 'Demo',
+          last_name: 'User'
+        }
+      });
     }
     
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+    // Find user in database
+    const user = await User.findById(req.user.id).select('-password');
     
-    if (!payload.id || !payload.email || !payload.role) {
-      throw new Error('Invalid token payload');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
     }
     
     res.json({
       success: true,
-      message: 'Token is valid',
-      user: {
-        id: payload.id,
-        email: payload.email,
-        role: payload.role
-      }
+      user: user
     });
   } catch (error) {
-    res.status(401).json({
+    console.error('Get profile error:', error);
+    res.status(500).json({
       success: false,
-      message: 'Invalid token'
+      message: 'An error occurred while fetching user profile'
     });
   }
 });

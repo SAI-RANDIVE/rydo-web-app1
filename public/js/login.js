@@ -1,3 +1,8 @@
+/**
+ * Login JavaScript
+ * Handles user authentication with proper validation and database connection
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
     // Clear any stored credentials and session data for security
     document.getElementById('login-form')?.reset();
@@ -12,7 +17,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const passwordField = document.getElementById('password');
             if (passwordField) passwordField.value = '';
         }, 100);
+        
+        // Check for redirected error messages
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorMessage = urlParams.get('error');
+        if (errorMessage) {
+            showNotification(decodeURIComponent(errorMessage), 'error');
+        }
     }
+    
     // Toggle password visibility
     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
     togglePasswordButtons.forEach(button => {
@@ -47,9 +60,34 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
+            // Get form data
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const remember = document.getElementById('remember').checked;
+            
+            // Validate email and password
+            if (!email) {
+                showNotification('Email is required', 'error');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            if (!password) {
+                showNotification('Password is required', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
             
             try {
                 const response = await fetch('/api/auth/login', {
@@ -72,38 +110,85 @@ document.addEventListener('DOMContentLoaded', function() {
                         localStorage.setItem('user', JSON.stringify(data.user));
                     }
                     
-                    console.log('Login successful, redirecting to dashboard');
+                    // Show success message
+                    showNotification('Login successful! Redirecting...', 'success');
                     
-                    // Redirect based on user role
-                    if (data.user && data.user.role) {
-                        switch(data.user.role) {
-                            case 'customer':
-                                window.location.href = '/customer-dashboard';
-                                break;
-                            case 'driver':
-                                window.location.href = '/driver-dashboard';
-                                break;
-                            case 'caretaker':
-                                window.location.href = '/caretaker-dashboard';
-                                break;
-                            case 'shuttle_driver':
-                                window.location.href = '/shuttle-dashboard';
-                                break;
-                            default:
-                                window.location.href = '/dashboard';
+                    // Redirect based on user role after a short delay
+                    setTimeout(() => {
+                        if (data.user && data.user.role) {
+                            switch(data.user.role) {
+                                case 'customer':
+                                    window.location.href = '/customer-dashboard';
+                                    break;
+                                case 'driver':
+                                    window.location.href = '/driver-dashboard';
+                                    break;
+                                case 'caretaker':
+                                    window.location.href = '/caretaker-dashboard';
+                                    break;
+                                case 'shuttle_driver':
+                                    window.location.href = '/shuttle-dashboard';
+                                    break;
+                                case 'admin':
+                                    window.location.href = '/admin-dashboard';
+                                    break;
+                                default:
+                                    window.location.href = '/dashboard';
+                            }
+                        } else {
+                            // Fallback to customer dashboard if role is not specified
+                            window.location.href = '/dashboard';
                         }
-                    } else {
-                        // Fallback to customer dashboard if role is not specified
-                        window.location.href = '/dashboard';
-                    }
+                    }, 1000);
                 } else {
                     // Show error message
-                    alert(data.message || 'Login failed. Please check your credentials.');
+                    showNotification(data.message || 'Login failed. Please check your credentials.', 'error');
+                    
+                    // Reset button state
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert('An error occurred during login. Please try again.');
+                showNotification('An error occurred during login. Please try again.', 'error');
+                
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             }
         });
     }
 });
+
+/**
+ * Show notification message
+ * @param {string} message - The message to display
+ * @param {string} type - The type of notification (success, error, info, warning)
+ */
+function showNotification(message, type = 'info') {
+    const notificationContainer = document.createElement('div');
+    notificationContainer.className = `toast-notification ${type}`;
+    notificationContainer.innerHTML = `
+        <div class="toast-icon">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+        </div>
+        <div class="toast-message">${message}</div>
+    `;
+    
+    document.body.appendChild(notificationContainer);
+    
+    // Show notification
+    setTimeout(() => {
+        notificationContainer.classList.add('show');
+    }, 100);
+    
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+        notificationContainer.classList.remove('show');
+        
+        // Remove from DOM after animation
+        setTimeout(() => {
+            document.body.removeChild(notificationContainer);
+        }, 300);
+    }, 3000);
+}
