@@ -906,32 +906,7 @@ app.get('/api/customer/recent-activity', authenticateToken, async (req, res) => 
   }
 });
 
-// Define Booking Schema
-const bookingSchema = new mongoose.Schema({
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  service_type: { type: String, required: true, enum: ['driver', 'caretaker', 'shuttle'] },
-  pickup_location: { type: String },
-  dropoff_location: { type: String },
-  service_location: { type: String },
-  booking_date: { type: String, required: true },
-  booking_time: { type: String, required: true },
-  duration_hours: { type: Number },
-  vehicle_type: { type: String },
-  passengers: { type: Number },
-  special_instructions: { type: String },
-  medical_conditions: { type: String },
-  care_type: { type: String },
-  shuttle_type: { type: String },
-  status: { type: String, default: 'pending', enum: ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'] },
-  fare: { type: Number, required: true },
-  distance: { type: Number },
-  duration: { type: Number },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now }
-});
-
-// Create Booking model
-const Booking = mongoose.model('Booking', bookingSchema);
+// Using Booking model imported at the top of the file
 
 // Create booking endpoint
 app.post('/api/customer/create-booking', authenticateToken, async (req, res) => {
